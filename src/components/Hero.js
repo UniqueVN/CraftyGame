@@ -2,10 +2,10 @@ Crafty.c('Hero', {
 	init: function() {
 			//setup animations
 			this.requires("SpriteAnimation, Collision")
-			.animate("walk_left", 6, 3, 8)
-			.animate("walk_right", 9, 3, 11)
-			.animate("walk_up", 3, 3, 5)
-			.animate("walk_down", 0, 3, 2)
+			.animate("walk_left", 0, 1, 8)
+			.animate("walk_right", 0, 3, 8)
+			.animate("walk_up", 0, 0, 8)
+			.animate("walk_down", 0, 2, 8)
 			//change direction when a direction change event is received
 			.bind("NewDirection",
 				function (direction) {

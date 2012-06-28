@@ -16,7 +16,7 @@ Sprites = Backbone.Model.extend({
 			gameSprite : {
 				file: 'res/images/sprite.png',
 				tile: 16,
-				tile: 16,
+				tileh: 16,
 				elements: {
 					grass1: [0,0],
 					grass2: [1,0],
@@ -28,6 +28,14 @@ Sprites = Backbone.Model.extend({
 					player: [0,3]
 				}
 			},
+            charMale: {
+                file: 'res/images/charMale.png',
+                tile: 64,
+                tileh: 64,
+                elements: {
+                    malePlayer: [0, 0]
+                }
+            }
         }
     },
     initialize: function(){

@@ -1,12 +1,13 @@
 Config = Backbone.Model.extend({
     defaults: {
         renderType : 'Canvas',
-		CANVAS_WIDTH: 800,
-		CANVAS_HEIGHT: 600,
+		CANVAS_WIDTH: 1024,
+		CANVAS_HEIGHT: 768,
 		MAP_WIDTH: 60,
 		MAP_HEIGHT: 40,
 		TILE_SIZE: 32,
-		PLAYER_SPEED: 3.2
+		PLAYER_SIZE: 64,
+		PLAYER_SPEED: 4.5
     },
     initialize: function() {
     },
