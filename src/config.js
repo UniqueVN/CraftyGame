@@ -5,9 +5,8 @@ Config = Backbone.Model.extend({
 		CANVAS_HEIGHT: 600,
 		MAP_WIDTH: 60,
 		MAP_HEIGHT: 40,
-		TILE_SIZE: 16,
-		TILE_SIZE: 16,
-		PLAYER_SPEED: 2.2
+		TILE_SIZE: 32,
+		PLAYER_SPEED: 3.2
     },
     initialize: function() {
     },

@@ -23,11 +23,12 @@ Crafty.scene("loading", function() {
 	Crafty.load(sprites.getPaths(), function() {
 		// array with local components
 		var elements = [
-			"src/components/MouseHover.js?v="+version+"",
-			"src/components/KeyMoveControls.js?v="+version+"",
-			"src/components/Hero.js?v="+version+"",
-			"src/entities/base/BaseEntity.js?v="+version+"",
-			"src/entities/player.js?v="+version+"",
+			"src/components/MouseHover.js?v="+version,
+			"src/components/KeyMoveControls.js?v="+version,
+			"src/components/Hero.js?v="+version,
+			"src/components/TileMap.js?v="+version,
+			"src/entities/base/BaseEntity.js?v="+version,
+			"src/entities/player.js?v="+version
 		];
 
 		//when everything is loaded, run the main scene
