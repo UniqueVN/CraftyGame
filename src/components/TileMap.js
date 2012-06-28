@@ -137,5 +137,16 @@ Crafty.c('TileMap', {
 		this.bind("Draw", draw).bind("RemoveComponent", function (id) {
 			if (id === "TileMap") this.unbind("Draw", draw);
 		});
+	},
+
+	CreateObject : function(type, x, y)
+	{
+		var newObj = new type();
+		newObj.X = x;
+		newObj.Y = y;
+
+		//TODO: update collision map
+
+		return newObj;
 	}
 });
