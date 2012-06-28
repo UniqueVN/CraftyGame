@@ -58,13 +58,15 @@ Crafty.c('TileMap', {
 				var t = Crafty.math.randomInt(0, 50);
 				if (t === 0)
 				{
+					this.CreateObject(MapEntity, j, i);
+					/*
 					tileID = Crafty.math.randomInt(this._tileType[2][0], this._tileType[2][1]);
 					
 					Crafty.e("2D, DOM, solid, SpriteAnimation, " + this._tileNames[tileID])
 						//.attr({x: j * this._tileSize, y: i * this._tileSize, z:2, w: this._tileSize, h:this._tileSize})
 						.attr({x: j * this._tileSize, y: i * this._tileSize, z:2, w:16, h:16})
 						.animate("wind", 0, 1, 3)
-						.animate("wind", 80, -1);
+						.animate("wind", 80, -1);*/
 				}
 			}
 		}
@@ -142,10 +144,10 @@ Crafty.c('TileMap', {
 	CreateObject : function(type, x, y)
 	{
 		var newObj = new type();
-		newObj.X = x;
-		newObj.Y = y;
+		newObj.Create(this, x, y);
 
 		//TODO: update collision map
+		//TODO: add to a list
 
 		return newObj;
 	}

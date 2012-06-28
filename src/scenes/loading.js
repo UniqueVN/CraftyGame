@@ -28,6 +28,7 @@ Crafty.scene("loading", function() {
 			"src/components/Hero.js?v="+version,
 			"src/components/TileMap.js?v="+version,
 			"src/entities/base/BaseEntity.js?v="+version,
+			"src/entities/base/MapEntity.js?v="+version,
 			"src/entities/player.js?v="+version
 		];
 
