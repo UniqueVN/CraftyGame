@@ -11,17 +11,15 @@ MapEntity = BaseEntity.extend(
 
 	},
 
-	Create: function(map, x, y)
+	Create: function(map, entityName, x, y)
 	{
 		this.X = x;
 		this.Y = y;
+        this.name = entityName;
 		this.Map = map;
 
-		Crafty.e("2D, DOM, solid, SpriteAnimation, flower")//TODO: hard for now!!
-			//.attr({x: j * this._tileSize, y: i * this._tileSize, z:2, w: this._tileSize, h:this._tileSize})
-			.attr({x: this.X * this.Map._tileSize, y: this.Y * this.Map._tileSize, z:2, w:16, h:16})
-			.animate("wind", 0, 1, 3)
-			.animate("wind", 80, -1);
+		Crafty.e("2D, DOM, solid, SpriteAnimation, " + this.name)
+			.attr({x: this.X * this.Map._tileSize, y: this.Y * this.Map._tileSize, z:2, w:this.Map._tileSize, h:this.Map._tileSize});
 	}
 
 });

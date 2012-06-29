@@ -3,7 +3,7 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
-	_tileNames:["grass1", "grass2", "grass3", "grass4", "flower", "bush1", "bush2"],
+	_tileNames:["grass1", "grass2", "grass3", "grass4", "flower", "bush1", "bush2", "rock1", "rock2"],
 	_tileSprite: [],
 	_tileType:[
 		// GROUND TILES
@@ -11,7 +11,7 @@ Crafty.c('TileMap', {
 		// WALL TILES
 		[5, 6],
 		// OBJECT TILES
-		[4, 4]
+		[7, 8]
 	],
 	_width: 0,
 	_height: 0,
@@ -58,15 +58,8 @@ Crafty.c('TileMap', {
 				var t = Crafty.math.randomInt(0, 50);
 				if (t === 0)
 				{
-					this.CreateObject(MapEntity, j, i);
-					/*
 					tileID = Crafty.math.randomInt(this._tileType[2][0], this._tileType[2][1]);
-					
-					Crafty.e("2D, DOM, solid, SpriteAnimation, " + this._tileNames[tileID])
-						//.attr({x: j * this._tileSize, y: i * this._tileSize, z:2, w: this._tileSize, h:this._tileSize})
-						.attr({x: j * this._tileSize, y: i * this._tileSize, z:2, w:16, h:16})
-						.animate("wind", 0, 1, 3)
-						.animate("wind", 80, -1);*/
+					this.CreateObject(MapEntity, this._tileNames[tileID], j, i);
 				}
 			}
 		}
@@ -141,10 +134,10 @@ Crafty.c('TileMap', {
 		});
 	},
 
-	CreateObject : function(type, x, y)
+	CreateObject : function(type, entityName, x, y)
 	{
 		var newObj = new type();
-		newObj.Create(this, x, y);
+		newObj.Create(this, entityName, x, y);
 
 		//TODO: update collision map
 		//TODO: add to a list
