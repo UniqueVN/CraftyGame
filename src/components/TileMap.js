@@ -15,17 +15,214 @@ Crafty.c('TileMap', {
 	],
 	_width: 0,
 	_height: 0,
+    
+    debugShowMap: function(tiles) {
+        var debugStr = "";
+        for (i = 0; i < tiles.length; i++)
+        {
+            for (j = 0; j < tiles[i].length; j++)
+            {
+                debugStr += tiles[i][j];
+            }
+            debugStr += "\n";
+        }
+        
+        console.log(debugStr);
+    },
+    
+    swap: function(p0, p1) {
+        var tmp;
+        tmp = p0.x; p0.x = p1.x; p1.x = tmp;
+        tmp = p0.y; p0.y = p1.y; p1.y = tmp;
+    },
+    
+    plot: function(tiles, x, y, style) {
+        if (!style)
+        {
+            tiles[y][x] = 1;
+            return;
+        }
+        
+        var x0 = x, y0 = y;
+        if (style >= 2)
+        {
+            x0 = y; y0 = x;
+            style -= 2;
+        }
+        
+        if (style >= 1)
+        {
+            y0 = -y0;
+            style = 0;
+        }
+        
+        tiles[y0][x0] = 1;
+    },
+    
+    drawLine: function(p0, p1, tiles) {
+        var x0 = p0.x,
+            x1 = p1.x,
+            y0 = p0.y,
+            y1 = p1.y;        
+        var dx = x1 - x0;
+        var dy = y1 - y0;
+        var style = 0,
+            D = 0;
+        
+        this.plot(tiles, x0, y0, style);
+        
+        if (dx === 0) {
+            D = (dy > 0 ? 1 : -1);
+            var y = y0;
+            while (y !== y1) {
+                y += D;
+                tiles[y][x0] = 1;
+            }
+            return;
+        }
+        if (dy === 0) {
+            D = (dx > 0 ? 1 : -1);
+            var x = x0;
+            while (x !== x1) {
+                x += D;
+                tiles[y0][x] = 1;
+            }
+            return;
+        }
+        
+        var tmp;
+        if (dx < 0)
+        {
+            tmp = x0; x0 = x1; x1 = tmp;
+            tmp = y0; y0 = y1; y1 = tmp;
+            dx = -dx;
+            dy = -dy;
+        }
+        
+        if (dy < 0)
+        {
+            style += 1;
+            dy = -dy;
+            y0 = -y0;
+            y1 = -y1;
+        }
+        
+        if (dy > dx)
+        {
+            tmp = x0; x0 = y0; y0 = tmp;
+            tmp = x1; x1 = y1; y1 = tmp;
+            tmp = dx; dx = dy; dy = tmp;
+            style += 2;
+        }
+        
+        D = 2 * dy - dx;
+        var x = x0,
+            y = y0;
+        for (x = x0 + 1; x <= x1; x++)
+        {
+            if (D > 0)
+            {
+                y++;
+                D += 2 * (dy - dx);
+            }
+            else
+            {
+                D += 2 * dy;
+            }
+            this.plot(tiles, x, y, style);
+        }
+    },
 	
+    generateRegion: function(col, row){
+        // tht062812: generate random points in the 4 border parts and connect them
+        // http://roguebasin.roguelikedevelopment.org/index.php/Irregular_Shaped_Rooms
+        var patch = 4;
+        var maxPointPerBorder = 5;
+        var points = [];
+        var maxCol = col - patch - 1,
+            maxRow = row - patch - 1;
+        
+        // Create an empty maps
+        var tiles = [];
+        for (i = 0; i < row; i++) {
+            tiles[i] = [];
+            for (j = 0; j < col; j++) {
+                tiles[i][j] = 0;
+            }
+        }
+
+        // Generate top border
+        var c = patch, 
+            r = 0,
+            t = 0;
+        while (c < maxCol && t < maxPointPerBorder)
+        {
+            // select a random column between the last column and the max column
+            c = Crafty.math.randomInt(c + 1, maxCol);
+            // select a random row in the patch
+            r = Crafty.math.randomInt(0, patch - 1);
+            points.push({x: c, y: r});
+            t++;
+        }
+        // Generate right border
+        r = patch;
+        t = 0;
+        while (r < maxRow && t < maxPointPerBorder)
+        {
+            // select a random row between the last row and the max row
+            r = Crafty.math.randomInt(r + 1, maxRow);
+            // select a random row in the patch
+            c = Crafty.math.randomInt(1, patch) + col - patch - 1;
+            points.push({x: c, y: r});
+            t++;
+        }
+        // Generate bottom border
+        c = maxCol;
+        t = 0;
+        while (c > patch && t < maxPointPerBorder)
+        {
+            // select a random column between the last column and the min column
+            c = Crafty.math.randomInt(patch, c - 1);
+            // select a random row in the patch
+            r = Crafty.math.randomInt(1, patch) + row - patch - 1;
+            points.push({x: c, y: r});
+            t++;
+        }
+        // Generate left border
+        r = maxRow;
+        t = 0;
+        while (r > patch && t < maxPointPerBorder)
+        {
+            // select a random row between the last row and the min row
+            r = Crafty.math.randomInt(patch, r - 1);
+            // select a random row in the patch
+            c = Crafty.math.randomInt(0, patch - 1);
+            points.push({x: c, y: r});
+            t++;
+        }
+        
+        // Generate border lines
+        var borderPoints = [];
+        for (i = 0; i < points.length - 1; i++)
+        {
+            this.drawLine(points[i], points[i + 1], tiles);
+        }
+        this.drawLine(points[points.length - 1], points[0], tiles);
+        
+//        this.debugShowMap(tiles);
+        
+        return tiles;
+    },
+    
 	randomGenerate: function(col, row, tileSize) {
 		this._row = row;
 		this._col = col;
 		this._tileSize = tileSize;
-		
+        
 		// Generate gound tiles
 		for (i = 0; i < this._row; i++){
 			this._tiles[i] = [];
 			for (j = 0; j < this._col; j++){
-				//this._tiles[i][j] = Crafty.math.randomInt(0, this._tileNames.length - 1);
 				this._tiles[i][j] = Crafty.math.randomInt(this._tileType[0][0], this._tileType[0][1]);
 			}
 		}
@@ -49,20 +246,35 @@ Crafty.c('TileMap', {
 			Crafty.e("2D, Canvas, solid, " + this._tileNames[tileID])
 				.attr({x: j * this._tileSize, y: (this._row - 1) * this._tileSize, z: 2, w: this._tileSize, h:this._tileSize});
 		}
-		
-		// Generate object
-		for (i = 1; i < this._row - 1; i++)
-		{
-			for (j = 1; j < this._col - 1; j++)
-			{
-				var t = Crafty.math.randomInt(0, 50);
-				if (t === 0)
+        
+        var patchRegion = this.generateRegion(30, 20);
+        var x0 = 5, y0 = 5;
+        for (i = 0; i < patchRegion.length; i++)
+        {
+            for (j = 0; j < patchRegion[i].length; j++)
+            {
+				if (patchRegion[i][j] === 1)
 				{
 					tileID = Crafty.math.randomInt(this._tileType[2][0], this._tileType[2][1]);
-					this.CreateObject(MapEntity, this._tileNames[tileID], j, i);
+					this.CreateObject(MapEntity, this._tileNames[tileID], j + y0, i + x0);
 				}
-			}
-		}
+            }
+        }
+        
+		
+		// Generate object
+//		for (i = 1; i < this._row - 1; i++)
+//		{
+//			for (j = 1; j < this._col - 1; j++)
+//			{
+//				var t = Crafty.math.randomInt(0, 50);
+//				if (t === 0)
+//				{
+//					tileID = Crafty.math.randomInt(this._tileType[2][0], this._tileType[2][1]);
+//					this.CreateObject(MapEntity, this._tileNames[tileID], j, i);
+//				}
+//			}
+//		}
 		
 		for (i = 0; i < this._tileNames.length; i++)
 		{
@@ -75,6 +287,7 @@ Crafty.c('TileMap', {
 		this.ready = true;
 		return this;
 	},
+    
 	init: function() {
 		this.requires("2D, Canvas");
 		this.__coord = [0, 0, 100, 100];
