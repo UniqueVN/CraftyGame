@@ -1,25 +1,22 @@
 MapEntity = BaseEntity.extend(
 {
-	default :
-	{
-		Width : 1,
-		Height : 1
-	},
+	Width : 1,
+	Height : 1,
+	Sprites : ['bush1'],
 
 	initialize: function()
 	{
+		var sprite = "";
+		if (this.Sprites.length > 0)
+			sprite = this.Sprites[Crafty.math.randomInt(0, this.Sprites.length - 1)];
 
+		var entity = Crafty.e("2D, Body, DOM, SpriteAnimation, " + sprite)
+			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
+		this.set({'entity' : entity });
 	},
 
-	Create: function(map, entityName, x, y)
+	Appear: function(world, x, y)
 	{
-		this.X = x;
-		this.Y = y;
-        this.name = entityName;
-		this.Map = map;
-
-		Crafty.e("2D, DOM, solid, SpriteAnimation, " + this.name)
-			.attr({x: this.X * this.Map._tileSize, y: this.Y * this.Map._tileSize, z:2, w:this.Map._tileSize, h:this.Map._tileSize});
+		this.getEntity().Appear(world, x, y);
 	}
-
 });

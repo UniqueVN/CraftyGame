@@ -294,8 +294,9 @@ Crafty.c('TileMap', {
             {
 				if (patchRegion[i][j] === 1)
 				{
-					tileID = Crafty.math.randomInt(this._tileType[2][0], this._tileType[2][1]);
-					this.CreateObject(MapEntity, this._tileNames[tileID], j + y0, i + x0);
+					// create using the archetype, don't use MapEntity directly
+					// can store different type in random list if needed
+					this.CreateObject(Rock, j + y0, i + x0);
 				}
                 else if (patchRegion[i][j] === 2)
                 {
@@ -376,14 +377,8 @@ Crafty.c('TileMap', {
 		});
 	},
 
-	CreateObject : function(type, entityName, x, y)
+	CreateObject : function(type, x, y)
 	{
-		var newObj = new type();
-		newObj.Create(this, entityName, x, y);
-
-		//TODO: update collision map
-		//TODO: add to a list
-
-		return newObj;
+		return new type().Appear(this.World, x, y);
 	}
 });
