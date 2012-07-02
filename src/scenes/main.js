@@ -11,7 +11,7 @@ Crafty.scene("main", function() {
 	//					.randomGenerate(mapWidth, mapHeight, tileSize);
 
 	var world = new World();
-	var player = new Player();
+	var player = new Player().Appear(world, 5, 5);
 
 	// tht062312 - Always keep player on center of the screen
 	// MUST FIX: this make viewport follow or center on player is too slow right now.

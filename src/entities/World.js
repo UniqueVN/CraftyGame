@@ -1,29 +1,42 @@
-function World()
+World = Class.create(
 {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Member Variables
 	//////////////////////////////////////////////////////////////////////////////////////////
 
-	this.TileSize = gameContainer.conf.get("TILE_SIZE");
-	this.MapWidth = gameContainer.conf.get("MAP_WIDTH");
-	this.MapHeight = gameContainer.conf.get("MAP_HEIGHT");
-	this.PhysicalWidth = this.TileSize * this.MapWidth;
-	this.PhysicalHeight = this.TileSize * this.MapHeight;
+	TileSize : gameContainer.conf.get("TILE_SIZE"),
+	MapWidth : gameContainer.conf.get("MAP_WIDTH"),
+	MapHeight : gameContainer.conf.get("MAP_HEIGHT"),
+	PhysicalWidth : gameContainer.conf.get("MAP_WIDTH") * gameContainer.conf.get("TILE_SIZE"),
+	PhysicalHeight : gameContainer.conf.get("MAP_HEIGHT") * gameContainer.conf.get("TILE_SIZE"),
 
-	this._staticEntities = [];
-	this._terrainMap = [];
+	_staticEntities : [],
+	_terrainMap : [],
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Functions
 	//////////////////////////////////////////////////////////////////////////////////////////
+	initialize : function()
+	{
+		NavigationManager.SetWorld(this);
 
-	this.InitMapData = function()
+		this.InitMapData();
+
+		this.TileMap = Crafty.e("2D, Canvas, TileMap, Mouse")
+			.attr({x: 0, y: 0, z: 0, w:this.PhysicalWidth, h:this.PhysicalHeight, World : this})
+			.randomGenerate(this.MapWidth, this.MapHeight, this.TileSize)
+			.bind("MouseDown", function(e){ Crafty.trigger('MapClick', e); });
+
+		return this;
+	},
+
+	InitMapData : function()
 	{
 		for (var i = 0; i < this.MapWidth; i++)
 			this._terrainMap[i] = [];
-	};
+	},
 
-	this.AddStaticEntity = function(entity)
+	AddStaticEntity : function(entity)
 	{
 		var staticEntityInfo =
 		{
@@ -38,17 +51,5 @@ function World()
 			var pos = staticEntityInfo.Bounds[i];
 			this._terrainMap[pos.X][pos.Y] = entity;
 		}
-	};
-
-	//////////////////////////////////////////////////////////////////////////////////////////
-	// Initialization
-	//////////////////////////////////////////////////////////////////////////////////////////
-
-	this.InitMapData();
-
-	this.TileMap = Crafty.e("2D, Canvas, TileMap")
-		.attr({x: 0, y: 0, z: 0, w:this.PhysicalWidth, h:this.PhysicalHeight, World : this})
-		.randomGenerate(this.MapWidth, this.MapHeight, this.TileSize);
-
-	return this;
-}
+	}
+});

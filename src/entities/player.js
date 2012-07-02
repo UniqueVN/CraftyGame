@@ -1,12 +1,13 @@
-Player = BaseEntity.extend({
+Player = MapEntity.extend({
     initialize: function(){
         var playerSpeed = gameContainer.conf.get("PLAYER_SPEED");
         var playerSize = gameContainer.conf.get("PLAYER_SIZE");
 		
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
-    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-		.attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize})
+//    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
+	    var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Body, NavigationHandle, MouseControl")
+		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false})
 		.keyControls(playerSpeed)
 		.bind("EnterFrame", function() {
 			if (this._x === undefined || this._y === undefined)

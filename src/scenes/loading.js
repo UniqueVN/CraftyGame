@@ -29,6 +29,8 @@ Crafty.scene("loading", function() {
 			"src/components/GraphLayout.js?v="+version,
 			"src/components/TileMap.js?v="+version,
 			"src/components/Body.js?v="+version,
+			"src/components/Navigation.js?v="+version,
+			"src/components/Controls.js?v="+version,
 			"src/entities/base/BaseEntity.js?v="+version,
 			"src/entities/base/MapEntity.js?v="+version,
 			"src/entities/MapObjects.js?v="+version,

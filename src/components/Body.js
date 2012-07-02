@@ -57,5 +57,12 @@ Crafty.c('Body',
 		}
 
 		return bounds;
+	},
+
+	GetCenterTile : function()
+	{
+		var centerX = this._tileX + (this.TileWidth - 1) / 2;
+		var centerY = this._tileY + (this.TileHeight - 1) / 2;
+		return { X : centerX, Y : centerY }
 	}
 });
