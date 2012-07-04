@@ -6,11 +6,7 @@ MapEntity = BaseEntity.extend(
 
 	initialize: function()
 	{
-		var sprite = "";
-		if (this.Sprites.length > 0)
-			sprite = this.Sprites[Crafty.math.randomInt(0, this.Sprites.length - 1)];
-
-		var entity = Crafty.e("2D, DOM, SpriteAnimation, Body, " + sprite)
+		var entity = Crafty.e("2D, DOM, SpriteAnimation, Body, " + this._getRandomSprite())
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
 		this.set({'entity' : entity });
 	},
@@ -18,5 +14,13 @@ MapEntity = BaseEntity.extend(
 	Appear: function(world, x, y)
 	{
 		this.getEntity().Appear(world, x, y);
+		return this;
+	},
+
+	_getRandomSprite : function()
+	{
+		if (this.Sprites.length > 0)
+			return this.Sprites[Crafty.math.randomInt(0, this.Sprites.length - 1)];
+		return "";
 	}
 });

@@ -28,14 +28,38 @@ Sprites = Backbone.Model.extend({
 					player: [0,3]
 				}
 			},
-            charMale: {
-                file: 'res/images/charMale.png',
-                tile: 64,
-                tileh: 64,
-                elements: {
-                    malePlayer: [0, 0]
-                }
-            },
+			charMale: {
+			    file: 'res/images/charMale.png',
+			    tile: 64,
+			    tileh: 64,
+			    elements: {
+			        malePlayer: [0, 0]
+			    }
+			},
+			charMaleNaked: {
+			    file: 'res/images/BODY_male.png',
+			    tile: 64,
+			    tileh: 64,
+			    elements: {
+			        maleNaked: [0, 0]
+			    }
+			},
+			skeleton: {
+			    file: 'res/images/BODY_skeleton.png',
+			    tile: 64,
+			    tileh: 64,
+			    elements: {
+			        skeleton: [0, 0]
+			    }
+			},
+			slime: {
+			    file: 'res/images/slime.png',
+			    tile: 32,
+			    tileh: 32,
+			    elements: {
+			        slime: [0, 0]
+			    }
+			},
             rock: {
                 file: 'res/images/rock.png',
                 tile: 32,

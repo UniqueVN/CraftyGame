@@ -13,6 +13,14 @@ Crafty.scene("main", function() {
 	var world = new World();
 	var player = new Player().Appear(world, 5, 5);
 
+	// 100 slimes on lose!!!
+	for (var i = 0; i < 100; i++)
+	{
+		var x = Crafty.math.randomInt(0, world.MapWidth - 1);
+		var y = Crafty.math.randomInt(0, world.MapHeight - 1);
+		var slime = new Slime().Appear(world, x, y);
+	}
+
 	// tht062312 - Always keep player on center of the screen
 	// MUST FIX: this make viewport follow or center on player is too slow right now.
 	//Crafty.viewport.centerOn(player, 1);

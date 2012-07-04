@@ -1,17 +1,67 @@
 Crafty.c('NavigationHandle',
 {
+	_pendingPath : null,
+
 	init : function()
 	{
 		if (!this.has("Body"))
 			throw new Error("Must have body to move around!");
+		this.bind("MoveFinished", this._movePointReached);
 		return this;
 	},
 
 	NavigateTo : function(x, y)
 	{
-		var from = this.GetCenterTile();
+		var from = this.GetCenterRounded();
 		var to = { X: x, Y : y };
-		var path = NavigationManager.GetPathFinder().FindPath(from, to);
+		this._pendingPath = NavigationManager.GetPathFinder().FindPath(from, to);
+		this._advancePath();
+	},
+
+	IsNavigating : function()
+	{
+		return this._pendingPath != null;
+	},
+
+	_movePointReached : function()
+	{
+		if (this._pendingPath == null)
+			return;
+
+		this._pendingPath.shift();
+		this._advancePath();
+	},
+
+	_advancePath : function()
+	{
+		if (this._pendingPath == null || this._pendingPath.length == 0)
+		{
+			this._finishedPath();
+			return;
+		}
+
+		if (this._pendingPath.length >= 2)
+		{
+			var firstPt = this._pendingPath[0];
+			var secondPt = this._pendingPath[1];
+			var horizontal = firstPt.Y == secondPt.Y;
+			for (var i = 2; i < this._pendingPath.length; i++)
+			{
+				var checkPt = this._pendingPath[i];
+				var sameTrack = horizontal ? checkPt.Y == firstPt.Y : checkPt.X == firstPt.X;
+				if (!sameTrack)
+					break;
+			}
+			this._pendingPath.splice(0, i - 1);
+		}
+
+		var nextPt = this._pendingPath[0];
+		this.MoveTo(nextPt.X, nextPt.Y);
+	},
+
+	_finishedPath : function()
+	{
+		this._pendingPath = null;
 	}
 });
 
@@ -60,7 +110,7 @@ WorldPathSemantics = Class.create(
 
 	GetKey : function(point)
 	{
-		return point.Y * this._world.TileWidth + point.X;
+		return point.Y * this._world.MapWidth + point.X;
 	},
 
 	GetNeighbours : function(point)

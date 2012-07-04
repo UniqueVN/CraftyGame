@@ -6,7 +6,7 @@ Player = MapEntity.extend({
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-	    var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Body, NavigationHandle, MouseControl")
+	    var entity = Crafty.e("2D, DOM, maleNaked, KeyMoveControls, Mouse, Hero, Body, NavigationHandle, MouseControl")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false})
 		.keyControls(playerSpeed)
 		.bind("EnterFrame", function() {

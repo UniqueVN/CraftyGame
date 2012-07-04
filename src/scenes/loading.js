@@ -29,11 +29,15 @@ Crafty.scene("loading", function() {
 			"src/components/GraphLayout.js?v="+version,
 			"src/components/TileMap.js?v="+version,
 			"src/components/Body.js?v="+version,
+			"src/components/BodyAnimations.js?v="+version,
 			"src/components/Navigation.js?v="+version,
+			"src/components/AI.js?v="+version,
 			"src/components/Controls.js?v="+version,
 			"src/entities/base/BaseEntity.js?v="+version,
 			"src/entities/base/MapEntity.js?v="+version,
+			"src/entities/base/Creature.js?v="+version,
 			"src/entities/MapObjects.js?v="+version,
+			"src/entities/Monsters.js?v="+version,
 			"src/entities/player.js?v="+version,
 			"src/entities/World.js?v="+version
 		];
