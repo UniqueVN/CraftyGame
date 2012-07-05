@@ -92,13 +92,13 @@ NavigationManager =
 	{
 		return new PathFinder(this._semantics);
 	}
-}
+};
 
-WorldPathSemantics = Class.create(
+var WorldPathSemantics = Class(
 {
 	_world : null,
 
-	initialize : function(world)
+	constructor : function(world)
 	{
 		this._world = world;
 	},
@@ -134,12 +134,12 @@ WorldPathSemantics = Class.create(
 	}
 });
 
-PathFinder = Class.create(
+var PathFinder = Class(
 {
 	_semantics : null,
 	_nodes : {},
 
-	initialize : function(semantics)
+	constructor : function(semantics)
 	{
 		this._semantics = semantics;
 	},

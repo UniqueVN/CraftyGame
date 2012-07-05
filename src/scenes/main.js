@@ -11,14 +11,16 @@ Crafty.scene("main", function() {
 	//					.randomGenerate(mapWidth, mapHeight, tileSize);
 
 	var world = new World();
-	var player = new Player().Appear(world, 5, 5);
+	var playerSpawnPoint = world.GetSpawnPoint(0);
+	var player = new Player().Appear(world, playerSpawnPoint.x, playerSpawnPoint.y);
 
 	// 100 slimes on lose!!!
 	for (var i = 0; i < 100; i++)
 	{
-		var x = Crafty.math.randomInt(0, world.MapWidth - 1);
-		var y = Crafty.math.randomInt(0, world.MapHeight - 1);
-		var slime = new Slime().Appear(world, x, y);
+		// var x = Crafty.math.randomInt(0, world.MapWidth - 1);
+		// var y = Crafty.math.randomInt(0, world.MapHeight - 1);
+		var spawnPoint = world.GetRandomSpawnPoint();
+		var slime = new Slime().Appear(world, spawnPoint.x, spawnPoint.y);
 	}
 
 	// tht062312 - Always keep player on center of the screen

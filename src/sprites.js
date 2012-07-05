@@ -79,6 +79,17 @@ Sprites = Backbone.Model.extend({
                     dirt2: [1, 5],
                     dirt3: [2, 5]
                 }
+            },
+            water: {
+                file: 'res/images/water.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    water0: [1, 3],
+                    water1: [0, 5],
+                    water2: [1, 5],
+                    water3: [2, 5]
+                }
             }
         }
     },

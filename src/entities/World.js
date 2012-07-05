@@ -1,4 +1,4 @@
-World = Class.create(
+var World = Class(
 {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Member Variables
@@ -12,11 +12,12 @@ World = Class.create(
 
 	_staticEntities : [],
 	_terrainMap : [],
+	_spawnPoint: [],
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Functions
 	//////////////////////////////////////////////////////////////////////////////////////////
-	initialize : function()
+	constructor : function()
 	{
 		NavigationManager.SetWorld(this);
 
@@ -51,5 +52,22 @@ World = Class.create(
 			var pos = staticEntityInfo.Bounds[i];
 			this._terrainMap[pos.X][pos.Y] = entity;
 		}
+	},
+
+	AddSpawnPoint: function(p)
+	{
+		this._spawnPoint.push(p);
+	},
+
+	GetSpawnPoint: function(id)
+	{
+		id = Crafty.math.clamp(id, 0, this._spawnPoint.length - 1);
+		return this._spawnPoint[id];
+	},
+
+	GetRandomSpawnPoint: function()
+	{
+		id = Crafty.math.randomInt(0, this._spawnPoint.length - 1);
+		return this._spawnPoint[id];
 	}
 });

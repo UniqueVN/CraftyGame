@@ -20,8 +20,8 @@ window.onload = function() {
 	
 	// Fix for cache
     if(gameContainer.env == 'dev') {
-//		version = today.getDay()+"_"+ today.getHours() +"_"+today.getSeconds();
-		version = "test";
+		version = today.getDay()+"_"+ today.getHours() +"_"+today.getSeconds();
+		// version = "test";
 		gameContainer.gameVersion = version;
 	} else {
 		version = gameContainer.gameVersion;
