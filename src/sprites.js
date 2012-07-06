@@ -85,6 +85,25 @@ Sprites = Backbone.Model.extend({
                 tile: 32,
                 tileh: 32,
                 elements: {
+                    // Edge
+                    waterEdge1: [1, 4], // TOP
+                    waterEdge2: [1, 2], // BOTTOM
+                    waterEdge4: [0, 3], // RIGHT
+                    waterEdge8: [2, 3], // LEFT
+                    // Convex Corner
+                    waterEdge12: [1, 0], // TOP-LEFT
+                    waterEdge15: [2, 0], // TOP-RIGHT
+                    waterEdge18: [1, 1], // BOTTOM-LEFT
+                    waterEdge21: [2, 1], // BOTTOM-RIGHT
+                    // Valley Corner
+                    waterEdge9: [2, 4], // TOP-LEFT
+                    waterEdge5: [0, 4], // TOP-RIGHT
+                    waterEdge10: [2, 2], // BOTTOM-LEFT
+                    waterEdge6: [0, 2], // BOTTOM-RIGHT
+                    // Hole
+                    waterHole0: [0, 0],
+                    waterHole1: [0, 1],
+                    // Center
                     water0: [1, 3],
                     water1: [0, 5],
                     water2: [1, 5],

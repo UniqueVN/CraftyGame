@@ -3,29 +3,8 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
-	_terrains : [ 'Water', 'Bush', 'Grass', 'Dirt', 'Rock' ],
-
-	// TODO: delete these man it's pretty bad
-	_tileNames:["grass1", "grass2", "grass3", "grass4", 
-                "flower", 
-                "bush1", "bush2", 
-                "rock1", "rock2", 
-                "dirt0", "dirt1", "dirt2", "dirt3",
-                "water0", "water1", "water2", "water3"],
+	_terrains : [ 'Water', 'Bush', 'Dirt', 'Grass', 'Rock' ],
 	_tileSprite: [],
-	_tileType:[
-        // EMPTY TILES
-        [13, 16], // had to count numbers what a pain!!
-        // BORDER TILES
-        [5, 6],
-		// GROUND TILES
-		[0, 3],
-        // MISC TILES
-        [9, 12],
-        // OBJECT TILES
-        [7, 8]
-	],
-	// end TODO
 
 	_width: 0,
 	_height: 0,
@@ -64,7 +43,7 @@ Crafty.c('TileMap', {
         var LINE_WIDTH = 2;
         var NODE_COUNT = 12;
 
-        var pixelRenderer = new PixelRenderer("", this._row, this._col);
+        var pixelRenderer = new PixelRenderer("", this._col, this._row);
         
         var graph = new BinaryTree();
         graph.generateGraph(NODE_COUNT);
@@ -81,33 +60,84 @@ Crafty.c('TileMap', {
         graphRenderer.offsetX = GRAPH_OFFSET_X;
         graphRenderer.offsetY = GRAPH_OFFSET_Y;
         graphRenderer.nodeSize = NODE_SIZE;
-        graphRenderer.lineColor = 3;
+        graphRenderer.lineColor = 2;
         graphRenderer.lineWidth = 3;
         graphRenderer.setGraph(graph);
 
         var irregularShape = new ShapeGenerator();
         irregularShape.fillColor = 2;
-        irregularShape.borderColor = 1;
-
+        irregularShape.borderColor = 2;
+        // irregularShape.borderColor = 1;
         graphRenderer.nodeRenderer = irregularShape;
-        
         graphRenderer.draw();
 
+        // TOP - DOWN - RIGHT - LEFT
+        // TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+		var DIRECTION = [{x: 0, y: -1}, {x: 0, y: 1}, {x: 1, y: 0}, {x: -1, y: 0},
+						 {x: -1, y: -1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}];
+
         var cells = pixelRenderer.cells;
+        // Generate real border
+        // Check direct neighbor
+        for (var i = 0; i < this._col; i++) {
+        	for (var j = 0; j < this._row; j++) {
+        		if (cells[i][j] > 0) {
+        			for (var d = 0; d < 4; d++) {
+        				var x = i + DIRECTION[d].x;
+        				var y = j + DIRECTION[d].y;
+
+        				if (x < 0 || x >= this._col || y < 0 || y >= this._row ||
+        					cells[x][y] > 0)
+        					continue;
+
+        				// var c = Math.abs(cells[x][y]);
+
+        				cells[x][y] -= (1 << d);
+        				//if (cells[x][y] === 0)
+        			}
+        		}
+        	}
+        }
+        // Check corner neighbor
+        for (var i = 0; i < this._col; i++) {
+        	for (var j = 0; j < this._row; j++) {
+        		if (cells[i][j] > 0) {
+        			for (var d = 4; d < 8; d++) {
+        				var x = i + DIRECTION[d].x;
+        				var y = j + DIRECTION[d].y;
+
+        				if (x < 0 || x >= this._col || y < 0 || y >= this._row ||
+        					cells[x][y] !== 0)
+        					continue;
+        				cells[x][y] = -(d * 3);
+        			}
+        		}
+        	}
+        }
 
 		// cache them for the speedy!
 		var terrains = [];
 		for (var i = 0; i < this._terrains.length; i++)
 		{
-			terrains[i] = this.World.Terrains[this._terrains[i]];
+			terrains[i] = this.World.TerrainManager[this._terrains[i]];
 		}
 
 		// Paint tiles
 		for (var i = 0; i < this._row; i++){
 			this._tiles[i] = [];
 			for (var j = 0; j < this._col; j++){
-                var cellType = cells[i][j];
-				this._tiles[i][j] = terrains[cellType].GetRandomSprite();
+                var cellType = cells[j][i];
+                if (cellType >= 0) {
+					// this._tiles[i][j] = terrains[cellType].GetRandomSprite();
+					this._tiles[i][j] = terrains[cellType].GetSprite(0);
+                }
+                else
+                {
+                	cellType = -cellType;
+                	this._tiles[i][j] = terrains[0].GetSpriteByName("waterEdge" + cellType);
+                	// HACK: Set a base tile
+                	this._tiles[i][j].baseTile = terrains[2].GetSprite(0);
+                }
 			}
 		}
 
@@ -121,6 +151,18 @@ Crafty.c('TileMap', {
 		
 		this.ready = true;
 		return this;
+	},
+
+	drawTile: function(tileEvent, tile, x, y, w, h) {
+		tileEvent.co.x = tile.__coord[0];
+		tileEvent.co.y = tile.__coord[1];
+		tileEvent.co.w = tile.__coord[2];
+		tileEvent.co.h = tile.__coord[3];
+		tileEvent.pos._x = x;
+		tileEvent.pos._y = y;
+		tileEvent.pos._w = w;
+		tileEvent.pos._h = h;
+		tile.trigger("Draw", tileEvent);
 	},
 
 	init: function() {
@@ -160,19 +202,13 @@ Crafty.c('TileMap', {
 					
 					tx = j * w;
 					ty = i * h;
-					//var tile = Crafty.c(this._tileNames[this._tiles[i][j]]);
-					var tile = this._tiles[i][j];
-					//console.log("Drawing tile: ", tile);
+					var basedTile = this._tiles[i][j].baseTile;
+					if (basedTile !== undefined)
+						this.drawTile(tileEvent, basedTile, tx, ty, w, h);
 
-					tileEvent.co.x = tile.__coord[0];
-					tileEvent.co.y = tile.__coord[1];
-					tileEvent.co.w = tile.__coord[2];
-					tileEvent.co.h = tile.__coord[3];
-					tileEvent.pos._x = tx;
-					tileEvent.pos._y = ty;
-					tileEvent.pos._w = w;
-					tileEvent.pos._h = h;
-					tile.trigger("Draw", tileEvent);
+					var tile = this._tiles[i][j];
+					this.drawTile(tileEvent, tile, tx, ty, w, h);
+					//console.log("Drawing tile: ", tile);
 				}
 			}
 		};

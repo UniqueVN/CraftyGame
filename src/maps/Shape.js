@@ -1,5 +1,7 @@
 // ========================================================================================== //
 // MISC
+var DIRECTION = [{x: 0, y: 1}, {x: 0, y: -1}, {x: -1, y: 0}, {x: 1, y: 0},
+				 {x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: -1}, {x: -1, y: 1}];
 function random(min, max) {
 	return Math.floor(Math.random() * (max - min) + min);
 }
@@ -57,6 +59,14 @@ var PixelRenderer = Class({
 				this.cells[i][j] = 0;
 			}
 		};
+	},
+
+	clearCell: function(x0, y0)  {
+		if (x0 < 0 || x0 >= this.width ||
+			y0 < 0 || y0 >= this.height)
+			return;
+
+		this.cells[x0][y0] = 0;
 	},
 
 	plot: function(x0, y0) {
@@ -141,33 +151,6 @@ var PixelRenderer = Class({
 	drawCircle: function(x0, y0, r) {
 		if (r <= 0)
 			return;
-
-		// var x = -r,
-		// 	y = 0,
-		// 	r0 = r;
-		// 	err = 2 - 2 * r;
-
-		// while (x < 0)
-		// {
-		// 	// Draw the border
-		// 	this.plot(x0 - x, y0 + y);
-		// 	this.plot(x0 - y, y0 - x);
-		// 	this.plot(x0 + x, y0 - y);
-		// 	this.plot(x0 + y, y0 + x);
-
-		// 	// Fill in
-		// 	// for (var x1 = ; x1)
-
-		// 	r0 = err;
-		// 	if (r0 <= y) {
-		// 		y++;
-		// 		err += y * 2 + 1;
-		// 	}
-		// 	if (r0 > x || err > y) {
-		// 		x++;
-		// 		err += x * 2 + 1;
-		// 	}
-		// }
 
 		var x = r,
 			y = 0,
@@ -318,6 +301,7 @@ var ShapeGenerator = Class(PixelRenderer, {
     	height = (height === undefined ? width : height);
     	this.setSize(width, height);
     	this.generate(width, height);
+    	this.cleanNoiseCells();
 
     	renderer.setLineWidth(1);
 
@@ -327,6 +311,63 @@ var ShapeGenerator = Class(PixelRenderer, {
     				renderer.setColor(this.cells[x][y]);
     				renderer.plot(x0 + x, y0 + y);
     			}
+    		}
+    	}
+    },
+
+    countCellNeighbor: function(x, y) {
+    	var neighborCount = 0;
+    	for (var i = 0; i < 4; i++) {
+    		var x1 = x + DIRECTION[i].x;
+    		var y1 = y + DIRECTION[i].y;
+
+    		if (x1 < 0 || x1 >= this.width || y1 < 0 || y1 >= this.height)
+    			continue;
+
+    		if (this.cells[x1][y1] !== 0)
+    			neighborCount++;
+    	}
+
+    	return neighborCount;
+    },
+
+    checkCell: function(x, y) {
+		if (this.cells[x][y] !== this.borderColor && this.cells[x][y] !== 0)
+			return false;
+
+		var t = this.countCellNeighbor(x, y);
+
+		// Fill those cell that have 3 neighbors or more
+		if (this.cells[x][y] === 0) {
+			if (t >= 3) {
+				this.cells[x][y] = this.fillColor;
+				return true;
+			}
+			return false;
+		}
+			
+		// Remove those cells that have none or just 1 edge neighbor
+		if (t <= 1) {
+			this.cells[x][y] = 0;
+	    	for (var i = 0; i < 4; i++) {
+	    		var x1 = x + DIRECTION[i].x;
+	    		var y1 = y + DIRECTION[i].y;
+
+	    		if (x1 < 0 || x1 >= this.width || y1 < 0 || y1 >= this.height)
+	    			continue;
+
+	    		this.checkCell(x1, y1);
+	    	}
+
+			return true;
+		}
+		return false;
+    },
+
+    cleanNoiseCells: function() {
+    	for (var x = 0; x < this.width; x++) {
+    		for (var y = 0; y < this.height; y++) {
+    				this.checkCell(x, y);
     		}
     	}
     }

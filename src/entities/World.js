@@ -11,7 +11,7 @@ var World = Class(
 		this.MapHeight = gameContainer.conf.get("MAP_HEIGHT");
 		this.PhysicalWidth = this.MapWidth * this.TileSize;
 		this.PhysicalHeight = this.MapHeight * this.TileSize;
-		this.Terrains = new Terrains();
+		this.TerrainManager = new TerrainManager();
 
 		this._staticEntities = [];
 		this._terrainMap = [];
