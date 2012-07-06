@@ -3,6 +3,9 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
+	_terrains : [ 'Water', 'Bush', 'Grass', 'Dirt', 'Rock' ],
+
+	// TODO: delete these man it's pretty bad
 	_tileNames:["grass1", "grass2", "grass3", "grass4", 
                 "flower", 
                 "bush1", "bush2", 
@@ -12,7 +15,7 @@ Crafty.c('TileMap', {
 	_tileSprite: [],
 	_tileType:[
         // EMPTY TILES
-        [13, 16],
+        [13, 16], // had to count numbers what a pain!!
         // BORDER TILES
         [5, 6],
 		// GROUND TILES
@@ -22,6 +25,8 @@ Crafty.c('TileMap', {
         // OBJECT TILES
         [7, 8]
 	],
+	// end TODO
+
 	_width: 0,
 	_height: 0,
     _graphs: {},
@@ -90,17 +95,19 @@ Crafty.c('TileMap', {
 
         var cells = pixelRenderer.cells;
 
-        // Create sprites for tiles
-        for (var i = 0; i < this._tileNames.length; i++) {
-            this._tileSprite[i] = Crafty.e("2D, Canvas, " + this._tileNames[i]).attr({x:-100, y: -100, z:-1});
-        }
+		// cache them for the speedy!
+		var terrains = [];
+		for (var i = 0; i < this._terrains.length; i++)
+		{
+			terrains[i] = this.World.Terrains[this._terrains[i]];
+		}
 
 		// Paint tiles
 		for (var i = 0; i < this._row; i++){
 			this._tiles[i] = [];
 			for (var j = 0; j < this._col; j++){
                 var cellType = cells[i][j];
-				this._tiles[i][j] = Crafty.math.randomInt(this._tileType[cellType][0], this._tileType[cellType][1]);
+				this._tiles[i][j] = terrains[cellType].GetRandomSprite();
 			}
 		}
 
@@ -154,7 +161,7 @@ Crafty.c('TileMap', {
 					tx = j * w;
 					ty = i * h;
 					//var tile = Crafty.c(this._tileNames[this._tiles[i][j]]);
-					var tile = this._tileSprite[this._tiles[i][j]];
+					var tile = this._tiles[i][j];
 					//console.log("Drawing tile: ", tile);
 
 					tileEvent.co.x = tile.__coord[0];

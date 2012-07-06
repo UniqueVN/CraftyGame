@@ -40,6 +40,7 @@ Crafty.scene("loading", function() {
 			"src/entities/MapObjects.js?v="+version,
 			"src/entities/Monsters.js?v="+version,
 			"src/entities/player.js?v="+version,
+			"src/entities/Terrains.js?v="+version,
 			"src/entities/World.js?v="+version
 		];
 

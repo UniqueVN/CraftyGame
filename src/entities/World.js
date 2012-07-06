@@ -1,24 +1,26 @@
 var World = Class(
 {
-	//////////////////////////////////////////////////////////////////////////////////////////
-	// Member Variables
-	//////////////////////////////////////////////////////////////////////////////////////////
-
-	TileSize : gameContainer.conf.get("TILE_SIZE"),
-	MapWidth : gameContainer.conf.get("MAP_WIDTH"),
-	MapHeight : gameContainer.conf.get("MAP_HEIGHT"),
-	PhysicalWidth : gameContainer.conf.get("MAP_WIDTH") * gameContainer.conf.get("TILE_SIZE"),
-	PhysicalHeight : gameContainer.conf.get("MAP_HEIGHT") * gameContainer.conf.get("TILE_SIZE"),
-
-	_staticEntities : [],
-	_terrainMap : [],
-	_spawnPoint: [],
-
-	//////////////////////////////////////////////////////////////////////////////////////////
-	// Functions
-	//////////////////////////////////////////////////////////////////////////////////////////
 	constructor : function()
 	{
+		//////////////////////////////////////////////////////////////////////////////////////////
+		// Member Variables
+		//////////////////////////////////////////////////////////////////////////////////////////
+
+		this.TileSize = gameContainer.conf.get("TILE_SIZE");
+		this.MapWidth = gameContainer.conf.get("MAP_WIDTH");
+		this.MapHeight = gameContainer.conf.get("MAP_HEIGHT");
+		this.PhysicalWidth = this.MapWidth * this.TileSize;
+		this.PhysicalHeight = this.MapHeight * this.TileSize;
+		this.Terrains = new Terrains();
+
+		this._staticEntities = [];
+		this._terrainMap = [];
+		this._spawnPoint = [];
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+		// Initialization
+		//////////////////////////////////////////////////////////////////////////////////////////
+
 		NavigationManager.SetWorld(this);
 
 		this.InitMapData();
@@ -29,9 +31,11 @@ var World = Class(
 			.bind("MouseDown", function(e){ Crafty.trigger('MapMouseDown', e); })
 			.bind("MouseUp", function(e){ Crafty.trigger('MapMouseUp', e); })
 			.bind("MouseMove", function(e){ Crafty.trigger('MapMouseMove', e); });
-
-		return this;
 	},
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// Functions
+	//////////////////////////////////////////////////////////////////////////////////////////
 
 	InitMapData : function()
 	{

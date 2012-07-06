@@ -102,8 +102,6 @@ NavigationManager =
 
 var WorldPathSemantics = Class(
 {
-	_world : null,
-
 	constructor : function(world)
 	{
 		this._world = world;
@@ -142,12 +140,10 @@ var WorldPathSemantics = Class(
 
 var PathFinder = Class(
 {
-	_semantics : null,
-	_nodes : {},
-
 	constructor : function(semantics)
 	{
 		this._semantics = semantics;
+		this._nodes = {};
 	},
 
 	_newNode : function(point, parent, g, h, f)
