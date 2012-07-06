@@ -25,7 +25,9 @@ World = Class.create(
 		this.TileMap = Crafty.e("2D, Canvas, TileMap, Mouse")
 			.attr({x: 0, y: 0, z: 0, w:this.PhysicalWidth, h:this.PhysicalHeight, World : this})
 			.randomGenerate(this.MapWidth, this.MapHeight, this.TileSize)
-			.bind("MouseDown", function(e){ Crafty.trigger('MapClick', e); });
+			.bind("MouseDown", function(e){ Crafty.trigger('MapMouseDown', e); })
+			.bind("MouseUp", function(e){ Crafty.trigger('MapMouseUp', e); })
+			.bind("MouseMove", function(e){ Crafty.trigger('MapMouseMove', e); });
 
 		return this;
 	},

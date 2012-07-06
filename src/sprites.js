@@ -79,7 +79,15 @@ Sprites = Backbone.Model.extend({
                     dirt2: [1, 5],
                     dirt3: [2, 5]
                 }
-            }
+            },
+	        muzzleShots: {
+		        file: 'res/images/Muzzleflashes-Shots.png',
+		        tile: 32,
+		        tileh: 32,
+		        elements: {
+			        blueBeam: [3, 3]
+		        }
+	        }
         }
     },
     initialize: function(){

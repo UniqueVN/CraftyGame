@@ -18,6 +18,12 @@ Crafty.c('NavigationHandle',
 		this._advancePath();
 	},
 
+	StopNavigation : function()
+	{
+		this._pendingPath = null;
+		this.StopMoving();
+	},
+
 	IsNavigating : function()
 	{
 		return this._pendingPath != null;

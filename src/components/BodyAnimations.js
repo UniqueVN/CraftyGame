@@ -25,16 +25,20 @@ Crafty.c('BodyAnimations',
 
 	_updateBodyAnim : function()
 	{
-		if (Crafty.DrawManager.onScreen({ _x : this.x, _y : this.y, _w : this.w, _h : this.h }))
+		// only update anim if we currently have one, otherwise, the anim should already be stopped
+		if (this._currentAnimation != null)
 		{
-			if (this._currentAnimation != null && !this.isPlaying(this._currentAnimation))
+			if (Crafty.DrawManager.onScreen({ _x : this.x, _y : this.y, _w : this.w, _h : this.h }))
 			{
-				this.stop().animate(this._currentAnimation, 10, -1);
+				if (!this.isPlaying(this._currentAnimation))
+				{
+					this.stop().animate(this._currentAnimation, 10, -1);
+				}
 			}
-		}
-		else
-		{
-			this.reset();
+			else
+			{
+				this.reset();
+			}
 		}
 	},
 

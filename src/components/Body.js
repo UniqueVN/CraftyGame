@@ -61,8 +61,7 @@ Crafty.c('Body',
 			if (dist <= this.MovementSpeed)
 			{
 				this.SetCenter(this._moveTo.X, this._moveTo.Y);
-				this._moveTo = null;
-				this.trigger("NewDirection", { x : 0, y : 0 });
+				this.StopMoving();
 				this.trigger("MoveFinished");
 			}
 			else
@@ -124,6 +123,14 @@ Crafty.c('Body',
 		return { X : centerX, Y : centerY }
 	},
 
+	GetCenterReal : function()
+	{
+		var center = this.GetCenter();
+		var x = (center.X + 0.5) * this._world.TileSize;
+		var y = (center.Y + 0.5) * this._world.TileSize;
+		return { X : x, Y : y };
+	},
+
 	GetCenterRounded : function()
 	{
 		var center = this.GetCenter();
@@ -146,5 +153,11 @@ Crafty.c('Body',
 		var dirX = Math.min(Math.round(x - center.X), 1);
 		var dirY = Math.min(Math.round(y - center.Y), 1);
 		this.trigger("NewDirection", { x : dirX, y : dirY });
+	},
+
+	StopMoving : function()
+	{
+		this._moveTo = null;
+		this.trigger("NewDirection", { x : 0, y : 0 });
 	}
 });
