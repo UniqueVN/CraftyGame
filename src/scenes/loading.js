@@ -23,6 +23,7 @@ Crafty.scene("loading", function() {
 	Crafty.load(sprites.getPaths(), function() {
 		// array with local components
 		var elements = [
+			"src/entities/World.js?v="+version,
 			"src/components/MouseHover.js?v="+version,
 			"src/components/KeyMoveControls.js?v="+version,
 			"src/components/Hero.js?v="+version,
@@ -33,6 +34,7 @@ Crafty.scene("loading", function() {
 			"src/components/BodyAnimations.js?v="+version,
 			"src/components/Navigation.js?v="+version,
 			"src/components/AI.js?v="+version,
+			"src/components/Behaviors.js?v="+version,
 			"src/components/Controls.js?v="+version,
 			"src/entities/base/BaseEntity.js?v="+version,
 			"src/entities/base/MapEntity.js?v="+version,
@@ -40,8 +42,7 @@ Crafty.scene("loading", function() {
 			"src/entities/MapObjects.js?v="+version,
 			"src/entities/Monsters.js?v="+version,
 			"src/entities/player.js?v="+version,
-			"src/entities/Terrains.js?v="+version,
-			"src/entities/World.js?v="+version
+			"src/entities/Terrains.js?v="+version
 		];
 
 		//when everything is loaded, run the main scene

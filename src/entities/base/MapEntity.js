@@ -24,3 +24,16 @@ MapEntity = BaseEntity.extend(
 		return "";
 	}
 });
+
+SpawnPoint = MapEntity.extend(
+{
+	Width : 1,
+	Height : 1,
+
+	initialize: function()
+	{
+		var entity = Crafty.e("2D, DOM, Body, SpawnPoint, torii1")
+			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
+		this.set({'entity' : entity });
+	}
+});

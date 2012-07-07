@@ -17,7 +17,8 @@ Creature = MapEntity.extend(
 				TileWidth:this.Width,
 				TileHeight:this.Height,
 				IsStatic:false,
-				MovementSpeed : this.Speed
+				MovementSpeed : this.Speed,
+				Faction : Factions.Ghost
 			});
 
 		this.set({'entity' : entity });

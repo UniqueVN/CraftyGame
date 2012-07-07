@@ -13,7 +13,7 @@ Crafty.c('NavigationHandle',
 	NavigateTo : function(x, y)
 	{
 		var from = this.GetCenterRounded();
-		var to = { X: x, Y : y };
+		var to = { x: x, y : y };
 		this._pendingPath = NavigationManager.GetPathFinder().FindPath(from, to);
 		this._advancePath();
 	},
@@ -27,6 +27,15 @@ Crafty.c('NavigationHandle',
 	IsNavigating : function()
 	{
 		return this._pendingPath != null;
+	},
+
+	IsNavigatingTo : function(x, y)
+	{
+		if (this._pendingPath === null || this._pendingPath.length <= 0)
+			return false;
+
+		var last = this._pendingPath[this._pendingPath.length - 1];
+		return last.x === x && last.y === y;
 	},
 
 	_movePointReached : function()
@@ -50,11 +59,11 @@ Crafty.c('NavigationHandle',
 		{
 			var firstPt = this._pendingPath[0];
 			var secondPt = this._pendingPath[1];
-			var horizontal = firstPt.Y == secondPt.Y;
+			var horizontal = firstPt.y == secondPt.y;
 			for (var i = 2; i < this._pendingPath.length; i++)
 			{
 				var checkPt = this._pendingPath[i];
-				var sameTrack = horizontal ? checkPt.Y == firstPt.Y : checkPt.X == firstPt.X;
+				var sameTrack = horizontal ? checkPt.y == firstPt.y : checkPt.x == firstPt.x;
 				if (!sameTrack)
 					break;
 			}
@@ -62,7 +71,7 @@ Crafty.c('NavigationHandle',
 		}
 
 		var nextPt = this._pendingPath[0];
-		this.MoveTo(nextPt.X, nextPt.Y);
+		this.MoveTo(nextPt.x, nextPt.y);
 	},
 
 	_finishedPath : function()
@@ -76,12 +85,14 @@ NavigationManager =
 	_world : null,
 	_pathFinders : [],
 	_semantics : null,
+	_interRegionPathFinder : null,
 
 	SetWorld : function(world)
 	{
 		this._world = world;
 		this._pathFinders.length = 0;
 		this._semantics = new WorldPathSemantics(world);
+		this._interRegionPathFinder = new PathFinder(new InterRegionPathSemantics(world));
 	},
 
 	GetPathFinder : function()
@@ -97,6 +108,11 @@ NavigationManager =
 	_createPathFinder : function()
 	{
 		return new PathFinder(this._semantics);
+	},
+
+	GetInterRegionPathFinder : function()
+	{
+		return this._interRegionPathFinder;
 	}
 };
 
@@ -109,21 +125,21 @@ var WorldPathSemantics = Class(
 
 	ReachedDestination : function(current, dest)
 	{
-		return current.X == dest.X && current.Y == dest.Y;
+		return current.x == dest.x && current.y == dest.y;
 	},
 
 	GetKey : function(point)
 	{
-		return point.Y * this._world.MapWidth + point.X;
+		return point.y * this._world.MapWidth + point.x;
 	},
 
 	GetNeighbours : function(point)
 	{
 		return [
-			{ X : point.X, Y : point.Y - 1 },
-			{ X : point.X + 1, Y : point.Y },
-			{ X : point.X, Y : point.Y + 1 },
-			{ X : point.X - 1, Y : point.Y }
+			{ x : point.x, y : point.y - 1 },
+			{ x : point.x + 1, y : point.y },
+			{ x : point.x, y : point.y + 1 },
+			{ x : point.x - 1, y : point.y }
 		]
 	},
 
@@ -134,9 +150,42 @@ var WorldPathSemantics = Class(
 
 	GetHeuristicCost : function(current, dest)
 	{
-		return Math.abs(dest.X - current.X) + Math.abs(dest.Y - current.Y);
+		return Math.abs(dest.x - current.x) + Math.abs(dest.y - current.y);
 	}
 });
+
+var InterRegionPathSemantics = Class(
+	{
+		constructor : function(world)
+		{
+			this._world = world;
+		},
+
+		ReachedDestination : function(current, dest)
+		{
+			return current === dest;
+		},
+
+		GetKey : function(region)
+		{
+			return region.Id;
+		},
+
+		GetNeighbours : function(region)
+		{
+			return region.Neighbours;
+		},
+
+		GetMovementCost : function(from, to)
+		{
+			return 1.0;
+		},
+
+		GetHeuristicCost : function(current, dest)
+		{
+			return 0.0;
+		}
+	});
 
 var PathFinder = Class(
 {
@@ -179,11 +228,10 @@ var PathFinder = Class(
 			var currentNode = open.pop();
 			if(this._semantics.ReachedDestination(currentNode.point, to))
 			{
-				path.push(to);
-				while(currentNode.parent != null)
+				while(currentNode != null)
 				{
-					currentNode = currentNode.parent;
 					path.unshift(currentNode.point);
+					currentNode = currentNode.parent;
 				}
 				break;
 			}
@@ -197,7 +245,8 @@ var PathFinder = Class(
 			for (var i = 0; i < neighbours.length; i++)
 			{
 				var nextPoint = neighbours[i];
-				var nextNode = this._nodes[nextPoint] || this._newNode(nextPoint, currentNode, -1, -1, -1);
+				var id = this._semantics.GetKey(nextPoint);
+				var nextNode = this._nodes[id] || this._newNode(nextPoint, currentNode, -1, -1, -1);
 
 				if (nextNode.closed)
 					continue;

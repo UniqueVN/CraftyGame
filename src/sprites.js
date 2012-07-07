@@ -60,6 +60,16 @@ Sprites = Backbone.Model.extend({
 			        slime: [0, 0]
 			    }
 			},
+			torii:
+			{
+				file: 'res/images/torii.png',
+				tile: 160,
+				tileh: 128,
+				elements:
+				{
+				    torii1: [0, 0]
+				}
+			},
             rock: {
                 file: 'res/images/rock.png',
                 tile: 32,

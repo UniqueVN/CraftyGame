@@ -34,8 +34,8 @@ Crafty.c('MouseControl',
 		if (this._isInCastingMode)
 		{
 			var center = this.GetCenterReal();
-			var x = center.X;
-			var y = center.Y - 16;
+			var x = center.x;
+			var y = center.y - 16;
 			this._beam = Crafty.e("2D, Canvas, blueBeam").attr({ x : x, y : y, w : 500}).origin("middle left");
 			this._rotateBeam(e);
 		}
@@ -78,8 +78,8 @@ Crafty.c('MouseControl',
 	_rotateBeam : function(e)
 	{
 		var center = this.GetCenterReal();
-		var dx = e.realX - center.X;
-		var dy = e.realY - center.Y;
+		var dx = e.realX - center.x;
+		var dy = e.realY - center.y;
 		dx *= -1;
 		dy *= -1;
 

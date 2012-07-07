@@ -141,9 +141,26 @@ Crafty.c('TileMap', {
 			}
 		}
 
-        // Add spawn points
-        for (var i = 0; i < graphRenderer.nodes.length - 1; i++) {
-            this.World.AddSpawnPoint(graphRenderer.nodes[i]);
+        // Add regions & spawn points
+		var regions = [];
+        for (var i = 0; i < graphRenderer.nodes.length; i++)
+		{
+			var nodeCenter = graphRenderer.nodes[i];
+			regions[i] = this.World.AddRegion(nodeCenter.x, nodeCenter.y);
+			this.World.AddSpawnPoint(graphRenderer.nodes[i]);
+		}
+
+		// Link regions
+		for (var i = 0; i < graphRenderer.nodes.length; i++)
+		{
+			var thisRegion = regions[i];
+			var node = graphRenderer.graph.nodes[i];
+			thisRegion.Type = i == 0 ? RegionTypes.Temple : (node.isLeaf() ? RegionTypes.Nest : RegionTypes.Neutral);
+			for (var linkIdx = 0; linkIdx < node.links.length; linkIdx++)
+			{
+				var otherIdx = node.links[linkIdx].id;
+				thisRegion.AddNeighbour(regions[otherIdx]);
+			}
         }
 
 		this._width = this._tileSize * this._col;
