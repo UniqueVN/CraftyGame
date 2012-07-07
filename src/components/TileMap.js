@@ -134,7 +134,7 @@ Crafty.c('TileMap', {
                 else
                 {
                 	cellType = -cellType;
-                	this._tiles[i][j] = terrains[0].GetSpriteByName("waterEdge" + cellType);
+                	this._tiles[i][j] = { transition : terrains[0].GetSpriteByName("waterEdge" + cellType)};
                 	// HACK: Set a base tile
                 	this._tiles[i][j].baseTile = terrains[2].GetSprite(0);
                 }
@@ -202,12 +202,17 @@ Crafty.c('TileMap', {
 					
 					tx = j * w;
 					ty = i * h;
-					var basedTile = this._tiles[i][j].baseTile;
-					if (basedTile !== undefined)
-						this.drawTile(tileEvent, basedTile, tx, ty, w, h);
 
 					var tile = this._tiles[i][j];
-					this.drawTile(tileEvent, tile, tx, ty, w, h);
+					if (tile.baseTile)
+					{
+						this.drawTile(tileEvent, tile.baseTile, tx, ty, w, h);
+						this.drawTile(tileEvent, tile.transition, tx, ty, w, h);
+					}
+					else
+					{
+						this.drawTile(tileEvent, tile, tx, ty, w, h);
+					}
 					//console.log("Drawing tile: ", tile);
 				}
 			}
