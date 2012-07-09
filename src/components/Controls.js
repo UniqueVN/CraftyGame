@@ -1,3 +1,99 @@
+Crafty.c('HeroControl',
+{
+	_movementDirection : null,
+
+	init : function()
+	{
+		if (!this.has("NavigationHandle"))
+			throw ("MouseMoveControl relies on NavigationHandle to move the dude around!");
+
+		this._movementDirection = { x : 0, y : 0 };
+
+		this.bind("MapMouseDown", this._onMapMouseDown);
+		this.bind("MapMouseUp", this._onMapMouseUp);
+		this.bind("MapMouseMove", this._onMapMouseMove);
+		this.bind("KeyDown", this._onHeroControlKeyDown);
+		this.bind("KeyUp", this._onHeroControlKeyUp);
+
+		return this;
+	},
+
+	_onHeroControlKeyDown : function(e)
+	{
+		// TODO: cheat code, remove later
+		if (e.key === Crafty.keys['1'])
+		{
+			this._gotoInfestedRegion();
+			return;
+		}
+
+		if (e.key === Crafty.keys['W'])
+			this._movementDirection.y -= 1;
+		else if (e.key === Crafty.keys['S'])
+			this._movementDirection.y += 1;
+		else if (e.key === Crafty.keys['A'])
+			this._movementDirection.x -= 1;
+		else if (e.key === Crafty.keys['D'])
+			this._movementDirection.x += 1;
+
+		this._updateKeyboardMovement();
+	},
+
+	_onHeroControlKeyUp : function(e)
+	{
+		if (e.key === Crafty.keys['W'])
+			this._movementDirection.y += 1;
+		else if (e.key === Crafty.keys['S'])
+			this._movementDirection.y -= 1;
+		else if (e.key === Crafty.keys['A'])
+			this._movementDirection.x += 1;
+		else if (e.key === Crafty.keys['D'])
+			this._movementDirection.x -= 1;
+
+		this._updateKeyboardMovement();
+	},
+
+	_updateKeyboardMovement : function()
+	{
+		if (this._movementDirection.x === 0 && this._movementDirection.y === 0)
+		{
+			this.StopMotion();
+		}
+		else
+		{
+			var dir = Math3D.GetNormal(this._movementDirection);
+			this.SetMotionDir(dir);
+		}
+	},
+
+	_onMapMouseDown : function(e)
+	{
+		var hit = this._toTileSpace(e.realX, e.realY);
+		var center = this.GetCenter();
+		var dir = Math3D.Direction(center, hit);
+		this.UseAbility("Primary", {dir : dir});
+	},
+
+	_onMapMouseUp : function(e)
+	{
+	},
+
+	_onMapMouseMove : function(e)
+	{
+	},
+
+	_gotoInfestedRegion : function()
+	{
+		for (var i = 0; i < this._world.Regions.length; i++)
+		{
+			var region = this._world.Regions[i];
+			if (region._spawnPoint != null)
+				this.SetCenter(region.Center.x, region.Center.y);
+		}
+	}
+});
+
+
 Crafty.c('MouseControl',
 {
 	_isInCastingMode : false,

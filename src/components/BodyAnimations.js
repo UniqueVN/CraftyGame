@@ -6,7 +6,8 @@ Crafty.c('BodyAnimations',
 	{
 	},
 
-	WalkAnimation : function(length)
+	// TODO: rows temporary [ up, left, down, right ]
+	WalkAnimation : function(length, rows)
 	{
 		var lastFrame = length - 1;
 
@@ -15,10 +16,10 @@ Crafty.c('BodyAnimations',
 
 		//setup animations
 		this.requires("SpriteAnimation")
-			.animate("walk_left", 0, 3, lastFrame)
-			.animate("walk_right", 0, 1, lastFrame)
-			.animate("walk_up", 0, 0, lastFrame)
-			.animate("walk_down", 0, 2, lastFrame)
+			.animate("walk_left", 0, rows[1], lastFrame)
+			.animate("walk_right", 0, rows[3], lastFrame)
+			.animate("walk_up", 0, rows[0], lastFrame)
+			.animate("walk_down", 0, rows[2], lastFrame)
 			.bind("NewDirection", this._playWalkAnim);
 		return this;
 	},
@@ -32,7 +33,7 @@ Crafty.c('BodyAnimations',
 			{
 				if (!this.isPlaying(this._currentAnimation))
 				{
-					this.stop().animate(this._currentAnimation, 10, -1);
+					this.stop().animate(this._currentAnimation, 5, -1);
 				}
 			}
 			else

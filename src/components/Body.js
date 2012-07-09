@@ -6,18 +6,25 @@ Crafty.c('Body',
 	IsStatic : true,
 	MovementSpeed : 0.1,
 	Faction : Factions.Neutral,
+	NotColliding : 0,
 
 	_world : null,
 	_tileX : 0,
 	_tileY : 0,
 	_moveTo : null,
 	_needUpdateSprite : false,
+	_velocity : null,
 
 	init: function()
 	{
 		var entity = this;
 		this.requires("2D");
 		return this;
+	},
+
+	GetWorld : function()
+	{
+		return this._world;
 	},
 
 	Appear: function(world, x, y)
@@ -38,6 +45,8 @@ Crafty.c('Body',
 		this._updateSpritePos(true);
 		this.trigger("Change");
 		this.trigger("Appeared");
+
+		return this;
 	},
 
 	_initStaticBody : function()
@@ -47,7 +56,7 @@ Crafty.c('Body',
 
 	_initDynamicBody : function()
 	{
-		this._world.AddDynamicEntities(this);
+		this._world.AddDynamicEntity(this);
 		this.bind("EnterFrame", this._update);
 	},
 
@@ -72,6 +81,13 @@ Crafty.c('Body',
 				var y = center.y + delta.y / dist * this.MovementSpeed;
 				this.SetCenter(x, y);
 			}
+		}
+		else if (this._velocity != null)
+		{
+			var center = this.GetCenter();
+			var x = center.x + this._velocity.x;
+			var y = center.y + this._velocity.y;
+			this.SetCenter(x, y);
 		}
 
 		if (this._needUpdateSprite)
@@ -104,6 +120,11 @@ Crafty.c('Body',
 		return { x : x, y : y, z : z};
 	},
 
+	GetBoundingBox : function()
+	{
+		return { x : this._tileX-0.5, y : this._tileY-0.5, w : this.TileWidth, h : this.TileHeight };
+	},
+
 	GetBounds : function()
 	{
 		var bounds = [];
@@ -120,9 +141,11 @@ Crafty.c('Body',
 
 	SetCenter : function(x, y)
 	{
+		var oldCenter = this.GetCenter();
 		this._tileX = x - (this.TileWidth - 1) / 2.0;
 		this._tileY = y - (this.TileHeight - 1) / 2.0;
 		this._needUpdateSprite = true;
+		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
 	},
 
 	GetCenter : function()
@@ -140,6 +163,13 @@ Crafty.c('Body',
 		return { x : x, y : y };
 	},
 
+	_toTileSpace : function(x, y)
+	{
+		var tileX = (x / this._world.TileSize) - 0.5;
+		var tileY = (y / this._world.TileSize) - 0.5;
+		return { x : tileX, y : tileY };
+	},
+
 	GetCenterRounded : function()
 	{
 		var center = this.GetCenter();
@@ -152,6 +182,11 @@ Crafty.c('Body',
 	{
 		var myCenter = this.GetCenter();
 		return Math.abs(myCenter.x - center.x) <= size && Math.abs(myCenter.y - center.y) <= size;
+	},
+
+	IsColliding : function()
+	{
+		return this.NotColliding <= 0;
 	},
 
 	MoveTo : function(x, y)
@@ -167,6 +202,30 @@ Crafty.c('Body',
 	{
 		this._moveTo = null;
 		this.trigger("NewDirection", { x : 0, y : 0 });
+	},
+
+	SetMotion : function(velocity)
+	{
+		this._velocity = {};
+		this._velocity.x = velocity.x;
+		this._velocity.y = velocity.y;
+		this.trigger("NewDirection", Math3D.GetNormal(velocity));
+	},
+
+	SetMotionDir : function(dir)
+	{
+		this.SetMotion(Math3D.Scale(dir, this.MovementSpeed));
+	},
+
+	StopMotion : function()
+	{
+		this._velocity = null;
+		this.trigger("NewDirection", { x : 0, y : 0 });
+	},
+
+	IsFriendly : function(other)
+	{
+		return other != null && this.Faction === other.Faction;
 	},
 
 	GetEnemies : function()

@@ -2,6 +2,7 @@ Creature = MapEntity.extend(
 {
 	Speed : 0.1,
 	WalkAnimationFrames : 9,
+	WalkAnimationRows : [0, 1, 2, 3],
 
 	initialize: function()
 	{
@@ -11,7 +12,7 @@ Creature = MapEntity.extend(
 
 	_createEntity : function()
 	{
-		var entity = Crafty.e("2D, DOM, Mouse, Body, BodyAnimations, NavigationHandle, AI, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, DOM, Mouse, Body, Damageable, BodyAnimations, NavigationHandle, AI, " + this._getRandomSprite())
 			.attr(
 			{
 				TileWidth:this.Width,
@@ -29,6 +30,6 @@ Creature = MapEntity.extend(
 		var entity = this.getEntity();
 
 		if (this.WalkAnimationFrames > 0)
-			entity.WalkAnimation(this.WalkAnimationFrames);
+			entity.WalkAnimation(this.WalkAnimationFrames, this.WalkAnimationRows);
 	}
 });

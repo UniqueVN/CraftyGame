@@ -60,7 +60,15 @@ Sprites = Backbone.Model.extend({
 			        slime: [0, 0]
 			    }
 			},
-			torii:
+	        ghost: {
+		        file: 'res/images/ghost.png',
+		        tile: 40,
+		        tileh: 46,
+		        elements: {
+			        ghost: [0, 0]
+		        }
+	        },
+	        torii:
 			{
 				file: 'res/images/torii.png',
 				tile: 160,
@@ -126,6 +134,14 @@ Sprites = Backbone.Model.extend({
 		        tileh: 32,
 		        elements: {
 			        blueBeam: [3, 3]
+		        }
+	        },
+	        effects: {
+		        file: 'res/images/effects01.png',
+		        tile: 16,
+		        tileh: 16,
+		        elements: {
+			        RedBullet: [1, 0]
 		        }
 	        }
         }

@@ -26,6 +26,8 @@ var World = Class(
 		this.MapHeight = gameContainer.conf.get("MAP_HEIGHT");
 		this.PhysicalWidth = this.MapWidth * this.TileSize;
 		this.PhysicalHeight = this.MapHeight * this.TileSize;
+
+		this.CollisionMap = new CollisionMap(this.MapWidth, this.MapHeight);
 		this.TerrainManager = new TerrainManager();
 		this.Regions = [];
 
@@ -38,6 +40,7 @@ var World = Class(
 		this._dynamicEntities[Factions.Monk] = [];
 		this._dynamicEntities[Factions.Ghost] = [];
 
+		this._projectileFactory = new ProjectileFactory();
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 		// Initialization
@@ -61,6 +64,11 @@ var World = Class(
 	// Functions
 	//////////////////////////////////////////////////////////////////////////////////////////
 
+	SpawnProjectile : function(x, y)
+	{
+		return this._projectileFactory.Spawn(this, x, y);
+	},
+
 	InitMapData : function()
 	{
 		for (var i = 0; i < this.MapWidth; i++)
@@ -82,14 +90,21 @@ var World = Class(
 			var pos = staticEntityInfo.Bounds[i];
 			this._terrainMap[pos.x][pos.y] = entity;
 		}
+
+		this.CollisionMap.AddEntity(entity);
 	},
 
-	AddDynamicEntities : function(entity)
+	AddDynamicEntity : function(entity)
 	{
-		if (entity.Faction === Factions.Undefined)
-			throw ("Cannot have entity with undefined faction!");
+		if (!entity.has("Projectile"))
+		{
+			if (entity.Faction === Factions.Undefined)
+				throw ("Cannot have entity with undefined faction!");
+			this._dynamicEntities[entity.Faction].push(entity);
+		}
 
-		this._dynamicEntities[entity.Faction].push(entity);
+		if (entity.IsColliding())
+			this.CollisionMap.AddEntity(entity);
 	},
 
 	GetEnemyFaction : function(faction)
@@ -185,5 +200,197 @@ var Region = Class(
 		this._spawnPoint = new SpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 		if (destination != null)
 			this._spawnPoint.getEntity().SetSpawnedDestination(this, destination);
+	}
+});
+
+var CollisionMap = Class(
+{
+	constructor : function(w, h)
+	{
+		this._cellSize = 16;
+		this._movableMap = [];
+		this._cols = Math.floor(w / this._cellSize);
+		this._rows = Math.floor(h / this._cellSize);
+
+		for (var i = 0; i < this._cols; i++)
+		{
+			this._movableMap[i] = [];
+			for (var j = 0; j < this._rows; j++)
+				this._movableMap[i][j] = [];
+		}
+	},
+
+	AddEntity : function(entity)
+	{
+		if (entity.IsStatic)
+		{
+
+		}
+		else
+		{
+			this._addMovable(entity);
+		}
+	},
+
+	_addMovable : function(entity)
+	{
+		var centerTile = entity.GetCenterRounded();
+
+		var bounds = this._getBounds(centerTile, entity.TileWidth, entity.TileHeight);
+		var minCell = bounds.min;
+		var maxCell = bounds.max;
+
+		for (var x = minCell.x; x <= maxCell.x; x++)
+		{
+			for (var y = minCell.y; y <= maxCell.y; y++)
+				this._movableMap[x][y].push(entity);
+		}
+
+		var entry =
+		{
+			center : centerTile,
+			min : minCell,
+			max : maxCell
+		};
+
+		entity._collisionMapEntry = entry;
+		var map = this;
+		entity.bind("BodyMoved", function() { map._updateEntity(this); } );
+	},
+
+	_getBounds : function(center, w, h)
+	{
+		var minX = center.x - w / 2.0 - 0.5;
+		var minY = center.y - h / 2.0 - 0.5;
+		var maxX = center.x + w / 2.0 + 0.5;
+		var maxY = center.y + h / 2.0 + 0.5;
+
+		return { min : this._getCell(minX, minY), max : this._getCell(maxX, maxY) };
+	},
+
+	_getCell : function(x, y)
+	{
+		var cellX = Math.floor(Math.max(0, x + 0.5) / this._cellSize);
+		var cellY = Math.floor(Math.max(0, y + 0.5) / this._cellSize);
+		return { x : cellX, y : cellY };
+	},
+
+	_updateEntity : function(entity)
+	{
+		var entry = entity._collisionMapEntry;
+		if (!entry)
+			throw ("No collision map entry found, entity must be added first before updating!");
+
+		var newCenter = entity.GetCenterRounded();
+		var oldCenter = entry.center;
+		if (newCenter.x != oldCenter.x || newCenter.y != oldCenter.y)
+		{
+			var bounds = this._getBounds(newCenter, entity.TileWidth, entity.TileHeight);
+
+			// remove
+			for (var x = entry.min.x; x <= entry.max.x; x++)
+			{
+				var xInNewBounds = x >= bounds.min.x && x <= bounds.max.x;
+				for (var y = entry.min.y; y <= entry.max.y; y++)
+				{
+					var yInNewBounds = y >= bounds.min.y && y <= bounds.max.y;
+					if (!xInNewBounds || !yInNewBounds)
+					{
+						var list = this._movableMap[x][y];
+						var idx = list.indexOf(entity);
+						if (idx === -1)
+							throw ("somehow entity is not in the list!");
+						list.splice(idx, 1);
+					}
+				}
+			}
+
+			// insert
+			for (var x = bounds.min.x; x <= bounds.max.x; x++)
+			{
+				var xInOldBounds = x >= entry.min.x && x <= entry.max.x;
+				for (var y = bounds.min.y; y <= bounds.max.y; y++)
+				{
+					var yInOldBounds = y >= entry.min.y && y <= entry.max.y;
+					if (!xInOldBounds || !yInOldBounds)
+					{
+						this._movableMap[x][y].push(entity);
+					}
+				}
+			}
+
+			entry.center = newCenter;
+			entry.min = bounds.min;
+			entry.max = bounds.max;
+		}
+	},
+
+	LineCheck : function(start, end)
+	{
+		var result = {};
+		result.hits = [];
+
+		var minCell = this._getCell(Math.min(start.x, end.x), Math.min(start.y, end.y));
+		var maxCell = this._getCell(Math.max(start.x, end.x), Math.max(start.y, end.y));
+
+		for (var x = minCell.x; x <= maxCell.x; x++)
+		{
+			for (var y = minCell.y; y <= maxCell.y; y++)
+			{
+				var list = this._movableMap[x][y];
+
+				for (var i = 0; i < list.length; i++)
+				{
+					var entity = list[i];
+					if (this._lineBoxIntersect(start, end, entity.GetBoundingBox()))
+						result.hits.push( { entity : entity } );
+				}
+			}
+		}
+
+		return result;
+	},
+
+	_lineBoxIntersect : function(start, end, box)
+	{
+		var min = { x : box.x, y : box.y };
+		var max = { x : box.x + box.w, y : box.y + box.h };
+
+		if ((start.x < min.x && end.x < min.x) ||
+			(start.x > max.x && end.x > max.x) ||
+			(start.y < min.y && end.y < min.y) ||
+			(start.y > max.y && end.y > max.y))
+			return false;
+
+		if (this._insideBox(start, box) || this._insideBox(end, box))
+			return true;
+
+		if (this._lineSideIntersect(start.x, end.x, min.x, start.y, end.y, min.y, max.y) ||
+			this._lineSideIntersect(start.x, end.x, max.x, start.y, end.y, min.y, max.y) ||
+			this._lineSideIntersect(start.y, end.y, min.y, start.x, end.x, min.x, max.x) ||
+			this._lineSideIntersect(start.y, end.y, max.y, start.x, end.x, min.x, max.x))
+			return true;
+
+		return false;
+	},
+
+	_insideBox : function(point, box)
+	{
+		return point.x >= box.x && point.x <= (box.x + box.w) &&
+			point.y >= box.y && point.y <= (box.y + box.h);
+	},
+
+	_lineSideIntersect : function(start, end, side, startH, endH, sideMin, sideMax)
+	{
+		if ((start < side && end < side) || (start > side && end > side))
+			return false;
+
+		var sideH = startH + (endH - startH) / (end - start) * (side - start);
+		return sideH >= sideMin && sideH <= sideMax;
+	},
+
+	BoxCheck : function(center, size)
+	{
+
 	}
 });

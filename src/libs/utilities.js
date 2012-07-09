@@ -129,3 +129,59 @@ var PriorityQueue = function(options) {
 
 	return self;
 };
+
+var Math3D =
+{
+	Scale : function(vector, scalar)
+	{
+		var newVec = {};
+		newVec.x = vector.x * scalar;
+		newVec.y = vector.y * scalar;
+		return newVec;
+	},
+
+	Delta : function(from, to)
+	{
+		var d = {};
+		d.x = to.x - from.x;
+		d.y = to.y - from.y;
+		return d;
+	},
+
+	Direction : function(from, to)
+	{
+		var dir = this.Delta(from, to);
+		return this.Normalize(dir);
+	},
+
+	Normalize : function(vector)
+	{
+		var x = vector.x;
+		var y = vector.y;
+		var l = Math.sqrt(x * x + y * y);
+		if (l === 0)
+		{
+			vector.x = vector.y = 0;
+		}
+		else
+		{
+			vector.x /= l;
+			vector.y /= l;
+		}
+		return vector;
+	},
+
+	GetNormal : function(vector)
+	{
+		var v = { x : vector.x, y : vector.y };
+		this.Normalize(v);
+		return v;
+	},
+
+	Distance : function(from, to)
+	{
+		var x = to.x - from.x;
+		var y = to.y - from.y;
+		return Math.sqrt(x * x + y * y);;
+	}
+};
