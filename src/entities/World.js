@@ -107,6 +107,12 @@ var World = Class(
 			this.CollisionMap.AddEntity(entity);
 	},
 
+	RemoveEntity : function(entity)
+	{
+		if (entity.IsColliding())
+			this.CollisionMap.RemoveEntity(entity);
+	},
+
 	GetEnemyFaction : function(faction)
 	{
 		if (faction === Factions.Monk)
@@ -232,6 +238,18 @@ var CollisionMap = Class(
 		}
 	},
 
+	RemoveEntity : function(entity)
+	{
+		if (entity.IsStatic)
+		{
+
+		}
+		else
+		{
+			this._removeMovable(entity);
+		}
+	},
+
 	_addMovable : function(entity)
 	{
 		var centerTile = entity.GetCenterRounded();
@@ -256,6 +274,27 @@ var CollisionMap = Class(
 		entity._collisionMapEntry = entry;
 		var map = this;
 		entity.bind("BodyMoved", function() { map._updateEntity(this); } );
+	},
+
+	_removeMovable : function(entity)
+	{
+		var entry = entity._collisionMapEntry;
+		if (!entry)
+			throw ("No collision map entry found, entity must be added first before removing!");
+
+		for (var x = entry.min.x; x <= entry.max.x; x++)
+		{
+			for (var y = entry.min.y; y <= entry.max.y; y++)
+			{
+				var list = this._movableMap[x][y];
+				var idx = list.indexOf(entity);
+				if (idx === -1)
+					throw ("somehow entity is not in the list!");
+				list.splice(idx, 1);
+			}
+		}
+
+		delete entity['_collisionMapEntry'];
 	},
 
 	_getBounds : function(center, w, h)

@@ -30,12 +30,16 @@ Crafty.c('Body',
 	Appear: function(world, x, y)
 	{
 		if (!this.has("Sprite"))
-			throw new Error("Must have Sprite for body!");
+			throw ("Must have Sprite for body!");
+
+		if (this._world != null)
+			throw ("Already appeared in a world!");
 
 		this._world = world;
 		this._tileX = x;
 		this._tileY = y;
 
+		this.bind("Remove", this._removeBody);
 
 		if (this.IsStatic)
 			this._initStaticBody();
@@ -58,6 +62,11 @@ Crafty.c('Body',
 	{
 		this._world.AddDynamicEntity(this);
 		this.bind("EnterFrame", this._update);
+	},
+
+	_removeBody : function()
+	{
+		this._world.RemoveEntity(this);
 	},
 
 	_update : function()
