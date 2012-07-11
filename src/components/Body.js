@@ -125,7 +125,7 @@ Crafty.c('Body',
 	{
 		var x = tileX * this._world.TileSize + (this.TileWidth * this._world.TileSize - this.w) / 2.0;
 		var y = tileY * this._world.TileSize + this.TileHeight * this._world.TileSize - this.h;
-		var z = Math.round(tileY + this.TileHeight + 1); // add 1 padding with other things (like map, player), could be const
+		var z = Math.round((tileY + this.TileHeight + 1) * 10); // add 1 padding with other things (like map, player), could be const
 		return { x : x, y : y, z : z};
 	},
 
@@ -201,10 +201,8 @@ Crafty.c('Body',
 	MoveTo : function(x, y)
 	{
 		this._moveTo = { x : x, y : y };
-		var center = this.GetCenterRounded();
-		var dirX = Math.min(Math.round(x - center.x), 1);
-		var dirY = Math.min(Math.round(y - center.y), 1);
-		this.trigger("NewDirection", { x : dirX, y : dirY });
+		var center = this.GetCenter();
+		this.trigger("NewDirection", Math3D.Normalize({ x : x - center.x, y : y - center.y }));
 	},
 
 	StopMoving : function()

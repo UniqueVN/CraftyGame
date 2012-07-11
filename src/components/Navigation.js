@@ -55,19 +55,28 @@ Crafty.c('NavigationHandle',
 			return;
 		}
 
+		// try to smooth the path
 		if (this._pendingPath.length >= 2)
 		{
-			var firstPt = this._pendingPath[0];
-			var secondPt = this._pendingPath[1];
-			var horizontal = firstPt.y == secondPt.y;
-			for (var i = 2; i < this._pendingPath.length; i++)
+			var start = this.GetCenterRounded();
+			var dir = { x: 0, y : 0 };
+
+			for (var i = 0, prev = start; i < this._pendingPath.length; i++)
 			{
-				var checkPt = this._pendingPath[i];
-				var sameTrack = horizontal ? checkPt.y == firstPt.y : checkPt.x == firstPt.x;
-				if (!sameTrack)
+				var current = this._pendingPath[i];
+				var dx = current.x - prev.x;
+				var dy = current.y - prev.y;
+
+				if (dx * dir.x < 0 || dy * dir.y < 0)
 					break;
+
+				dir.x += dx;
+				dir.y += dy;
+
+				prev = current;
 			}
-			this._pendingPath.splice(0, i - 1);
+			if (i >= 2) // TODO: line check to validate
+				this._pendingPath.splice(0, i - 1);
 		}
 
 		var nextPt = this._pendingPath[0];
@@ -137,15 +146,21 @@ var WorldPathSemantics = Class(
 	{
 		return [
 			{ x : point.x, y : point.y - 1 },
+			{ x : point.x + 1, y : point.y - 1 },
 			{ x : point.x + 1, y : point.y },
+			{ x : point.x + 1, y : point.y + 1 },
 			{ x : point.x, y : point.y + 1 },
-			{ x : point.x - 1, y : point.y }
+			{ x : point.x - 1, y : point.y + 1 },
+			{ x : point.x - 1, y : point.y },
+			{ x : point.x - 1, y : point.y - 1 }
 		]
 	},
 
 	GetMovementCost : function(from, to)
 	{
-		return 0.5;
+		var dx = to.x - from.x;
+		var dy = to.y - from.y;
+		return (dx === 0 || dy === 0) ? 0.5 : 0.7;
 	},
 
 	GetHeuristicCost : function(current, dest)

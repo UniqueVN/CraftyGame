@@ -1,14 +1,16 @@
 Crafty.c('BodyAnimations',
 {
 	_currentAnimation : null,
+	_walkAnimSpeed : 10,
 
 	init: function()
 	{
 	},
 
 	// TODO: rows temporary [ up, left, down, right ]
-	WalkAnimation : function(length, rows)
+	WalkAnimation : function(length, rows, speed)
 	{
+		this._walkAnimSpeed = speed;
 		var lastFrame = length - 1;
 
 		// TODO: make sure we don't bind this more than once!!
@@ -33,7 +35,7 @@ Crafty.c('BodyAnimations',
 			{
 				if (!this.isPlaying(this._currentAnimation))
 				{
-					this.stop().animate(this._currentAnimation, 5, -1);
+					this.stop().animate(this._currentAnimation, this._walkAnimSpeed, -1);
 				}
 			}
 			else
@@ -45,11 +47,11 @@ Crafty.c('BodyAnimations',
 
 	_playWalkAnim : function(direction)
 	{
-		if (direction.x < 0)
+		if (direction.x < -0.5)
 		{
 			this._currentAnimation = "walk_left";
 		}
-		else if (direction.x > 0)
+		else if (direction.x > 0.5)
 		{
 			this._currentAnimation = "walk_right";
 		}

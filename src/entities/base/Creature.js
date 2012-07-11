@@ -3,6 +3,7 @@ Creature = MapEntity.extend(
 	Speed : 0.1,
 	WalkAnimationFrames : 9,
 	WalkAnimationRows : [0, 1, 2, 3],
+	WalkAnimationSpeed : 15,
 
 	initialize: function()
 	{
@@ -30,6 +31,6 @@ Creature = MapEntity.extend(
 		var entity = this.getEntity();
 
 		if (this.WalkAnimationFrames > 0)
-			entity.WalkAnimation(this.WalkAnimationFrames, this.WalkAnimationRows);
+			entity.WalkAnimation(this.WalkAnimationFrames, this.WalkAnimationRows, this.WalkAnimationSpeed);
 	}
 });

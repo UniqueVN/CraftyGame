@@ -26,7 +26,7 @@ Crafty.c('Damageable',
 		{
 			var center = this.GetCenterReal();
 			var damageFloat = Crafty.e("2D, DOM, FloatingText")
-				.attr({x : center.x - 16, y : center.y - 40, w : 100, z : 3000})
+				.attr({x : center.x - 16, y : center.y - 40, w : 100, z : 30000})
 				.text("- " + damage)
 				.textFont({family : 'Arial', size : "20px", weight: 'bold'})
 				.StartFloating("#FF0000");
