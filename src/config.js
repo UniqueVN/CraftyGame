@@ -7,7 +7,9 @@ Config = Backbone.Model.extend({
 		MAP_HEIGHT: 1000,
 		TILE_SIZE: 32,
 		PLAYER_SIZE: 64,
-		PLAYER_SPEED: 6.5
+		PLAYER_SPEED: 6.5,
+		SHOW_TREES: false,
+		SHOW_ROCKS: false
     },
     initialize: function() {
     },

@@ -18,16 +18,13 @@ Sprites = Backbone.Model.extend({
 				tile: 16,
 				tileh: 16,
 				elements: {
-					grass1: [0,0],
-					grass2: [1,0],
-					grass3: [2,0],
-					grass4: [3,0],
 					flower: [0,1],
 					bush1: [0,2],
 					bush2: [1,2],
 					player: [0,3]
 				}
 			},
+            // CHARACTERS
 			charMale: {
 			    file: 'res/images/charMale.png',
 			    tile: 64,
@@ -44,6 +41,8 @@ Sprites = Backbone.Model.extend({
 			        maleNaked: [0, 0]
 			    }
 			},
+
+            // MONSTERS
 			skeleton: {
 			    file: 'res/images/BODY_skeleton.png',
 			    tile: 64,
@@ -68,6 +67,8 @@ Sprites = Backbone.Model.extend({
 			        ghost: [0, 0]
 		        }
 	        },
+
+            // OBJECTS
 	        torii:
 			{
 				file: 'res/images/torii.png',
@@ -87,11 +88,82 @@ Sprites = Backbone.Model.extend({
                     rock2: [1, 0]
                 }
             },
+            treetop: {
+                file: 'res/images/treetop.png',
+                tile: 96,
+                tileh: 96,
+                elements: {
+                    treetop0: [0, 0],
+                    treetop1: [1, 0],
+                    treetop2: [0, 1],
+                    treetop3: [1, 1]
+                }
+            },
+            treetrunk: {
+                file: 'res/images/treetrunk.png',
+                tile: 96,
+                tileh: 96,
+                elements: {
+                    treetrunk0: [0, 0],
+                    treetrunk1: [1, 0]
+                }
+            },
+
+            // TERRAIN TILES
+            sand: {
+                file: 'res/images/sand.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    // Edge
+                    sandEdge1: [1, 4], // TOP
+                    sandEdge2: [1, 2], // BOTTOM
+                    sandEdge4: [0, 3], // RIGHT
+                    sandEdge8: [2, 3], // LEFT
+                    // Convex Corner
+                    sandEdge12: [1, 0], // TOP-LEFT
+                    sandEdge15: [2, 0], // TOP-RIGHT
+                    sandEdge18: [1, 1], // BOTTOM-LEFT
+                    sandEdge21: [2, 1], // BOTTOM-RIGHT
+                    // Valley Corner
+                    sandEdge9: [2, 4], // TOP-LEFT
+                    sandEdge5: [0, 4], // TOP-RIGHT
+                    sandEdge10: [2, 2], // BOTTOM-LEFT
+                    sandEdge6: [0, 2], // BOTTOM-RIGHT
+                    // Hole
+                    sandHole0: [0, 0],
+                    sandHole1: [0, 1],
+                    // Center
+                    sand0: [1, 3],
+                    sand1: [0, 5],
+                    sand2: [1, 5],
+                    sand3: [2, 5]
+                }
+            },
             dirt: {
                 file: 'res/images/dirt.png',
                 tile: 32,
                 tileh: 32,
                 elements: {
+                    // Edge
+                    dirtEdge1: [1, 4], // TOP
+                    dirtEdge2: [1, 2], // BOTTOM
+                    dirtEdge4: [0, 3], // RIGHT
+                    dirtEdge8: [2, 3], // LEFT
+                    // Convex Corner
+                    dirtEdge12: [1, 0], // TOP-LEFT
+                    dirtEdge15: [2, 0], // TOP-RIGHT
+                    dirtEdge18: [1, 1], // BOTTOM-LEFT
+                    dirtEdge21: [2, 1], // BOTTOM-RIGHT
+                    // Valley Corner
+                    dirtEdge9: [2, 4], // TOP-LEFT
+                    dirtEdge5: [0, 4], // TOP-RIGHT
+                    dirtEdge10: [2, 2], // BOTTOM-LEFT
+                    dirtEdge6: [0, 2], // BOTTOM-RIGHT
+                    // Hole
+                    dirtHole0: [0, 0],
+                    dirtHole1: [0, 1],
+                    // Center
                     dirt0: [1, 3],
                     dirt1: [0, 5],
                     dirt2: [1, 5],
@@ -126,6 +198,36 @@ Sprites = Backbone.Model.extend({
                     water1: [0, 5],
                     water2: [1, 5],
                     water3: [2, 5]
+                }
+            },
+            grass: {
+                file: 'res/images/grass.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    // Edge
+                    grassEdge1: [1, 4], // TOP
+                    grassEdge2: [1, 2], // BOTTOM
+                    grassEdge4: [0, 3], // RIGHT
+                    grassEdge8: [2, 3], // LEFT
+                    // Convex Corner
+                    grassEdge12: [1, 0], // TOP-LEFT
+                    grassEdge15: [2, 0], // TOP-RIGHT
+                    grassEdge18: [1, 1], // BOTTOM-LEFT
+                    grassEdge21: [2, 1], // BOTTOM-RIGHT
+                    // Valley Corner
+                    grassEdge9: [2, 4], // TOP-LEFT
+                    grassEdge5: [0, 4], // TOP-RIGHT
+                    grassEdge10: [2, 2], // BOTTOM-LEFT
+                    grassEdge6: [0, 2], // BOTTOM-RIGHT
+                    // Hole
+                    grassHole0: [0, 0],
+                    grassHole1: [0, 1],
+                    // Center
+                    grass0: [1, 3],
+                    grass1: [0, 5],
+                    grass2: [1, 5],
+                    grass3: [2, 5]
                 }
             },
 	        muzzleShots: {

@@ -1,28 +1,37 @@
 var TerrainDefinitions =
 {
-	Grass :
-	{
-		Sprites: ["grass1", "grass2", "grass3", "grass4"]
-	},
-
-	Flower :
+	flower:
 	{
 		Sprites: ["flower"]
 	},
 
-	Bush :
+	bush:
 	{
 		Sprites: ["bush1", "bush2"]
 	},
-	Rock :
+	rock:
 	{
 		Sprites: ["rock1", "rock2"]
 	},
-	Dirt :
+	sand:
 	{
-		Sprites: ["dirt0", "dirt1", "dirt2", "dirt3"]
+		Sprites: ["sand0", "sand1", "sand2", "sand3",
+				  "sandEdge1", "sandEdge2", "sandEdge4", "sandEdge8",
+				  "sandEdge12", "sandEdge15", "sandEdge18", "sandEdge21",
+				  "sandEdge9", "sandEdge5", "sandEdge10", "sandEdge6",
+				  "sandHole0", "sandHole1"
+				  ]
 	},
-	Water :
+	dirt:
+	{
+		Sprites: ["dirt0", "dirt1", "dirt2", "dirt3",
+				  "dirtEdge1", "dirtEdge2", "dirtEdge4", "dirtEdge8",
+				  "dirtEdge12", "dirtEdge15", "dirtEdge18", "dirtEdge21",
+				  "dirtEdge9", "dirtEdge5", "dirtEdge10", "dirtEdge6",
+				  "dirtHole0", "dirtHole1"
+				  ]
+	},
+	water:
 	{
 		Sprites: ["water0", "water1", "water2", "water3",
 				  "waterEdge1", "waterEdge2", "waterEdge4", "waterEdge8",
@@ -30,14 +39,24 @@ var TerrainDefinitions =
 				  "waterEdge9", "waterEdge5", "waterEdge10", "waterEdge6",
 				  "waterHole0", "waterHole1"
 				  ]
+	},
+	grass:
+	{
+		Sprites: ["grass0", "grass1", "grass2", "grass3",
+				  "grassEdge1", "grassEdge2", "grassEdge4", "grassEdge8",
+				  "grassEdge12", "grassEdge15", "grassEdge18", "grassEdge21",
+				  "grassEdge9", "grassEdge5", "grassEdge10", "grassEdge6",
+				  "grassHole0", "grassHole1"
+				  ]
 	}
 };
 
 var Terrain = Class(
 {
-	constructor : function()
+	constructor : function(name)
 	{
 		this._entities = [];
+		this._name = name || "";
 	},
 
 	GetRandomSprite : function()
@@ -60,6 +79,13 @@ var Terrain = Class(
 
 		debug.log("CAN'T FIND SPRITE NAME: " + name);
 		return this._entities[0];
+	},
+
+	GetGroundSprite: function()
+	{
+		// GroundTile have index from 0 -> 3
+		var i = Crafty.math.clamp(Crafty.math.randomInt(0, 53) - 50, 0, 3);
+		return this._entities[i];
 	}
 });
 
@@ -70,7 +96,7 @@ var TerrainManager = Class(
 		for (var terrainName in TerrainDefinitions)
 		{
 			var terrainDef = TerrainDefinitions[terrainName];
-			var terrain = new Terrain();
+			var terrain = new Terrain(terrainName);
 
 			var numSprites = terrainDef.Sprites.length;
 			for (var i = 0; i < numSprites; i++)
@@ -82,6 +108,3 @@ var TerrainManager = Class(
 		}
 	}
 });
-
-
-

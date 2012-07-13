@@ -8,7 +8,7 @@ Player = MapEntity.extend({
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
 	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, Text, AbilityUser")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false, Faction : Factions.Monk, MovementSpeed: 0.2 })
-		    .text("moving")
+		    .text("Jia")
 		    .WalkAnimation(9, [0, 1, 2, 3], 5)
 		.AddAbility("Primary", new Ability_Shoot())
 
