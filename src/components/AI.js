@@ -24,7 +24,7 @@ Crafty.c('AI',
 			var goal = this._goals[i];
 			if (goal.IsActive)
 			{
-				goal.Behave();
+				goal.Behave(frame);
 				break;
 			}
 		}
@@ -62,7 +62,7 @@ var Goal = Class(
 
 	Think : function() {},
 
-	Behave : function() {}
+	Behave : function(frame) {}
 });
 
 var Goal_DestroyTemple = Class(Goal,
@@ -107,7 +107,7 @@ var Goal_DestroyTemple = Class(Goal,
 		}
 	},
 
-	Behave : function()
+	Behave : function(frame)
 	{
 		if (!this._entity.IsNavigating() && this._marchingPath.length > 0)
 		{
@@ -124,6 +124,7 @@ var Goal_AttackEnemy = Class(Goal,
 		Goal_AttackEnemy.$super.call(this, entity);
 
 		this._target = null;
+		this._nextAttackFrame = 0;
 	},
 
 	Think : function()
@@ -146,14 +147,44 @@ var Goal_AttackEnemy = Class(Goal,
 		}
 	},
 
-	Behave : function()
+	Behave : function(frame)
 	{
 		if (this._target != null)
 		{
-			var targetLoc = this._target.GetCenterRounded();
-			if (!this._entity.IsNavigatingTo(targetLoc.x, targetLoc.y))
+			var selfCenter = this._entity.GetCenter();
+			var targetCenter = this._target.GetCenter();
+
+			var distToTarget = Math3D.Distance(selfCenter, targetCenter);
+
+			if (distToTarget > 20)
 			{
-				this._entity.NavigateTo(targetLoc.x, targetLoc.y);
+				this.IsActive = false;
+				return;
+			}
+
+
+			if (distToTarget > 3)
+			{
+				var targetLoc = this._target.GetCenterRounded();
+				if (!this._entity.IsNavigatingTo(targetLoc.x, targetLoc.y))
+				{
+					this._entity.NavigateTo(targetLoc.x, targetLoc.y);
+				}
+			}
+			else
+			{
+				if (this._entity.IsNavigating())
+					this._entity.StopNavigation();
+			}
+
+			if (distToTarget <= 10)
+			{
+				if (frame >= this._nextAttackFrame)
+				{
+					this._nextAttackFrame = frame + 50;
+					var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
+					this._entity.UseAbility('Primary', data);
+				}
 			}
 		}
 	}
