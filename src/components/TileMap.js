@@ -5,11 +5,13 @@ Crafty.c('TileMap', {
 	_tileSize: 1,
 	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'rock', 'bush'],
 	_tileSprite: [],
-
 	_width: 0,
 	_height: 0,
     _graphs: {},
     _graphLayout: null,
+    _bufferWidth: 34,
+    _bufferHeight: 36,
+    _buffer: null,
 
     // TOP - DOWN - RIGHT - LEFT
     // TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
@@ -185,6 +187,7 @@ Crafty.c('TileMap', {
 		            		var t = Crafty.math.randomInt(0, 101);
 		            		if (t > 100)
 		            			this.CreateObject(Tree, j, i);
+		            		// this.CreateObject(Tree, j, i);
                 		}
                 	}
 					this._tiles[i][j] = this.terrains[cellType].GetGroundSprite();
@@ -225,21 +228,19 @@ Crafty.c('TileMap', {
 
 		this._width = this._tileSize * this._col;
 		this._height = this._tileSize * this._row;
+
+		this.createBufferCanvas();
 		
 		this.ready = true;
 		return this;
 	},
 
-	drawTile: function(tileEvent, tile, x, y, w, h) {
-		tileEvent.co.x = tile.__coord[0];
-		tileEvent.co.y = tile.__coord[1];
-		tileEvent.co.w = tile.__coord[2];
-		tileEvent.co.h = tile.__coord[3];
-		tileEvent.pos._x = x;
-		tileEvent.pos._y = y;
-		tileEvent.pos._w = w;
-		tileEvent.pos._h = h;
-		tile.trigger("Draw", tileEvent);
+	createBufferCanvas: function() {
+		if (!this._buffer)
+			this._buffer = new TileMapBuffer(this, this._bufferHeight, this._bufferWidth);
+		this._buffer.updateViewport();
+
+		// debug.log("createBufferCanvas: " + this.buffer + " context: " + this.bufferContext);
 	},
 
 	init: function() {
@@ -250,49 +251,9 @@ Crafty.c('TileMap', {
 			var co = e.co,
 				pos = e.pos,
 				context = e.ctx;
-				
-			var tileEvent = { co: e.co, pos: e.pos, ctx: e.ctx};
-			tileEvent.type = "canvas";
-			
-			var minX = -Crafty.viewport.x;
-			var minY = -Crafty.viewport.y;
-			var maxX = minX + Crafty.viewport.width;
-			var maxY = minY + Crafty.viewport.height;
-			
-			var tx = 0,
-				ty = 0,
-				w = this._tileSize,
-				h = this._tileSize;
-				
-			var i0 = Math.floor(minY / h);
-			var i1 = Math.floor(maxY / h);
-			var j0 = Math.floor(minX / w);
-			var j1 = Math.floor(maxX / w);
-			
-			if (i0 < 0) i0 = 0;
-			if (j0 < 0) j0 = 0;
-			if (i1 > this._row - 1) i1 = this._row - 1;
-			if (j1 > this._col - 1) j1 = this._col - 1;
-			
-			for (var i = i0; i <= i1; i++){
-				for (var j = j0; j <= j1; j++){
-					
-					tx = j * w;
-					ty = i * h;
 
-					var tile = this._tiles[i][j];
-					if (tile.baseTile)
-					{
-						this.drawTile(tileEvent, tile.baseTile, tx, ty, w, h);
-						this.drawTile(tileEvent, tile.transition, tx, ty, w, h);
-					}
-					else
-					{
-						this.drawTile(tileEvent, tile, tx, ty, w, h);
-					}
-					//console.log("Drawing tile: ", tile);
-				}
-			}
+			this._buffer.updateViewport();
+			this._buffer.draw(context);
 		};
 
 		this.bind("Draw", draw).bind("RemoveComponent", function (id) {
@@ -303,5 +264,163 @@ Crafty.c('TileMap', {
 	CreateObject : function(type, x, y)
 	{
 		return new type().Appear(this.World, x, y);
+	}
+});
+
+// ========================================================================================== //
+// TILE MAP BUFFERS
+var TileMapBuffer = Class({
+	constructor: function(tileMap, row, col) {
+		this.row = row;
+		this.col = col;
+		// Top-left of the buffer in the global map
+		this.rowBegin = 0;
+		this.colBegin = 0;
+
+		this.tileMap = tileMap;
+
+		var w = col * tileMap._tileSize;
+		var h = row * tileMap._tileSize;
+		this.width = w;
+		this.height = h;
+
+		this.renderer = null;
+	},
+
+	drawTile: function(tile, x, y, w, h) {
+		this.renderer.context.drawImage(tile.img, //image element
+						 tile.__coord[0], //x position on sprite
+						 tile.__coord[1], //y position on sprite
+						 w, //width on sprite
+						 h, //height on sprite
+						 x, //x position on canvas
+						 y, //y position on canvas
+						 w, //width on canvas
+						 h //height on canvas
+						 );
+	},
+
+	drawTileToCanvas: function(i, j, i0, j0) {
+		var w = this.tileMap._tileSize;
+		var h = this.tileMap._tileSize;
+		var tx = (j - j0) * w;
+		var ty = (i - i0) * h;
+
+		var tile = this.tileMap._tiles[i][j];
+		if (tile.baseTile) {
+			this.drawTile(tile.baseTile, tx, ty, w, h);
+			this.drawTile(tile.transition, tx, ty, w, h);
+		}
+		else {
+			this.drawTile(tile, tx, ty, w, h);
+		}
+	},
+
+	updateViewport: function() {
+		var minX = -Crafty.viewport.x;
+		var minY = -Crafty.viewport.y;
+
+		var tileMap = this.tileMap;
+		var tileSize = tileMap._tileSize;
+
+		var r0 = this.rowBegin;
+		var r1 = Math.min(tileMap._row, r0 + this.row) - 1;
+		var c0 = this.colBegin;
+		var c1 = Math.min(tileMap._col, c0 + this.col) - 1;
+
+		// Calculate the new region
+		var i0 = Math.max(Math.floor(minY / tileSize), 0);
+		var i1 = Math.min(tileMap._row, i0 + this.row) - 1;
+		var j0 = Math.max(Math.floor(minX / tileSize), 0);
+		var j1 = Math.min(tileMap._col, j0 + this.col) - 1;
+
+		if (r0 === i0 && r1 === i1 && c0 === j0 && c1 === j1)
+			return;
+
+		if (this.renderer === null) {
+			this.renderer = new Renderer(this.width, this.height);
+			for (var i = i0; i <= i1; i++) {
+				for (var j = j0; j <= j1; j++) {
+					this.drawTileToCanvas(i, j, i0, j0);
+				}
+			}
+		}
+		// Copy the overlap region
+		else {
+			if (i0 <= r1 && j0 <= c1 && r0 <= i1 && c0 <= j1) {
+				var x0 = Math.max(j0, c0);
+				var y0 = Math.max(i0, r0);
+				var x1 = Math.min(j1, c1);
+				var y1 = Math.min(i1, r1);
+
+				var srcX = (x0 - c0) * tileSize;
+				var srcY = (y0 - r0) * tileSize;
+				var destX = (x0 - j0) * tileSize;
+				var destY = (y0 - i0) * tileSize;
+				var w = (x1 - x0 + 1) * tileSize;
+				var h = (y1 - y0 + 1) * tileSize;
+
+				// Create a new Renderer and copy the overlap region to it
+				var newRenderer = new Renderer(this.width, this.height);
+				newRenderer.context.drawImage(this.renderer.canvas,
+					srcX, srcY, w, h,
+					destX, destY, w, h);
+
+				this.renderer.unload();
+				// Use new Renderer now
+				this.renderer = newRenderer;
+			}
+
+			// Find the overlap between old buffer and the new one
+			// If the viewport move to the left then we need to update the left part
+			if (i0 < r0) {
+				r1 = r0 - 1;
+				r0 = i0;
+			}
+			// Otherwise update the right part
+			else {
+				r0 = r1 + 1;
+				r1 = i1;
+				// r0 = Math.min(tileMap._row - 1, r0 + this.row);
+				// r1 = Math.min(tileMap._row, i0 + this.row) - 1;
+			}
+			// If the viewport move up then we need to update the up part
+			if (j0 < c0) {
+				c1 = c0 - 1;
+				c0 = j0;
+			}
+			// Otherwise update the right part
+			else {
+				c0 = c1 + 1;
+				c1 = j1;
+				// c0 = Math.min(tileMap._col - 1, c0 + this.col);
+				// c1 = Math.min(tileMap._col, j0 + this.col) - 1;
+			}
+
+			// Draw the vertical patch
+			for (var i = r0; i <= r1; i++) {
+				for (var j = j0; j <= j1; j++) {
+					this.drawTileToCanvas(i, j, i0, j0);
+				}
+			}
+
+			// Draw the horizontal patch
+			for (var j = c0; j <= c1; j++) {
+				for (var i = i0; i <= i1; i++) {
+					this.drawTileToCanvas(i, j, i0, j0);
+				}
+			}
+		}
+
+		this.rowBegin = i0;
+		this.colBegin = j0;
+	},
+
+	// Draw this buffer to a context
+	draw: function(context) {
+		var x = this.colBegin * this.tileMap._tileSize;
+		var y = this.rowBegin * this.tileMap._tileSize;
+
+		context.drawImage(this.renderer.canvas, x, y);
 	}
 });

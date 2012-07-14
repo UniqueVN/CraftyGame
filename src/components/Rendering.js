@@ -148,3 +148,33 @@ Crafty.c("TextEx", {
 		return this;
 	}
 });
+
+// ========================================================================================== //
+// Renderer
+var Renderer = Class({
+	constructor: function(width, height) {
+		this.canvas = document.createElement('canvas');
+		this.canvas.width = width;
+		this.canvas.height = height;
+		this.context = this.canvas.getContext('2d');
+	},
+
+	unload: function() {
+		// TODO: Must remove the canvas element from the document
+		this.canvas = null;
+		this.context = null;
+	},
+	
+	clear: function(color) {
+		var context = this.context;
+		context.fillStyle = color;
+		context.beginPath();
+		context.rect(0, 0, this.canvas.width, this.canvas.height);
+		context.closePath();
+		context.fill();
+	},
+
+	drawImage: function(image, x, y) {
+        this.context.drawImage(image, x, y);
+	}
+});
