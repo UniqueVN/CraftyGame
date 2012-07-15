@@ -16,9 +16,9 @@ Tree =  MapEntity.extend({
 		var trunkIndex = Crafty.math.randomInt(0, 1);
 		var topIndex = trunkIndex * 2 + Crafty.math.randomInt(0, 1);
 
-		var entity = Crafty.e("2D, DOM, Body, " + trunks[trunkIndex])
+		var entity = Crafty.e("2D, Canvas, Body, " + trunks[trunkIndex])
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
-		var topentity = Crafty.e("2D, DOM, Body, " + tops[topIndex])
+		var topentity = Crafty.e("2D, Canvas, Body, " + tops[topIndex])
 			.attr({z:3, TileWidth:this.Width, TileHeight:this.Height});
 
 		this.set({'entity' : entity });

@@ -3,7 +3,7 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
-	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'rock', 'bush'],
+	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'fence', 'rock', 'bush'],
 	_tileSprite: [],
 	_width: 0,
 	_height: 0,
@@ -38,31 +38,27 @@ Crafty.c('TileMap', {
 
     	// Generate grass border
 		for (var j = 0; j < this._col; j++) {
-			this._tiles[i0][j] = {
-				transition: this.terrains[3].GetSpriteByName("grassEdge1"),
-				baseTile: this.terrains[1].GetGroundSprite()
-			};
+			this._tiles[i0][j].push(this.terrains[1].GetGroundSprite());
+			this._tiles[i0][j].push(this.terrains[3].GetSpriteByName("grassEdge1"));
 		}
 
     	// Generate beach sand
 		for (var i = i0 + 1; i < i1; i++) {
 			for (var j = 0; j < this._col; j++) {
-				this._tiles[i][j] = this.terrains[1].GetGroundSprite();
+				this._tiles[i][j].push(this.terrains[1].GetGroundSprite());
 			}
 		}
 
     	// Generate sand border
 		for (var j = 0; j < this._col; j++) {
-			this._tiles[i1][j] = {
-				transition: this.terrains[0].GetSpriteByName("waterEdge2"),
-				baseTile: this.terrains[1].GetGroundSprite()
-			};
+			this._tiles[i1][j].push(this.terrains[1].GetGroundSprite());
+			this._tiles[i1][j].push(this.terrains[0].GetSpriteByName("waterEdge2"));
 		}
 
     	// Generate beach sand
 		for (var i = i1 + 1; i < this._row; i++) {
 			for (var j = 0; j < this._col; j++) {
-				this._tiles[i][j] = this.terrains[0].GetGroundSprite();
+				this._tiles[i][j].push(this.terrains[0].GetGroundSprite());
 			}
 		}
     },
@@ -142,8 +138,12 @@ Crafty.c('TileMap', {
         graphRenderer.setGraph(graph);
 
         // Initialize the tiles
-		for (var i = 0; i < this._row; i++)
+		for (var i = 0; i < this._row; i++) {
 			this._tiles[i] = [];
+			for (var j = 0; j < this._col; j++) {
+				this._tiles[i][j] = [];
+			}
+		}
 
 		// cache them for the speedy!
 		this.terrains = [];
@@ -184,24 +184,23 @@ Crafty.c('TileMap', {
                 	if (cellType == 0) {
                 		cellType = 3;
                 		if (bShowTrees) {
-		            		var t = Crafty.math.randomInt(0, 101);
-		            		if (t > 100)
-		            			this.CreateObject(Tree, j, i);
+		            		// var t = Crafty.math.randomInt(0, 101);
+		            		// if (t > 100)
+		            		// 	this.CreateObject(Tree, j, i);
 		            		// this.CreateObject(Tree, j, i);
+		            		// this._tiles[i][j].push(new Tree());
                 		}
                 	}
-					this._tiles[i][j] = this.terrains[cellType].GetGroundSprite();
+					this._tiles[i][j].push(this.terrains[cellType].GetGroundSprite());
                 }
                 else {
                 	// Add a rock at the border
                 	if (bShowRocks)
                 		this.CreateObject(Rock, j, i);
                 	cellType = -cellType;
-                	this._tiles[i][j] = { 
-                		transition : this.terrains[3].GetSpriteByName("grassEdge" + cellType),
-                		// HACK: Set a base tile
-                		baseTile: this.terrains[2].GetGroundSprite(0)
-                	};
+                	this._tiles[i][j].push(this.terrains[2].GetGroundSprite());
+                	this._tiles[i][j].push(this.terrains[3].GetSpriteByName("grassEdge" + cellType));
+                	// this._tiles[i][j].push(this.terrains[4].GetSpriteByName("fenceEdge" + cellType));
                 }
 			}
 		}
@@ -239,7 +238,6 @@ Crafty.c('TileMap', {
 		if (!this._buffer)
 			this._buffer = new TileMapBuffer(this, this._bufferHeight, this._bufferWidth);
 		this._buffer.updateViewport();
-
 		// debug.log("createBufferCanvas: " + this.buffer + " context: " + this.bufferContext);
 	},
 
@@ -284,11 +282,18 @@ var TileMapBuffer = Class({
 		this.width = w;
 		this.height = h;
 
-		this.renderer = null;
+		this.curRenderer = null;
+		this.tmpRenderer = null;
+	},
+
+	switchRenderer: function() {
+		var tmp = this.curRenderer;
+		this.curRenderer = this.tmpRenderer;
+		this.tmpRenderer = tmp;
 	},
 
 	drawTile: function(tile, x, y, w, h) {
-		this.renderer.context.drawImage(tile.img, //image element
+		this.curRenderer.context.drawImage(tile.img, //image element
 						 tile.__coord[0], //x position on sprite
 						 tile.__coord[1], //y position on sprite
 						 w, //width on sprite
@@ -306,13 +311,10 @@ var TileMapBuffer = Class({
 		var tx = (j - j0) * w;
 		var ty = (i - i0) * h;
 
-		var tile = this.tileMap._tiles[i][j];
-		if (tile.baseTile) {
-			this.drawTile(tile.baseTile, tx, ty, w, h);
-			this.drawTile(tile.transition, tx, ty, w, h);
-		}
-		else {
-			this.drawTile(tile, tx, ty, w, h);
+		var tiles = this.tileMap._tiles[i][j];
+		var l = tiles.length;
+		for (var i = 0; i < l; i++) {
+			this.drawTile(tiles[i], tx, ty, w, h);
 		}
 	},
 
@@ -337,8 +339,8 @@ var TileMapBuffer = Class({
 		if (r0 === i0 && r1 === i1 && c0 === j0 && c1 === j1)
 			return;
 
-		if (this.renderer === null) {
-			this.renderer = new Renderer(this.width, this.height);
+		if (this.curRenderer === null) {
+			this.curRenderer = new Renderer(this.width, this.height);
 			for (var i = i0; i <= i1; i++) {
 				for (var j = j0; j <= j1; j++) {
 					this.drawTileToCanvas(i, j, i0, j0);
@@ -361,14 +363,14 @@ var TileMapBuffer = Class({
 				var h = (y1 - y0 + 1) * tileSize;
 
 				// Create a new Renderer and copy the overlap region to it
-				var newRenderer = new Renderer(this.width, this.height);
-				newRenderer.context.drawImage(this.renderer.canvas,
+				if (!this.tmpRenderer)
+					this.tmpRenderer = new Renderer(this.width, this.height);
+				// var newRenderer = new Renderer(this.width, this.height);
+				this.tmpRenderer.context.drawImage(this.curRenderer.canvas,
 					srcX, srcY, w, h,
 					destX, destY, w, h);
 
-				this.renderer.unload();
-				// Use new Renderer now
-				this.renderer = newRenderer;
+				this.switchRenderer();
 			}
 
 			// Find the overlap between old buffer and the new one
@@ -381,8 +383,6 @@ var TileMapBuffer = Class({
 			else {
 				r0 = r1 + 1;
 				r1 = i1;
-				// r0 = Math.min(tileMap._row - 1, r0 + this.row);
-				// r1 = Math.min(tileMap._row, i0 + this.row) - 1;
 			}
 			// If the viewport move up then we need to update the up part
 			if (j0 < c0) {
@@ -393,8 +393,6 @@ var TileMapBuffer = Class({
 			else {
 				c0 = c1 + 1;
 				c1 = j1;
-				// c0 = Math.min(tileMap._col - 1, c0 + this.col);
-				// c1 = Math.min(tileMap._col, j0 + this.col) - 1;
 			}
 
 			// Draw the vertical patch
@@ -421,6 +419,6 @@ var TileMapBuffer = Class({
 		var x = this.colBegin * this.tileMap._tileSize;
 		var y = this.rowBegin * this.tileMap._tileSize;
 
-		context.drawImage(this.renderer.canvas, x, y);
+		context.drawImage(this.curRenderer.canvas, x, y);
 	}
 });
