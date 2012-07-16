@@ -38,7 +38,7 @@ Crafty.c("TextEx", {
 				context.fillText(this._text, 0, 0);
 
 				metrics = context.measureText(this._text);
-				this._w = metrics.width;
+				this._w = Math.max(metrics.width, this._w);
 
 				context.restore();
 			}

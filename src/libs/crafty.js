@@ -4453,9 +4453,33 @@ Crafty.extend({
             } else {
                 if (context) context.translate(0, change);
             }
-            if (context) Crafty.DrawManager.drawAll();
+	        // jc - defer the drawAll() call for performance reason
+            if (context) Crafty.DrawManager.viewportChanged();
             style[axis == '_x' ? "left" : "top"] = v + "px";
         },
+
+	    scrollTo: function (x, y) {
+		    x = Math.floor(x);
+		    y = Math.floor(y);
+		    var context = Crafty.canvas.context,
+			    style = Crafty.stage.inner.style,
+			    canvas;
+
+		    var dx = x - this._x;
+		    var dy = y - this._y;
+
+		    //update viewport and DOM scroll
+		    this._x = x;
+		    this._y = y;
+		    if (context)
+		    {
+			    context.translate(dx, dy);
+			    // jc - defer the drawAll() call for performance reason
+			    Crafty.DrawManager.viewportChanged();
+		    }
+		    style["left"] = x + "px";
+		    style["top"] = y + "px";
+	    },
 
         rect: function () {
             return { _x: -this._x, _y: -this._y, _w: this.width, _h: this.height };
@@ -7108,7 +7132,7 @@ Crafty.extend({
 */
 Crafty.DrawManager = (function () {
 	/** array of dirty rects on screen */
-	var dirty_rects = [],
+	var dirty_rects = [], dirty_viewport = false,
 	/** array of DOMs needed updating */
 		dom = [];
 
@@ -7241,6 +7265,14 @@ Crafty.DrawManager = (function () {
 			console.log(dirty_rects, dom);
 		},
 
+		// jc - added viewportChanged() to simply set a flag, and perform drawAll() later
+		// this way make sure we only do draw all once each frame, avoid adding more dirty rect
+		// between viewport change and DrawManager.draw(), causing another major re-rendering
+		viewportChanged : function()
+		{
+			dirty_viewport = true;
+		},
+
 		/**@
 		* #Crafty.DrawManager.draw
 		* @comp Crafty.DrawManager
@@ -7327,6 +7359,16 @@ Crafty.DrawManager = (function () {
 			}
 			//reset DOM array
             dom.length = 0;
+
+			// jc - if viewport dirty, simply redraw everything
+			if (dirty_viewport)
+			{
+				this.drawAll();
+				dirty_viewport = false;
+				dirty_rects.length = 0;
+				return;
+			}
+
 			//again, stop if nothing in dirty_rects
 			if (!l) { return; }
 

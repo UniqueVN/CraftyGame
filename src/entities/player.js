@@ -6,7 +6,7 @@ Player = MapEntity.extend({
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, Text, AbilityUser")
+	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false, Faction : Factions.Monk, MovementSpeed: 0.2 })
 		    .text("Jia")
 		    .WalkAnimation(9, [0, 1, 2, 3], 5)
@@ -25,12 +25,11 @@ Player = MapEntity.extend({
 //				x0 = tileMap._width - Crafty.viewport.width;
 //			if (y0 + Crafty.viewport.height > tileMap._height)
 //				y0 = tileMap._height - Crafty.viewport.height;
-			Crafty.viewport.x = -x0;
-			Crafty.viewport.y = -y0;
+			Crafty.viewport.scrollTo(-x0, -y0);
 		};
 
-	    entity.bind("Appeared", followCamera);
-	    entity.bind("BodyMoved", followCamera);
+	    // must bind to visual updated but not BodyMoved, otherwise could cause the map redraw twice
+	    entity.bind("VisualUpdated", followCamera);
 
     	model.set({'entity' : entity });
     }

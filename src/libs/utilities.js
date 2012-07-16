@@ -140,6 +140,14 @@ var Math3D =
 		return newVec;
 	},
 
+	Add : function(v1, v2)
+	{
+		var v = {};
+		v.x = v1.x + v2.x;
+		v.y = v1.y + v2.y;
+		return v;
+	},
+
 	Delta : function(from, to)
 	{
 		var d = {};
@@ -183,5 +191,22 @@ var Math3D =
 		var x = to.x - from.x;
 		var y = to.y - from.y;
 		return Math.sqrt(x * x + y * y);;
+	},
+
+	DistanceSq : function(from, to)
+	{
+		var x = to.x - from.x;
+		var y = to.y - from.y;
+		return x * x + y * y;
+	},
+
+	Dot : function(v1, v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y;
+	},
+
+	SizeSq : function(vector)
+	{
+		return vector.x * vector.x + vector.y * vector.y;
 	}
 };

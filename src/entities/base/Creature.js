@@ -13,7 +13,7 @@ Creature = MapEntity.extend(
 
 	_createEntity : function()
 	{
-		var entity = Crafty.e("2D, DOM, Mouse, Body, Damageable, BodyAnimations, AbilityUser, NavigationHandle, AI, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, DOM, Mouse, Body, Damageable, BodyAnimations, AbilityUser, NavigationHandle, AvoidanceHandle, AI, " + this._getRandomSprite())
 			.attr(
 			{
 				TileWidth:this.Width,

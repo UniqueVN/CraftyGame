@@ -15,12 +15,13 @@ Crafty.c('NavigationHandle',
 		var from = this.GetCenterRounded();
 		var to = { x: x, y : y };
 		this._pendingPath = NavigationManager.GetPathFinder().FindPath(from, to);
+		this._onNavigationStarted();
 		this._advancePath();
 	},
 
 	StopNavigation : function()
 	{
-		this._pendingPath = null;
+		this._onNavigationEnded();
 		this.StopMoving();
 	},
 
@@ -85,7 +86,57 @@ Crafty.c('NavigationHandle',
 
 	_finishedPath : function()
 	{
+		this._onNavigationEnded();
+	},
+
+	_onNavigationStarted : function()
+	{
+	},
+
+	_onNavigationEnded : function()
+	{
 		this._pendingPath = null;
+	}
+});
+
+Crafty.c('AvoidanceHandle',
+{
+	_avoidanceCheckWaitFrames : 0,
+
+	init: function()
+	{
+		this.requires("NavigationHandle");
+		this.bind("EnterFrame", this._updateAvoidance);
+	},
+
+	_updateAvoidance : function()
+	{
+		if (this._avoidanceCheckWaitFrames > 0)
+		{
+			this._avoidanceCheckWaitFrames--;
+			return;
+		}
+
+		this._avoidanceCheckWaitFrames = 20;
+
+		var center = this.GetCenter();
+		var result = this._world.CollisionMap.RadiusCheck(center, this.GetRadius() + 1);
+		var hits = result.hits;
+		var avoid = { x : 0, y : 0 };
+		for (var i = 0; i < hits.length; i++)
+		{
+			var other = hits[i].entity;
+			if (other[0] === this[0])
+				continue;
+
+			var otherCenter = other.GetCenter();
+			var toThis = Math3D.Direction(otherCenter, center);
+			var push = this.MovementSpeed * 0.3;
+			avoid.x += toThis.x * push;
+			avoid.y += toThis.y * push;
+		}
+
+		this._avoidVelocity = avoid;
 	}
 });
 

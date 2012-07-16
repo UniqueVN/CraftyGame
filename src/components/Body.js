@@ -14,6 +14,7 @@ Crafty.c('Body',
 	_moveTo : null,
 	_needUpdateSprite : false,
 	_velocity : null,
+	_avoidVelocity : { x : 0, y : 0 },
 
 	init: function()
 	{
@@ -86,8 +87,9 @@ Crafty.c('Body',
 			}
 			else
 			{
-				var x = center.x + delta.x / dist * this.MovementSpeed;
-				var y = center.y + delta.y / dist * this.MovementSpeed;
+				var speed = this.MovementSpeed;
+				var x = center.x + delta.x / dist * speed + this._avoidVelocity.x;
+				var y = center.y + delta.y / dist * speed + this._avoidVelocity.y;
 				this.SetCenter(x, y);
 			}
 		}
@@ -96,6 +98,13 @@ Crafty.c('Body',
 			var center = this.GetCenter();
 			var x = center.x + this._velocity.x;
 			var y = center.y + this._velocity.y;
+			this.SetCenter(x, y);
+		}
+		else if (this._avoidVelocity.x != 0 || this._avoidVelocity.y != 0)
+		{
+			var center = this.GetCenter();
+			var x = center.x + this._avoidVelocity.x;
+			var y = center.y + this._avoidVelocity.y;
 			this.SetCenter(x, y);
 		}
 
@@ -113,9 +122,11 @@ Crafty.c('Body',
 			Crafty.DrawManager.onScreen({ _x : this.x, _y : this.y, _w : this.w, _h : this.h }) ||
 			Crafty.DrawManager.onScreen({ _x : pos.x, _y : pos.y, _w : this.w, _h : this.h }))
 		{
+			// TODO: should update _x, _y, _z, then trigger events
 			this.x = pos.x;
 			this.y = pos.y;
 			this.z = pos.z;
+			this.trigger("VisualUpdated");
 			return true;
 		}
 		return false;
@@ -127,6 +138,11 @@ Crafty.c('Body',
 		var y = tileY * this._world.TileSize + this.TileHeight * this._world.TileSize - this.h;
 		var z = Math.round((tileY + this.TileHeight + 1) * 10); // add 1 padding with other things (like map, player), could be const
 		return { x : x, y : y, z : z};
+	},
+
+	GetRadius : function()
+	{
+		return Math.max(this.TileWidth, this.TileHeight) * 0.5;
 	},
 
 	GetBoundingBox : function()
@@ -228,6 +244,22 @@ Crafty.c('Body',
 	{
 		this._velocity = null;
 		this.trigger("NewDirection", { x : 0, y : 0 });
+	},
+
+	GetMovementDirection : function()
+	{
+		if (this._moveTo != null)
+		{
+			return Math3D.Direction(this.GetCenter(), this._moveTo);
+		}
+		else if (this._velocity != null)
+		{
+			return Math3D.GetNormal(this._velocity);
+		}
+		else
+		{
+			return { x : 0, y : 0 };
+		}
 	},
 
 	IsFriendly : function(other)

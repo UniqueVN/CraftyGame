@@ -364,10 +364,37 @@ var CollisionMap = Class(
 		}
 	},
 
-	LineCheck : function(start, end)
+	RadiusCheck : function(center, radius)
 	{
 		var result = {};
 		result.hits = [];
+
+		var minCell = this._getCell(center.x - radius, center.y - radius);
+		var maxCell = this._getCell(center.x + radius, center.y + radius);
+
+		for (var x = minCell.x; x <= maxCell.x; x++)
+		{
+			for (var y = minCell.y; y <= maxCell.y; y++)
+			{
+				var list = this._movableMap[x][y];
+				for (var i = 0; i < list.length; i++)
+				{
+					var entity = list[i];
+					var totalRadius = radius + entity.GetRadius();
+					if (Math3D.DistanceSq(center, entity.GetCenter()) <= totalRadius * totalRadius)
+						result.hits.push( { entity : entity } );
+				}
+			}
+		}
+
+		return result;
+	},
+
+	LineCheck : function(start, end, radius)
+	{
+		var result = {};
+		result.hits = [];
+		radius = radius || 0;
 
 		var minCell = this._getCell(Math.min(start.x, end.x), Math.min(start.y, end.y));
 		var maxCell = this._getCell(Math.max(start.x, end.x), Math.max(start.y, end.y));
@@ -381,13 +408,34 @@ var CollisionMap = Class(
 				for (var i = 0; i < list.length; i++)
 				{
 					var entity = list[i];
-					if (this._lineBoxIntersect(start, end, entity.GetBoundingBox()))
+					if (this._lineCircleIntersect(start, end, entity.GetCenter(), entity.GetRadius() + radius))
 						result.hits.push( { entity : entity } );
 				}
 			}
 		}
 
 		return result;
+	},
+
+	_lineCircleIntersect : function(start, end, o, r)
+	{
+		var a = Math3D.Delta(start, end);
+		var b = Math3D.Delta(start, o);
+		var p = Math3D.Dot(a, b);
+		var la = Math3D.SizeSq(a);
+		var lb = Math3D.SizeSq(b);
+		var lp = p * p / la;
+		var ld = lb - lp;
+		var lr = r * r;
+		if (ld > lr)
+			return false;
+
+		if (p < 0)
+			return lb <= lr;
+		else if (p > la)
+			return Math3D.DistanceSq(end, o) <= lr;
+		else
+			return true;
 	},
 
 	_lineBoxIntersect : function(start, end, box)

@@ -1,6 +1,5 @@
 Crafty.c('AI',
 {
-
 	init: function()
 	{
 		this.requires("NavigationHandle");
@@ -10,6 +9,16 @@ Crafty.c('AI',
 		this._goals.push(new Goal_DestroyTemple(this));
 
 		this.bind("EnterFrame", this._think);
+	},
+
+	SetDestinationRegion : function(start, end)
+	{
+		for (var i = 0; i < this._goals.length; i++)
+		{
+			var goal = this._goals[i];
+			if (goal.SetDestinationRegion)
+				goal.SetDestinationRegion(start, end);
+		}
 	},
 
 	_think : function(e)
@@ -27,16 +36,6 @@ Crafty.c('AI',
 				goal.Behave(frame);
 				break;
 			}
-		}
-	},
-
-	SetDestinationRegion : function(start, end)
-	{
-		for (var i = 0; i < this._goals.length; i++)
-		{
-			var goal = this._goals[i];
-			if (goal.SetDestinationRegion)
-				goal.SetDestinationRegion(start, end);
 		}
 	}
 });
