@@ -157,6 +157,25 @@ var Renderer = Class({
 		this.canvas.width = width;
 		this.canvas.height = height;
 		this.context = this.canvas.getContext('2d');
+
+		this.color = "";
+		this.lineWidth = 1;
+	},
+
+	setColor: function(color) {
+		if (color === undefined || color === this.color)
+			return;
+
+		this.color = color;
+		this.context.fillStyle = color;
+	},
+
+	setLineWidth: function(lineWidth) {
+		if (!lineWidth || lineWidth === this.lineWidth)
+			return;
+
+		this.lineWidth = lineWidth;
+		this.context.lineWidth = lineWidth;
 	},
 
 	unload: function() {
@@ -174,7 +193,74 @@ var Renderer = Class({
 		context.fill();
 	},
 
+	drawRectangle: function(x, y, width, height, color, lineWidth) {
+		var context = this.context;
+
+		this.setColor(color);
+		this.setLineWidth(lineWidth);
+
+		context.beginPath();
+		context.rect(x, y, width, height);
+		context.fill();
+		context.stroke();
+	},
+	
 	drawImage: function(image, x, y) {
         this.context.drawImage(image, x, y);
+	}
+});
+
+// ========================================================================================== //
+// MINI MAP
+var MiniMap = Class(Renderer, {
+	constructor: function(tiles, tileSize, pixelSize, frameWidth, frameHeight) {
+		var width = tiles.length;
+		var height = tiles[0].length;
+		this.width = width;
+		this.height = height;
+		MiniMap.$super.call(this, width * pixelSize, height * pixelSize);
+
+		this.x = 0;
+		this.y = 0;
+		this.frameWidth = frameWidth;
+		this.frameHeight = frameHeight;
+
+		this.tileSize = tileSize;
+		this.pixelSize = pixelSize;
+		this.tiles = tiles;
+		this.generate();
+	},
+
+	generate: function() {
+		var COLORS = ["#0246FE", "#FFDF42", "#FE8714", "#00CE54", "#00ffff", "#ffffff"];
+		var width = this.width;
+		var height = this.height;
+		var tiles = this.tiles;
+		var pixelSize = this.pixelSize;
+
+		this.clear(COLORS[0]);
+
+		for (var i = 0; i < width; i++) {
+			var x0 = pixelSize * i;
+			for (var j = 0; j < height; j++) {
+				var y0 = pixelSize * j;
+
+				var color = COLORS[tiles[i][j]];
+				this.drawRectangle(x0, y0, pixelSize, pixelSize, color, 0);
+			}
+		}
+	},
+
+	draw: function(context) {
+		var offsetX = -Crafty.viewport.x;
+		var offsetY = -Crafty.viewport.y;
+		var x = Math.max(Math.floor(offsetX / this.tileSize), 0) * this.pixelSize;
+		var y = Math.max(Math.floor(offsetY / this.tileSize), 0) * this.pixelSize;
+
+		var w = this.frameWidth;
+		var h = this.frameHeight;
+		context.drawImage(this.canvas, 
+			x, y, w, h,
+			this.x + offsetX, this.y + offsetY, w, h);
 	}
 });
