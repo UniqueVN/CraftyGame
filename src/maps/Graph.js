@@ -56,28 +56,35 @@ var Tree = Class(Graph, {
 		}
 	},
 
-	generateGraph: function(nodeCount, maxEdge) {
+	generateGraph: function(nodeCount, maxEdge, maxDepth) {
 		this.populateNodes(nodeCount);
 
 		var t = 0;
+		this.nodes[0].depth = 0;
 		
 		for (var i = 1; i < nodeCount; i++) {
 			t = i - 1;
+			// Possible parent id
+			var parentIDs = [];
 			for (var j = 0; j < i; j++) {
 				var checkNode = this.nodes[j];
 				// If the node is not a root then count its parent too
 				var edgeCount = checkNode.getChildNum() + (checkNode.isRoot() ? 0 : 1);
-				if (edgeCount < maxEdge) {
+				if (edgeCount < maxEdge && checkNode.depth < maxDepth) {
+					parentIDs.push(j);
 					// Randomly choose to either use this node or not
-					var d = Math.floor(Math.random() * 3);
-					if (d > 1) {
-						t = j;
-						break;
-					}
+					// var d = Math.floor(Math.random() * 3);
+					// if (d > 1) {
+					// 	t = j;
+					// 	break;
+					// }
 				}
 			}
+			t = parentIDs[Math.floor(Math.random() * parentIDs.length)];
+
 			this.nodes[t].addChild(this.nodes[i]);
 			this.nodes[i].parent = this.nodes[t];
+			this.nodes[i].depth = this.nodes[t].depth + 1;
 		}
 
 		// for (var i = 1; i < nodeCount; i++) {
@@ -97,7 +104,38 @@ var Tree = Class(Graph, {
 		// }
 
 		this.root = this.nodes[0];
-	}
+		this.computeDepth(this.root);
+		this.countLeaf(this.root);
+	},
+
+	computeDepth: function(node) {
+		if (node === this.root)
+			node.depth = 0;
+
+		for (var i = node.links.length - 1; i >= 0; i--) {
+			node.links[i].depth = node.depth + 1;
+			this.computeDepth(node.links[i]);
+		};
+	},
+	
+	countLeaf: function(node) {
+		if (node === undefined)
+			return 0;
+
+		if (node.leafCount >= 0)
+			return node.leafCount;
+
+		if (node.isLeaf()) {
+			node.leafCount = 1;
+			return node.leafCount;	
+		}
+
+		for (var i = node.links.length - 1; i >= 0; i--) {
+			node.leafCount += this.countLeaf(node.links[i]);
+		};
+
+		return node.leafCount;
+	}	
 });
 
 // ========================================================================================== //
@@ -121,31 +159,6 @@ var BinaryTree = Class(Graph, {
 		this.root = this.nodes[0];
 	},
 
-	computeDepth: function(node) {
-		if (node === this.root)
-			node.depth = 0;
-
-		for (var i = node.links.length - 1; i >= 0; i--) {
-			node.links[i].depth = node.depth + 1;
-			this.computeDepth(node.links[i]);
-		};
-	},
-	
-	countLeaf: function(node) {
-		if (node === undefined)
-			return 0;
-
-		if (node.leafCount >= 0)
-			return node.leafCount;
-
-		if (node.isLeaf())
-			node.leafCount = 1;
-
-		node.leafCount = this.countLeaf(node.leftNode()) + this.countLeaf(node.rightNode());
-
-		return node.leafCount;
-	},
-	
 	makeTreeRightHeavy: function(node){
 		var leftNode = node.leftNode();
 		var rightNode = node.rightNode();
@@ -327,8 +340,9 @@ var GridLayout = Class(GraphLayout, {
 				y1 = y0 + DIRECTION[d].y;
 
 				if (x1 >= 0 && y1 >= 0 && x1 < this.grid.length && y1 < this.grid.length &&
-					this.grid[x1][y1] === 0)
+					this.grid[x1][y1] === 0) {
 					break;
+				}
 			}
 
 			var childNode = node.links[i];
@@ -336,8 +350,11 @@ var GridLayout = Class(GraphLayout, {
 			childNode.x = x1;
 			childNode.y = y1;
 			this.grid[x1][y1] = 1;
+		}
 
-			this.placeNode(childNode);
+		// Only layout the child node's children after all the direct children are placed
+		for (var i = 0; i < node.links.length; i++) {
+			this.placeNode(node.links[i]);
 		}
 	},
 
@@ -591,10 +608,8 @@ var GraphRenderer = Class({
 		for (var i = 0; i < this.graph.nodes.length; i++) {
 			var node = this.graph.nodes[i];
 			var p = { x: node.x, y: node.y };
-			p.x *= this.scale;
-			p.y *= this.scale;
-			p.x += this.offsetX;
-			p.y += this.offsetY;
+			p.x = p.x * this.scale + this.offsetX;
+			p.y = p.y * this.scale + this.offsetY;
 			this.nodes.push(p);
 		}
 		// Generate lines
@@ -630,6 +645,51 @@ var GraphRenderer = Class({
 			else
 				this.nodeRenderer.draw(this.renderer, p.x - this.nodeSize, p.y - this.nodeSize, 
 										this.nodeSize * 2);
+			// this.renderer.drawCircle(p.x, p.y, this.nodeSize * 2, NODE_COLOR);
+			// this.renderer.setColor("#000000");
+			// this.renderer.drawText(i + "", p.x - 5, p.y + 5);
+		};
+	}
+});
+
+// ========================================================================================== //
+// TREE RENDERER
+var TreeRenderer = Class(GraphRenderer, {
+	constructor: function(renderer) {
+		TreeRenderer.$super.call(this, renderer);
+
+		this.leafSize = -1;
+		this.rootSize = -1;
+	},
+
+	draw: function(graph) {
+		this.setGraph(graph);
+
+		// Draw all the line
+		this.renderer.setColor(this.lineColor);
+		this.renderer.setLineWidth(this.lineWidth);
+		for (var i = this.lines.length - 1; i >= 0; i--) {
+			// this.renderer.drawLine(this.lines[i].p0, this.lines[i].p1);
+			this.renderer.drawLine(this.lines[i].p0, this.lines[i].p1);
+		};
+
+		// Draw all the nodes
+		this.renderer.setColor(this.nodeColor);
+		for (var i = this.nodes.length - 1; i >= 0; i--) {
+			var p = this.nodes[i];
+
+			var nodeSize = this.nodeSize;
+			var checkNode = this.graph.nodes[i];
+			if (checkNode.isLeaf())
+				nodeSize = this.leafSize;
+			else if (checkNode.isRoot())
+				nodeSize = this.rootSize;
+
+			if (this.nodeRenderer === undefined)
+				this.renderer.drawCircle(p.x, p.y, nodeSize, 1);
+			else
+				this.nodeRenderer.draw(this.renderer, p.x - nodeSize, p.y - nodeSize, 
+										nodeSize * 2);
 			// this.renderer.drawCircle(p.x, p.y, this.nodeSize * 2, NODE_COLOR);
 			// this.renderer.setColor("#000000");
 			// this.renderer.drawText(i + "", p.x - 5, p.y + 5);

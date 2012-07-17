@@ -111,6 +111,9 @@ Crafty.c('TileMap', {
         var GRAPH_OFFSET_X = 25;
         var GRAPH_OFFSET_Y = 25;
         var NODE_SIZE = 12;
+        var TREE_NODE_SIZE = 8;
+        var LEAF_NODE_SIZE = 18;
+        var ROOT_NODE_SIZE = 16;
         var LINE_WIDTH = 2;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
@@ -121,7 +124,7 @@ Crafty.c('TileMap', {
         // var graph = new BinaryTree();
         // graph.generateGraph(NODE_COUNT);
         var graph = new Tree();
-        graph.generateGraph(NODE_COUNT, 4);
+        graph.generateGraph(NODE_COUNT, 4, 2);
         // graph.debug();
 
         this._graphs = graph;
@@ -131,11 +134,15 @@ Crafty.c('TileMap', {
         var graphLayout = new GridLayout(graph, 1);
         graphLayout.createLayout();
 
-        var graphRenderer = new GraphRenderer(pixelRenderer);
+        var graphRenderer = new TreeRenderer(pixelRenderer);
+        graphRenderer.nodeSize = TREE_NODE_SIZE;
+        graphRenderer.leafSize = LEAF_NODE_SIZE;
+        graphRenderer.rootSize = ROOT_NODE_SIZE;
+        // var graphRenderer = new GraphRenderer(pixelRenderer);
+        // graphRenderer.nodeSize = NODE_SIZE;
         graphRenderer.scale = GRAPH_SCALE;
         graphRenderer.offsetX = GRAPH_OFFSET_X;
         graphRenderer.offsetY = GRAPH_OFFSET_Y;
-        graphRenderer.nodeSize = NODE_SIZE;
         graphRenderer.lineColor = 2;
         graphRenderer.lineWidth = 3;
         graphRenderer.setGraph(graph);
@@ -181,6 +188,13 @@ Crafty.c('TileMap', {
         }
 
         var beachStart = graphRenderer.nodes[t].y + NODE_SIZE + 2;
+
+        for (var i = cells.length - 1; i >= beachStart; i--) {
+        	for (var j = cells[i].length - 1; j >= 0; j--) {
+        		if (cells[i][j] !== 0)
+        			beachStart = i + 1;
+        	};
+        };
         this.generateBeach(beachStart, BEACH_SIZE);
 
         var bShowTrees = gameContainer.conf.get("SHOW_TREES");
