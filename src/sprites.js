@@ -18,7 +18,7 @@ Sprites = Backbone.Model.extend({
 				tile: 16,
 				tileh: 16,
 				elements: {
-					flower: [0,1],
+					// flower: [0,1],
 					bush1: [0,2],
 					bush2: [1,2],
 					player: [0,3]
@@ -88,6 +88,23 @@ Sprites = Backbone.Model.extend({
                     rock2: [1, 0]
                 }
             },
+            flower: {
+                file: 'res/images/flowers.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    flower0: [0, 0],
+                    flower1: [1, 0],
+                    flower2: [2, 0],
+                    flower3: [3, 0],
+                    flower4: [4, 0],
+                    flower5: [5, 0],
+                    flower6: [6, 0],
+                    flower7: [0, 1],
+                    flower8: [1, 1],
+                    flower9: [2, 1]
+                }
+            },
             treetop: {
                 file: 'res/images/treetop.png',
                 tile: 96,
@@ -106,6 +123,15 @@ Sprites = Backbone.Model.extend({
                 elements: {
                     treetrunk0: [0, 0],
                     treetrunk1: [1, 0]
+                }
+            },
+            cherryTree: {
+                file: 'res/images/cherryTree.png',
+                tile: 32,
+                tileh: 128,
+                elements: {
+                    cherryTree0: [0, 0, 4, 1],
+                    cherryTree1: [4, 0, 3, 1]
                 }
             },
 
@@ -230,6 +256,38 @@ Sprites = Backbone.Model.extend({
                     grass3: [2, 5]
                 }
             },
+            fence: {
+                file: 'res/images/fence.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    // Edge
+                    fenceEdge1: [1, 0], // TOP
+                    fenceEdge2: [1, 0], // BOTTOM
+                    fenceEdge4: [1, 1], // RIGHT
+                    fenceEdge8: [1, 1], // LEFT
+                    // Convex Corner
+                    fenceEdge12: [0, 2], // TOP-LEFT
+                    fenceEdge15: [2, 2], // TOP-RIGHT
+                    fenceEdge18: [0, 4], // BOTTOM-LEFT
+                    fenceEdge21: [2, 4], // BOTTOM-RIGHT
+                    // Valley Corner
+                    fenceEdge9: [2, 4], // TOP-LEFT
+                    fenceEdge5: [0, 4], // TOP-RIGHT
+                    fenceEdge10: [2, 2], // BOTTOM-LEFT
+                    fenceEdge6: [0, 2], // BOTTOM-RIGHT
+                    // Hole
+                    fenceHole0: [0, 0],
+                    fenceHole1: [0, 1],
+                    // Center
+                    fence0: [1, 3],
+                    fence1: [0, 5],
+                    fence2: [1, 5],
+                    fence3: [2, 5]
+                }
+            },
+
+            // VFXs
 	        muzzleShots: {
 		        file: 'res/images/Muzzleflashes-Shots.png',
 		        tile: 32,

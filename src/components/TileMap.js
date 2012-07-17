@@ -3,7 +3,7 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
-	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'fence', 'rock', 'bush'],
+	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'fence', 'rock', 'flower', 'cherryTree', 'bush'],
 	_tileSprite: [],
 	_width: 0,
 	_height: 0,
@@ -20,10 +20,8 @@ Crafty.c('TileMap', {
 
     debugShowMap: function(tiles) {
         var debugStr = "";
-        for (var i = 0; i < tiles.length; i++)
-        {
-            for (var j = 0; j < tiles[i].length; j++)
-            {
+        for (var i = 0; i < tiles.length; i++) {
+            for (var j = 0; j < tiles[i].length; j++) {
                 debugStr += tiles[i][j];
             }
             debugStr += "\n";
@@ -51,8 +49,10 @@ Crafty.c('TileMap', {
 
     	// Generate sand border
 		for (var j = 0; j < this._col; j++) {
-			this._tiles[i1][j].push(this.terrains[1].GetGroundSprite());
-			this._tiles[i1][j].push(this.terrains[0].GetSpriteByName("waterEdge2"));
+			// this._tiles[i1][j].push(this.terrains[1].GetGroundSprite());
+			// this._tiles[i1][j].push(this.terrains[0].GetSpriteByName("waterEdge2"));
+			this._tiles[i1][j].push(this.terrains[0].GetGroundSprite());
+			this._tiles[i1][j].push(this.terrains[1].GetSpriteByName("sandEdge1"));
 		}
 
     	// Generate beach sand
@@ -107,10 +107,10 @@ Crafty.c('TileMap', {
 		this._col = col;
 		this._tileSize = tileSize;
 
-        var GRAPH_SCALE = 42;
+        var GRAPH_SCALE = 45;
         var GRAPH_OFFSET_X = 25;
         var GRAPH_OFFSET_Y = 25;
-        var NODE_SIZE = 20;
+        var NODE_SIZE = 12;
         var LINE_WIDTH = 2;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
@@ -118,14 +118,17 @@ Crafty.c('TileMap', {
         var pixelRenderer = new PixelRenderer("", this._col, this._row);
         // var pixelRenderer = new PixelRenderer("", this._col, this._row - WATER_PATCH - BEACH_PATCH);
         
-        var graph = new BinaryTree();
-        graph.generateGraph(NODE_COUNT);
+        // var graph = new BinaryTree();
+        // graph.generateGraph(NODE_COUNT);
+        var graph = new Tree();
+        graph.generateGraph(NODE_COUNT, 4);
         // graph.debug();
 
         this._graphs = graph;
         
         // graphLayout = new HVLayout(graph, NODE_SIZE);
-        var graphLayout = new RecursiveWindingLayout(graph, 1);
+        // var graphLayout = new RecursiveWindingLayout(graph, 1);
+        var graphLayout = new GridLayout(graph, 1);
         graphLayout.createLayout();
 
         var graphRenderer = new GraphRenderer(pixelRenderer);
@@ -142,6 +145,14 @@ Crafty.c('TileMap', {
 			this._tiles[i] = [];
 			for (var j = 0; j < this._col; j++) {
 				this._tiles[i][j] = [];
+			}
+		}
+
+		this._trees = [];
+		for (var i = 0; i < this._row; i++) {
+			this._trees[i] = [];
+			for (var j = 0; j < this._col; j++) {
+				this._trees[i][j] = -1;
 			}
 		}
 
@@ -173,7 +184,6 @@ Crafty.c('TileMap', {
         this.generateBeach(beachStart, BEACH_SIZE);
 
         var bShowTrees = gameContainer.conf.get("SHOW_TREES");
-        var bShowRocks = gameContainer.conf.get("SHOW_ROCKS");
 
 		// Paint tiles
 		for (var i = 0; i < beachStart; i++){
@@ -181,26 +191,40 @@ Crafty.c('TileMap', {
                 var cellType = cells[j][i];
                 if (cellType >= 0) {
                 	// If it's a forest tile => add tree
-                	if (cellType == 0) {
+                	if (cellType === 0) {
                 		cellType = 3;
+                	}
+
+					this._tiles[i][j].push(this.terrains[cellType].GetGroundSprite());
+                	if (cellType === 3) {
+                		// Add a flower at a random forest tile
+		            	var t = Crafty.math.randomInt(0, 101);
+                		if (t > 95)
+							this._tiles[i][j].push(this.terrains[6].GetRandomSprite());
+
                 		if (bShowTrees) {
-		            		// var t = Crafty.math.randomInt(0, 101);
-		            		// if (t > 100)
-		            		// 	this.CreateObject(Tree, j, i);
-		            		// this.CreateObject(Tree, j, i);
-		            		// this._tiles[i][j].push(new Tree());
+		            		t = Crafty.math.randomInt(0, 101);
+		            		if (t > 95) {
+		            			// TODO: Must implement a tree renderer
+		            			// HACK: choose a random tree and add it to the right tile
+		            			// Compute the top-left corner of the tree
+		            			// var i0 = Math.max(i - 2, 0);
+		            			// var j0 = Math.max(j - 3, 0);
+		            			// this._tiles[i0][j0].push(this.terrains[7].GetRandomSprite());
+		            			this._trees[i][j] = Crafty.math.randomInt(0, 1);
+		            		}
+		            		else {
+		            			this._trees[i][j] = -1;	
+		            		}
                 		}
                 	}
-					this._tiles[i][j].push(this.terrains[cellType].GetGroundSprite());
                 }
                 else {
-                	// Add a rock at the border
-                	if (bShowRocks)
-                		this.CreateObject(Rock, j, i);
                 	cellType = -cellType;
                 	this._tiles[i][j].push(this.terrains[2].GetGroundSprite());
                 	this._tiles[i][j].push(this.terrains[3].GetSpriteByName("grassEdge" + cellType));
-                	// this._tiles[i][j].push(this.terrains[4].GetSpriteByName("fenceEdge" + cellType));
+                	// Add a flower at the border
+                	this._tiles[i][j].push(this.terrains[6].GetRandomSprite());
                 }
 			}
 		}
@@ -238,7 +262,43 @@ Crafty.c('TileMap', {
 		if (!this._buffer)
 			this._buffer = new TileMapBuffer(this, this._bufferHeight, this._bufferWidth);
 		this._buffer.updateViewport();
+		this._treeManager = new TreeManager();
 		// debug.log("createBufferCanvas: " + this.buffer + " context: " + this.bufferContext);
+	},
+
+	drawTrees: function(context) {
+		var minX = -Crafty.viewport.x;
+		var minY = -Crafty.viewport.y;
+		var maxX = minX + Crafty.viewport.width;
+		var maxY = minY + Crafty.viewport.height;
+		
+		var tx = 0,
+			ty = 0,
+			w = this._tileSize,
+			h = this._tileSize;
+			
+		var i0 = Math.floor(minY / h);
+		var i1 = Math.floor(maxY / h);
+		var j0 = Math.floor(minX / w);
+		var j1 = Math.floor(maxX / w);
+		
+		if (i0 < 0) i0 = 0;
+		if (j0 < 0) j0 = 0;
+		if (i1 > this._row - 1) i1 = this._row - 1;
+		if (j1 > this._col - 1) j1 = this._col - 1;
+		
+		for (var i = i0; i <= i1; i++){
+			for (var j = j0; j <= j1; j++){
+				
+				tx = j * w;
+				ty = i * h;
+
+				var treeID = this._trees[i][j];
+				if (treeID >= 0) {
+					this._treeManager.draw(context, treeID, tx, ty);
+				}
+			}
+		}
 	},
 
 	init: function() {
@@ -252,6 +312,8 @@ Crafty.c('TileMap', {
 
 			this._buffer.updateViewport();
 			this._buffer.draw(context);
+
+			this.drawTrees(context);
 		};
 
 		this.bind("Draw", draw).bind("RemoveComponent", function (id) {
@@ -402,7 +464,7 @@ var TileMapBuffer = Class({
 				}
 			}
 
-			// Draw the horizontal patch
+			// Draw the horizontal patchs
 			for (var j = c0; j <= c1; j++) {
 				for (var i = i0; i <= i1; i++) {
 					this.drawTileToCanvas(i, j, i0, j0);

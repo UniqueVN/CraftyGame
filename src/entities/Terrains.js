@@ -2,9 +2,21 @@ var TerrainDefinitions =
 {
 	flower:
 	{
-		Sprites: ["flower"]
+		Sprites: ["flower0", "flower1", "flower2", "flower3", "flower4", "flower5", 
+				  "flower6", "flower7", "flower8", "flower9"]
 	},
-
+	cherryTree:
+	{
+		Sprites: ['cherryTree0', 'cherryTree1']
+	},
+	treeTop:
+	{
+		Sprites: ['treetop0', 'treetop1', 'treetop2', 'treetop3']
+	},
+	treeTrunk:
+	{
+		Sprites: ['treetrunk0', 'treetrunk1']
+	},
 	bush:
 	{
 		Sprites: ["bush1", "bush2"]
@@ -38,6 +50,15 @@ var TerrainDefinitions =
 				  "waterEdge12", "waterEdge15", "waterEdge18", "waterEdge21",
 				  "waterEdge9", "waterEdge5", "waterEdge10", "waterEdge6",
 				  "waterHole0", "waterHole1"
+				  ]
+	},
+	fence:
+	{
+		Sprites: ["fence0", "fence1", "fence2", "fence3",
+				  "fenceEdge1", "fenceEdge2", "fenceEdge4", "fenceEdge8",
+				  "fenceEdge12", "fenceEdge15", "fenceEdge18", "fenceEdge21",
+				  "fenceEdge9", "fenceEdge5", "fenceEdge10", "fenceEdge6",
+				  "fenceHole0", "fenceHole1"
 				  ]
 	},
 	grass:
@@ -84,7 +105,7 @@ var Terrain = Class(
 	GetGroundSprite: function()
 	{
 		// GroundTile have index from 0 -> 3
-		var i = Crafty.math.clamp(Crafty.math.randomInt(0, 53) - 50, 0, 3);
+		var i = Crafty.math.clamp(Crafty.math.randomInt(0, 43) - 40, 0, 3);
 		return this._entities[i];
 	}
 });

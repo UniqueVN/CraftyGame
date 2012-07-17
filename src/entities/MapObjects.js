@@ -1,34 +1,29 @@
-Rock = MapEntity.extend(
+var Rock = MapEntity.extend(
 {
 	Sprites : ['rock1', 'rock2']
 });
 
-Tree =  MapEntity.extend({
-	Width : 1,
-	Height : 1,
 
-	initialize: function()
-	{
-		var tops  = ['treetop0', 'treetop1', 'treetop2', 'treetop3'];
-		var trunks = ['treetrunk0', 'treetrunk1'];
-
-		// Choose random tree's trunk & top
-		var trunkIndex = Crafty.math.randomInt(0, 1);
-		var topIndex = trunkIndex * 2 + Crafty.math.randomInt(0, 1);
-
-		var entity = Crafty.e("2D, Canvas, Body, " + trunks[trunkIndex])
-			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
-		var topentity = Crafty.e("2D, Canvas, Body, " + tops[topIndex])
-			.attr({z:3, TileWidth:this.Width, TileHeight:this.Height});
-
-		this.set({'entity' : entity });
-		this.set({'topentity' : topentity });
+var TreeManager = Class({
+	constructor: function() {
+		var trees = ["cherryTree0", "cherryTree1"];
+		this.treeSprites = [];
+		for (var i = 0; i < trees.length; i++) {
+			this.treeSprites.push(Crafty.e(trees[i]));
+		}
 	},
 
-	Appear: function(world, x, y)
-	{
-		this.getEntity().Appear(world, x, y);
-		this.get("topentity").Appear(world, x, y - 2);
-		return this;
-	},
+	draw: function(context, treeID, x, y) {
+		var treeSprite = this.treeSprites[treeID];
+		var srcX = treeSprite.__coord[0];
+		var srcY = treeSprite.__coord[1];
+		var w = treeSprite.__coord[2];
+		var h = treeSprite.__coord[3];
+		var destX = x - Math.floor(w / 2);
+		var destY = y - h;
+		// Draw the tree
+		context.drawImage(treeSprite.img,
+			srcX, srcY, w, h,
+			destX, destY, w, h);
+	}
 });

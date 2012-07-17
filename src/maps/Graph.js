@@ -43,13 +43,84 @@ var Graph = Class({
 });
 
 // ========================================================================================== //
+// GENERAL TREE
+var Tree = Class(Graph, {
+	constructor: function() {
+		Tree.$super.call(this);
+		this.root = undefined;
+	},
+	
+	populateNodes: function(nodeCount) {
+		for (var i = 0; i < nodeCount; i++) {
+			this.nodes.push(new TreeNode(i));
+		}
+	},
+
+	generateGraph: function(nodeCount, maxEdge) {
+		this.populateNodes(nodeCount);
+
+		var t = 0;
+		
+		for (var i = 1; i < nodeCount; i++) {
+			t = i - 1;
+			for (var j = 0; j < i; j++) {
+				var checkNode = this.nodes[j];
+				// If the node is not a root then count its parent too
+				var edgeCount = checkNode.getChildNum() + (checkNode.isRoot() ? 0 : 1);
+				if (edgeCount < maxEdge) {
+					// Randomly choose to either use this node or not
+					var d = Math.floor(Math.random() * 3);
+					if (d > 1) {
+						t = j;
+						break;
+					}
+				}
+			}
+			this.nodes[t].addChild(this.nodes[i]);
+			this.nodes[i].parent = this.nodes[t];
+		}
+
+		// for (var i = 1; i < nodeCount; i++) {
+		// 	while (true) {
+		// 		t = Math.floor(Math.random() * i);				
+
+		// 		var checkNode = this.nodes[t];
+		// 		var isRoot = checkNode.isRoot();
+		// 		// If the node is not a root then count its parent too
+		// 		var edgeCount = checkNode.getChildNum() + (isRoot ? 0 : 1);
+		// 		if (edgeCount < maxEdge && !this.isConnected(t, i))
+		// 			break;
+		// 	}
+			
+		// 	this.nodes[t].addChild(this.nodes[i]);
+		// 	this.nodes[i].parent = this.nodes[t];
+		// }
+
+		this.root = this.nodes[0];
+	}
+});
+
+// ========================================================================================== //
 // BINARY TREE
 var BinaryTree = Class(Graph, {
 	constructor: function() {
 		BinaryTree.$super.call(this);
-		this.root = undefined;
 	},
 	
+	generateGraph: function(nodeCount) {
+		this.populateNodes(nodeCount);
+		var t = 0;
+		for (var i = 1; i < nodeCount; i++) {
+			while (this.nodes[t].isFull() || this.isConnected(t, i)) {
+				t = Math.floor(Math.random() * i);
+			}
+			
+			this.nodes[t].addChild(this.nodes[i]);
+		}
+
+		this.root = this.nodes[0];
+	},
+
 	computeDepth: function(node) {
 		if (node === this.root)
 			node.depth = 0;
@@ -100,21 +171,6 @@ var BinaryTree = Class(Graph, {
 		for (var i = 0; i < nodeCount; i++) {
 			this.nodes.push(new BinaryNode(i));
 		}
-	},
-
-	generateGraph: function(nodeCount) {
-		this.populateNodes(nodeCount);
-		var maxEdge = 2;
-		var t = 0;
-		for (var i = 1; i < nodeCount; i++) {
-			while (this.nodes[t].isFull() || this.isConnected(t, i)) {
-				t = Math.floor(Math.random() * i);
-			}
-			
-			this.nodes[t].addChild(this.nodes[i]);
-		}
-
-		this.root = this.nodes[0];
 	}
 });
 
@@ -150,13 +206,46 @@ var Node = Class({
 });
 
 // ========================================================================================== //
-// BINARY NODE
-var BinaryNode = Class(Node, {
+// TREE NODE
+var TreeNode = Class(Node, {
 	constructor: function(id) {
-		BinaryNode.$super.call(this, id);
+		TreeNode.$super.call(this, id);
 
 		this.leafCount = -1;
 		this.depth = -1;
+		this.parent = null;
+	},
+
+	addChild: function(node) {
+		this.links.push(node);
+		return true;
+	},
+
+	getChildNum: function() {
+		return this.links.length;
+	},
+
+	isRoot: function() {
+		return this.parent === null;
+	},
+
+	isLeaf: function() {
+		return (this.links.length === 0);
+	}
+});
+
+// ========================================================================================== //
+// BINARY NODE
+var BinaryNode = Class(TreeNode, {
+	constructor: function(id) {
+		BinaryNode.$super.call(this, id);
+	},
+
+	addChild: function(node) {
+		if (this.isFull())
+			return false;
+
+		return BinaryNode.$super.addChild.call(this, node);
 	},
 
 	leftNode: function() {
@@ -167,19 +256,8 @@ var BinaryNode = Class(Node, {
 		return this.links[1];
 	},
 
-	addChild: function(node) {
-		if (this.isFull())
-			return false;
-
-		this.links.push(node);
-	},
-
 	isFull: function() {
 		return (this.links.length === 2);
-	},
-
-	isLeaf: function() {
-		return (this.links.length === 0);
 	},
 
 	swapChildren: function() {
@@ -222,6 +300,94 @@ var GraphLayout = Class({
 	}
 });
 
+// ========================================================================================== //
+// GRID CENTER LAYOUT
+var GridLayout = Class(GraphLayout, {
+	constructor: function(graph, nodeSize) {
+		GridLayout.$super.call(this, graph, nodeSize);
+	},
+
+	placeNode: function(node) {
+		// Try to place the child nodes in either 1 of the 8 location arround the node
+		// * * *
+		// * O *
+		// * * *
+
+		var x0 = node.x;
+		var y0 = node.y;
+
+		var DIRECTION = [{x: 0, y: 1}, {x: 1, y: 0}, {x:-1, y:0}, {x: 0, y: -1},
+						 {x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: -1, y: -1}];
+
+		for (var i = 0; i < node.links.length; i++) {
+			var x1, y1;
+			// Select an empty place in the grid
+			for (var d = 0; d < DIRECTION.length; d++) {
+				x1 = x0 + DIRECTION[d].x;
+				y1 = y0 + DIRECTION[d].y;
+
+				if (x1 >= 0 && y1 >= 0 && x1 < this.grid.length && y1 < this.grid.length &&
+					this.grid[x1][y1] === 0)
+					break;
+			}
+
+			var childNode = node.links[i];
+
+			childNode.x = x1;
+			childNode.y = y1;
+			this.grid[x1][y1] = 1;
+
+			this.placeNode(childNode);
+		}
+	},
+
+	createGrid: function() {
+		var nodeCount = this.graph.nodes.length;
+
+		this.grid = [];
+		for (var i = 0; i < nodeCount; i++) {
+			this.grid[i] = [];
+			for (var j = 0; j < nodeCount; j++) {
+				this.grid[i][j] = 0;
+			}
+		}
+	},
+
+	createLayout: function() {
+		this.createGrid();
+
+		var nodeCount = this.graph.nodes.length;
+		var nodeSize = this.nodeSize;
+		var root = this.graph.root;
+		root.x = Math.floor(nodeCount / 2);
+		root.y = Math.floor(nodeCount / 2);
+		this.grid[root.x][root.y] = 1;
+
+		this.placeNode(root);
+
+		var minX = root.x;
+		var minY = root.y;
+
+		// Found the boundary
+		for (var i = this.graph.nodes.length - 1; i >= 0; i--) {
+			var node = this.graph.nodes[i];
+			if (node.x < minX) minX = node.x;
+			if (node.y < minY) minY = node.y;
+		};
+
+		debug.log(minX, minY);
+
+		// Fix the offset for the nodes
+		for (var i = this.graph.nodes.length - 1; i >= 0; i--) {
+			var node = this.graph.nodes[i];
+			node.x = (node.x - minX) * nodeSize;
+			node.y = (node.y - minY) * nodeSize;
+		};
+
+		debug.log(this.graph.nodes);
+	}
+
+});
 
 // ========================================================================================== //
 // HORIZONTAL VERIZONTAL LAYOUT

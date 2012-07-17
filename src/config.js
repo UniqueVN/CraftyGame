@@ -8,8 +8,7 @@ Config = Backbone.Model.extend({
 		TILE_SIZE: 32,
 		PLAYER_SIZE: 64,
 		PLAYER_SPEED: 6.5,
-		SHOW_TREES: false,
-		SHOW_ROCKS: false
+		SHOW_TREES: true,
     },
     initialize: function() {
     },
