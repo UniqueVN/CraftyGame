@@ -6643,6 +6643,37 @@ Crafty.c("SpriteAnimation", {
 		return this;
 	},
 
+	// jc - copied from animate, to have more precise control (interval and starting frame)
+	playanim : function(reelId, interval, repeat, start)
+	{
+		//make sure not currently animating
+		this._currentReelId = reelId;
+
+		var currentReel = this._reels[reelId];
+		var startingSlide = Math.floor(start / interval);
+
+		this._frame = {
+			currentReel: currentReel,
+			numberOfFramesBetweenSlides: interval,
+			currentSlideNumber: startingSlide,
+			frameNumberBetweenSlides: start - startingSlide * interval,
+			repeat: 0
+		};
+
+		if (repeat === -1)
+			this._frame.repeatInfinitly = true;
+		else
+			this._frame.repeat = repeat;
+
+		pos = this._frame.currentReel[startingSlide];
+		this.__coord[0] = pos[0];
+		this.__coord[1] = pos[1];
+
+		this.trigger("Change");
+		this.bind("EnterFrame", this.updateSprite);
+		return this;
+	},
+
 	/**@
 	* #.updateSprite
 	* @comp SpriteAnimation
@@ -6663,29 +6694,35 @@ Crafty.c("SpriteAnimation", {
 			return;
 		}
 
-		if (this._frame.frameNumberBetweenSlides++ === data.numberOfFramesBetweenSlides) {
-			var pos = data.currentReel[data.currentSlideNumber++];
+		// jc - fixed all the weirdness in the animation frame sliding code, was playing one extra for each slide
+		// and one extra slide for the first frame
+		if (++this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides)
+		{
+			data.currentSlideNumber++;
 
-			this.__coord[0] = pos[0];
-			this.__coord[1] = pos[1];
-			this._frame.frameNumberBetweenSlides = 0;
-		}
-
-
-		if (data.currentSlideNumber === data.currentReel.length) {
-			
-			if (this._frame.repeatInfinitly === true || this._frame.repeat > 0) {
-				if (this._frame.repeat) this._frame.repeat--;
-				this._frame.frameNumberBetweenSlides = 0;
-				this._frame.currentSlideNumber = 0;
-			} else {
-				if (this._frame.frameNumberBetweenSlides === data.numberOfFramesBetweenSlides) {
-				    this.trigger("AnimationEnd", { reel: data.currentReel });
-				    this.stop();
-				    return;
-                }
+			if (data.currentSlideNumber === data.currentReel.length)
+			{
+				if (this._frame.repeatInfinitly === true || this._frame.repeat > 0)
+				{
+					if (this._frame.repeat) this._frame.repeat--;
+					this._frame.frameNumberBetweenSlides = 0;
+					this._frame.currentSlideNumber = 0;
+				}
+				else
+				{
+					this.trigger("AnimationEnd", { reel: data.currentReel });
+					this.stop();
+					return;
+				}
 			}
+			else
+			{
+				var pos = data.currentReel[data.currentSlideNumber];
 
+				this.__coord[0] = pos[0];
+				this.__coord[1] = pos[1];
+				this._frame.frameNumberBetweenSlides = 0;
+			}
 		}
 
 		this.trigger("Change");

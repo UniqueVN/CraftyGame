@@ -12,3 +12,16 @@ Ghost = Creature.extend(
 	Speed : 0.05,
 	WalkAnimationFrames: 3
 })
+
+SkeletonArcher = Creature.extend(
+{
+	Sprites : ['skeletonArcher'],
+	Speed : 0.08,
+	WalkAnimationFrames: 9,
+	PlayShootAnim : true,
+	ActionAnimations:
+	{
+		"Shoot" : [ 4, 13 ]
+	}
+
+})

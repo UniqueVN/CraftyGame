@@ -1,6 +1,7 @@
 Crafty.c('NavigationHandle',
 {
 	_pendingPath : null,
+	_isNavigationPaused : false,
 
 	init : function()
 	{
@@ -23,6 +24,21 @@ Crafty.c('NavigationHandle',
 	{
 		this._onNavigationEnded();
 		this.StopMoving();
+	},
+
+	PauseNavigation : function()
+	{
+		this._isNavigationPaused = true;
+		this.StopMoving();
+	},
+
+	ResumeNavigation : function()
+	{
+		this._isNavigationPaused = false;
+		if (this._pendingPath != null && !this.IsMoving())
+		{
+			this._moveToNextPoint();
+		}
 	},
 
 	IsNavigating : function()
@@ -80,6 +96,12 @@ Crafty.c('NavigationHandle',
 				this._pendingPath.splice(0, i - 1);
 		}
 
+		if (!this._isNavigationPaused)
+			this._moveToNextPoint();
+	},
+
+	_moveToNextPoint : function()
+	{
 		var nextPt = this._pendingPath[0];
 		this.MoveTo(nextPt.x, nextPt.y);
 	},

@@ -9,7 +9,7 @@ Player = MapEntity.extend({
 	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false, Faction : Factions.Monk, MovementSpeed: 0.2 })
 		    .text("Jia")
-		    .WalkAnimation(9, [0, 1, 2, 3], 5)
+		    .WalkAnimation(9, [0, 1, 2, 3], 10)
 		.AddAbility("Primary", new Ability_Shoot())
 
 		var followCamera = function()

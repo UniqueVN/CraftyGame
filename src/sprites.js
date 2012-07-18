@@ -67,6 +67,14 @@ Sprites = Backbone.Model.extend({
 			        ghost: [0, 0]
 		        }
 	        },
+	        skeletonArcher: {
+		        file: 'res/images/SkeletonArcher.png',
+		        tile: 64,
+		        tileh: 64,
+		        elements: {
+			        skeletonArcher: [0, 0]
+		        }
+	        },
 
             // OBJECTS
 	        torii:
@@ -79,6 +87,16 @@ Sprites = Backbone.Model.extend({
 				    torii1: [0, 0]
 				}
 			},
+	        gravestones:
+	        {
+		        file: 'res/images/gravestones.png',
+		        tile: 32,
+		        tileh: 32,
+		        elements:
+		        {
+			        grave : [3, 0, 2, 3]
+		        }
+	        },
             rock: {
                 file: 'res/images/rock.png',
                 tile: 32,

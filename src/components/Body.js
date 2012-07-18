@@ -214,6 +214,11 @@ Crafty.c('Body',
 		return this.NotColliding <= 0;
 	},
 
+	IsMoving : function()
+	{
+		return this._moveTo != null;
+	},
+
 	MoveTo : function(x, y)
 	{
 		this._moveTo = { x : x, y : y };

@@ -32,7 +32,7 @@ SpawnPoint = MapEntity.extend(
 
 	initialize: function()
 	{
-		var entity = Crafty.e("2D, DOM, Body, SpawnPoint, torii1")
+		var entity = Crafty.e("2D, DOM, Body, SpawnPoint, grave")
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
 		this.set({'entity' : entity });
 	}

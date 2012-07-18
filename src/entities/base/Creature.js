@@ -3,7 +3,9 @@ Creature = MapEntity.extend(
 	Speed : 0.1,
 	WalkAnimationFrames : 9,
 	WalkAnimationRows : [0, 1, 2, 3],
-	WalkAnimationSpeed : 15,
+	WalkAnimationSpeed : 20,
+	ActionAnimations : {},
+	PlayShootAnim : false,
 
 	initialize: function()
 	{
@@ -22,7 +24,7 @@ Creature = MapEntity.extend(
 				MovementSpeed : this.Speed,
 				Faction : Factions.Ghost
 			})
-			.AddAbility("Primary", new Ability_Shoot());
+			.AddAbility("Primary", new Ability_Shoot(this.PlayShootAnim));
 
 		this.set({'entity' : entity });
 	},
@@ -33,5 +35,11 @@ Creature = MapEntity.extend(
 
 		if (this.WalkAnimationFrames > 0)
 			entity.WalkAnimation(this.WalkAnimationFrames, this.WalkAnimationRows, this.WalkAnimationSpeed);
+
+		for (var name in this.ActionAnimations)
+		{
+			var data = this.ActionAnimations[name];
+			entity.ActionAnimation(name, data[0], data[1]);
+		}
 	}
 });

@@ -92,7 +92,7 @@ Crafty.c('SpawnPoint',
 
 	_spawn : function()
 	{
-		var monsters = [ Slime, Ghost ];
+		var monsters = [ SkeletonArcher, Ghost ];
 		var monster = monsters[Crafty.math.randomInt(0, monsters.length - 1)];
 		var spawned = new monster().Appear(this._world, this._tileX, this._tileY);
 		var entity = spawned.getEntity();
