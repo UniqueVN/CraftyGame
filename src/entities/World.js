@@ -109,6 +109,15 @@ var World = Class(
 
 	RemoveEntity : function(entity)
 	{
+		if (!entity.has("Projectile"))
+		{
+			var list = this._dynamicEntities[entity.Faction];
+			var i = list.indexOf(entity);
+			if (i === -1)
+				throw ("Entity is no longer in the list, could be in some other lists?");
+			list.splice(i, 1);
+		}
+
 		if (entity.IsColliding())
 			this.CollisionMap.RemoveEntity(entity);
 	},
@@ -170,6 +179,7 @@ var World = Class(
 		}
 
 		var initialRegion = nestedRegions[Crafty.math.randomInt(0, nestedRegions.length - 1)];
+		templeRegion.MakeBase(initialRegion);
 		initialRegion.Infest(templeRegion);
 	}
 });
@@ -201,9 +211,16 @@ var Region = Class(
 		return this.Neighbours.indexOf(region) != -1;
 	},
 
+	MakeBase : function(infested)
+	{
+		this._spawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+		if (infested != null)
+			this._spawnPoint.getEntity().SetSpawnedDestination(this, infested);
+	},
+
 	Infest : function(destination)
 	{
-		this._spawnPoint = new SpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+		this._spawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 		if (destination != null)
 			this._spawnPoint.getEntity().SetSpawnedDestination(this, destination);
 	}

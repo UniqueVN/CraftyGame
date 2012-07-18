@@ -7,6 +7,7 @@ Crafty.c('Body',
 	MovementSpeed : 0.1,
 	Faction : Factions.Neutral,
 	NotColliding : 0,
+	IsDestroyed : false,
 
 	_world : null,
 	_tileX : 0,
@@ -67,6 +68,7 @@ Crafty.c('Body',
 
 	_removeBody : function()
 	{
+		this.IsDestroyed = true;
 		this._world.RemoveEntity(this);
 	},
 

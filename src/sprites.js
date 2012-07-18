@@ -75,7 +75,14 @@ Sprites = Backbone.Model.extend({
 			        skeletonArcher: [0, 0]
 		        }
 	        },
-
+	        armorWhite: {
+		        file: 'res/images/Armor2Walk.png',
+		        tile: 64,
+		        tileh: 64,
+		        elements: {
+			        armorWhite: [0, 0]
+		        }
+	        },
             // OBJECTS
 	        torii:
 			{

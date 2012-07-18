@@ -148,7 +148,7 @@ var Goal_AttackEnemy = Class(Goal,
 
 	Behave : function(frame)
 	{
-		if (this._target != null)
+		if (this._target != null && !this._target.IsDestroyed)
 		{
 			var selfCenter = this._entity.GetCenter();
 			var targetCenter = this._target.GetCenter();
@@ -185,6 +185,10 @@ var Goal_AttackEnemy = Class(Goal,
 					this._entity.UseAbility('Primary', data);
 				}
 			}
+		}
+		else
+		{
+			this.IsActive = false;
 		}
 	}
 });

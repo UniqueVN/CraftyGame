@@ -64,15 +64,22 @@ Crafty.c("FloatingText",
 
 Crafty.c('SpawnPoint',
 {
-	_nextSpawnTime : 0,
+	_spawnCoolDown : 0,
 	_startingRegion : null,
 	_destRegion : null,
+	_spawnedCreatures : [],
 
 	init: function()
 	{
 		this.requires('Body');
 		this.bind("EnterFrame", this._updateSpawn);
-		this._nextSpawnTime = Crafty.timer.curTime + 5000;
+		this._spawnCoolDown = 250;
+	},
+
+	Spawns : function(list)
+	{
+		this._spawnedCreatures = list;
+		return this;
 	},
 
 	SetSpawnedDestination : function(start, end)
@@ -83,16 +90,19 @@ Crafty.c('SpawnPoint',
 
 	_updateSpawn : function(e)
 	{
-		if (Crafty.timer.curTime >= this._nextSpawnTime)
+		if (--this._spawnCoolDown <= 0)
 		{
 			this._spawn();
-			this._nextSpawnTime += 10000;
+			this._spawnCoolDown = 500;
 		}
 	},
 
 	_spawn : function()
 	{
-		var monsters = [ SkeletonArcher, Ghost ];
+		if (this._spawnedCreatures.length === 0)
+			return;
+
+		var monsters = this._spawnedCreatures;
 		var monster = monsters[Crafty.math.randomInt(0, monsters.length - 1)];
 		var spawned = new monster().Appear(this._world, this._tileX, this._tileY);
 		var entity = spawned.getEntity();

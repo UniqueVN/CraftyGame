@@ -6,6 +6,7 @@ Creature = MapEntity.extend(
 	WalkAnimationSpeed : 20,
 	ActionAnimations : {},
 	PlayShootAnim : false,
+	Faction : Factions.Ghost,
 
 	initialize: function()
 	{
@@ -22,7 +23,7 @@ Creature = MapEntity.extend(
 				TileHeight:this.Height,
 				IsStatic:false,
 				MovementSpeed : this.Speed,
-				Faction : Factions.Ghost
+				Faction : this.Faction
 			})
 			.AddAbility("Primary", new Ability_Shoot(this.PlayShootAnim));
 

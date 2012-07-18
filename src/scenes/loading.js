@@ -43,8 +43,9 @@ Crafty.scene("loading", function() {
 			"src/entities/base/MapEntity.js?v="+version,
 			"src/entities/base/Creature.js?v="+version,
 			"src/entities/Factories.js?v="+version,
-			"src/entities/MapObjects.js?v="+version,
 			"src/entities/Monsters.js?v="+version,
+			"src/entities/Minions.js?v="+version,
+			"src/entities/MapObjects.js?v="+version,
 			"src/entities/player.js?v="+version,
 			"src/entities/Terrains.js?v="+version
 		];
