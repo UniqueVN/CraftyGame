@@ -316,7 +316,9 @@ var Region = Class({
 	},
 
 	Activate: function(destination) {
-		this.SetDestination(destination);
+		if (destination)
+			this.SetDestination(destination);
+		
 		for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
 			this._spawnPoints[i].getEntity().Activate();
 		};
@@ -352,14 +354,21 @@ var MinionBase = Class(Region, {
 var Nest = Class(Region, {
 	constructor: function(world, id, center) {
 		this.bossSpawnPoint = null;
-		
+
 		Nest.$super.call(this, world, id, RegionTypes.Nest, center);
 	},
 
 	_setupSpawnPoint: function() {
 		this._spawnPoints = [];
-		Nest.$super._setupSpawnPoint.call(this);
+		Nest.$superp._setupSpawnPoint.call(this);
 		this.bossSpawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+	},
+
+	SetDestination: function(destination) {
+		Nest.$superp.SetDestination.call(this, destination);
+
+		if (this.bossSpawnPoint)
+			this.bossSpawnPoint.getEntity().SetSpawnedDestination(this, destination);
 	},
 
 	ReleaseTheBoss: function() {
