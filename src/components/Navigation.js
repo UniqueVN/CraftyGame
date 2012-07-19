@@ -142,7 +142,7 @@ Crafty.c('AvoidanceHandle',
 		this._avoidanceCheckWaitFrames = 20;
 
 		var center = this.GetCenter();
-		var result = this._world.CollisionMap.RadiusCheck(center, this.GetRadius() + 1);
+		var result = this._world.CollisionMap.RadiusCheck(center, this.GetRadius() + 0.5);
 		var hits = result.hits;
 		var avoid = { x : 0, y : 0 };
 		for (var i = 0; i < hits.length; i++)

@@ -15,7 +15,12 @@ Crafty.c('AbilityUser',
 		return this;
 	},
 
-	UseAbility : function(slot, data)
+	GetAbility : function(slot)
+	{
+		return this._abilities[slot];
+	},
+
+	UseSlot : function(slot, data)
 	{
 		if (this._currentAbility != null)
 			return;
@@ -24,9 +29,18 @@ Crafty.c('AbilityUser',
 		if (!ability)
 			throw ("ability in slot '", slot, "' not found!");
 
+		this.UseAbility(ability, data);
+	},
+
+	UseAbility : function(ability, data)
+	{
+		if (this._currentAbility != null)
+			return;
+
 		ability.UsedBy(this, data);
 		if (ability.IsActive)
 			this._currentAbility = ability;
+
 	},
 
 	_updateAbilities : function()
@@ -39,6 +53,12 @@ Crafty.c('AbilityUser',
 		}
 	}
 });
+
+AbilityBehaviorType =
+{
+	Melee : 0,
+	Ranged : 1
+};
 
 var Ability = Class(
 {
@@ -71,44 +91,110 @@ var Ability = Class(
 	}
 });
 
-var Ability_Shoot = Class(Ability,
+var ActionAbility = Class(Ability,
 {
-	constructor : function(playAnim)
+	constructor : function()
 	{
-		Ability_Shoot.$super.call(this);
+		ActionAbility.$super.call(this);
 
-		this._playShootAnim = playAnim || false;
-		this._fireDir = null;
+		this.PlayAnim = false;
+		this._actionData = null;
+		this._actionAnimName = "Action";
 	},
 
 	UsedBy : function(user, data)
 	{
-		if (!data.dir)
-			throw ("Ability_Shoot requires you to pass in dir!");
-
-		this._fireDir = data.dir;
-
-		if (this._playShootAnim)
+		if (this.PlayAnim)
 		{
-			this._playAbilityAnim(user, "Shoot", this._fireDir, this._readToFire);
+			this._actionData = data;
 			user.PauseNavigation();
+			this._playAbilityAnim(user, this._actionAnimName, this._getActionDir(user, data), this._readForAction);
 		}
 		else
 		{
-			this._fire(user);
+			this._performAction(user, data);
 		}
 	},
 
-	_readToFire : function(user)
+	_getActionDir : function(user, data)
 	{
-		user.ResumeNavigation();
-		this._fire(user);
+		return { x : 0, y : 0 };
 	},
 
-	_fire : function(user)
+	_readForAction : function(user)
+	{
+		user.ResumeNavigation();
+		this._performAction(user, this._actionData);
+	},
+
+	_performAction : function(user, data)
+	{
+
+	}
+});
+
+var Ability_Shoot = Class(ActionAbility,
+{
+	constructor : function()
+	{
+		Ability_Shoot.$super.call(this);
+
+		this._actionAnimName = "Shoot";
+		this.BehaviorType = AbilityBehaviorType.Ranged;
+	},
+
+	_getActionDir : function(user, data)
+	{
+		if (!data.dir)
+			throw ("Ability_Shoot requires you to pass in dir!");
+
+		return data.dir;
+	},
+
+	_performAction : function(user, data)
 	{
 		var center = user.GetCenter();
 		var projectile = user.GetWorld().SpawnProjectile(center.x, center.y);
-		projectile.Launch(user, this._fireDir);
+		projectile.Launch(user, this._getActionDir(user, data));
+	}
+})
+
+var Ability_Melee = Class(ActionAbility,
+{
+	constructor : function()
+	{
+		Ability_Melee.$super.call(this);
+
+		this._actionAnimName = "Melee";
+		this.BehaviorType = AbilityBehaviorType.Melee;
+
+		this.Range = 1;
+		this.Span = 1;
+	},
+
+	_getActionDir : function(user, data)
+	{
+		if (!data.dir)
+			throw ("Ability_Melee requires you to pass in dir!");
+
+		return data.dir;
+	},
+
+	_performAction : function(user, data)
+	{
+		var start = user.GetCenter();
+		var dir = this._getActionDir(user, data);
+		var end = Math3D.Add(start, Math3D.Scale(dir, this.Range));
+
+		var result = user.GetWorld().CollisionMap.LineCheck(start, end, this.Span * 0.5);
+		var hits = result.hits;
+		for (var i = 0; i < hits.length; i++)
+		{
+			var entity = hits[i].entity;
+			if (entity != user && !entity.IsFriendly(user) && entity.has("Damageable"))
+			{
+				entity.TakeDamage(5);
+			}
+		}
 	}
 })

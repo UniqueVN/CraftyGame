@@ -5,8 +5,11 @@ Crafty.c('AI',
 		this.requires("NavigationHandle");
 
 		this._goals = [];
-		this._goals.push(new Goal_AttackEnemy(this));
-		this._goals.push(new Goal_DestroyTemple(this));
+		this.bind("Appeared", function()
+		{
+			this._goals.push(new Goal_AttackEnemy(this));
+			this._goals.push(new Goal_DestroyTemple(this));
+		});
 
 		this.bind("EnterFrame", this._think);
 	},
@@ -124,11 +127,25 @@ var Goal_AttackEnemy = Class(Goal,
 
 		this._target = null;
 		this._nextAttackFrame = 0;
+
+		this._primaryAbility = entity.GetAbility("Primary");
+		if (this._primaryAbility)
+		{
+			switch (this._primaryAbility.BehaviorType)
+			{
+				case AbilityBehaviorType.Melee:
+					this._attackBehavior = new Behavior_MeleeAttack(entity);
+					break;
+				case AbilityBehaviorType.Ranged:
+					this._attackBehavior = new Behavior_RangedAttack(entity);
+					break;
+			}
+		}
 	},
 
 	Think : function()
 	{
-		if (!this.IsActive)
+		if (!this.IsActive && this._attackBehavior)
 		{
 			var enemies = this._entity.GetEnemies();
 			var myCenter = this._entity.GetCenter();
@@ -150,45 +167,132 @@ var Goal_AttackEnemy = Class(Goal,
 	{
 		if (this._target != null && !this._target.IsDestroyed)
 		{
-			var selfCenter = this._entity.GetCenter();
-			var targetCenter = this._target.GetCenter();
-
-			var distToTarget = Math3D.Distance(selfCenter, targetCenter);
-
-			if (distToTarget > 20)
-			{
-				this.IsActive = false;
-				return;
-			}
-
-
-			if (distToTarget > 3)
-			{
-				var targetLoc = this._target.GetCenterRounded();
-				if (!this._entity.IsNavigatingTo(targetLoc.x, targetLoc.y))
-				{
-					this._entity.NavigateTo(targetLoc.x, targetLoc.y);
-				}
-			}
-			else
-			{
-				if (this._entity.IsNavigating())
-					this._entity.StopNavigation();
-			}
-
-			if (distToTarget <= 10)
-			{
-				if (frame >= this._nextAttackFrame)
-				{
-					this._nextAttackFrame = frame + 50;
-					var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
-					this._entity.UseAbility('Primary', data);
-				}
-			}
+			this._attackBehavior.Update(this._entity, this._target, this._primaryAbility);
 		}
 		else
 		{
 			this.IsActive = false;
+		}
+	}
+});
+
+var Behavior = Class(
+{
+	constructor : function(entity)
+	{
+		this._entity = entity;
+	}
+});
+
+var Behavior_Attack = Class(Behavior,
+{
+
+	constructor : function(entity)
+	{
+		Behavior_Attack.$super.call(this, entity);
+	},
+
+	Update : function(target)
+	{
+
+	}
+});
+
+var Behavior_RangedAttack = Class(Behavior_Attack,
+{
+
+	constructor : function(entity)
+	{
+		Behavior_RangedAttack.$super.call(this, entity);
+
+		this._attackCoolDown = 0;
+	},
+
+	Update : function(self, target, ability)
+	{
+		if (this._attackCoolDown > 0)
+			this._attackCoolDown--;
+
+		var selfCenter = self.GetCenter();
+		var targetCenter = target.GetCenter();
+
+		var distToTarget = Math3D.Distance(selfCenter, targetCenter);
+
+		if (distToTarget > 20)
+		{
+			this.IsActive = false;
+			return;
+		}
+
+		if (distToTarget > 3)
+		{
+			var targetLoc = target.GetCenterRounded();
+			if (!self.IsNavigatingTo(targetLoc.x, targetLoc.y))
+			{
+				self.NavigateTo(targetLoc.x, targetLoc.y);
+			}
+		}
+		else
+		{
+			if (self.IsNavigating())
+				self.StopNavigation();
+		}
+
+		if (distToTarget <= 10)
+		{
+			if (this._attackCoolDown <= 0)
+			{
+				this._attackCoolDown = 50;
+				var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
+				self.UseAbility(ability, data);
+			}
+		}
+	}
+});
+
+var Behavior_MeleeAttack = Class(Behavior_Attack,
+{
+	constructor : function(entity)
+	{
+		Behavior_MeleeAttack.$super.call(this, entity);
+
+		this._attackCoolDown = 0;
+	},
+
+	Update : function(self, target, ability)
+	{
+		if (this._attackCoolDown > 0)
+			this._attackCoolDown--;
+
+		var selfCenter = self.GetCenter();
+		var targetCenter = target.GetCenter();
+
+		var distToTarget = Math3D.Distance(selfCenter, targetCenter);
+
+		if (!self.IsNavigating())
+		{
+			if (distToTarget <= 1.5)
+			{
+				if (this._attackCoolDown <= 0)
+				{
+					this._attackCoolDown = 50;
+					var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
+					self.UseAbility(ability, data);
+				}
+			}
+			else
+			{
+				var targetLoc = target.GetCenterRounded();
+				this._entity.NavigateTo(targetLoc.x, targetLoc.y);
+			}
+		}
+		else
+		{
+			var targetLoc = target.GetCenterRounded();
+			if (!this._entity.IsNavigatingTo(targetLoc.x, targetLoc.y))
+			{
+				this._entity.NavigateTo(targetLoc.x, targetLoc.y);
+			}
 		}
 	}
 });

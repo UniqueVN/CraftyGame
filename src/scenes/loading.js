@@ -37,7 +37,7 @@ Crafty.scene("loading", function() {
 			"src/components/BodyAnimations.js?v="+version,
 			"src/components/Navigation.js?v="+version,
 			"src/components/AI.js?v="+version,
-			"src/components/Behaviors.js?v="+version,
+			"src/components/Gameplay.js?v="+version,
 			"src/components/Controls.js?v="+version,
 			"src/entities/base/BaseEntity.js?v="+version,
 			"src/entities/base/MapEntity.js?v="+version,

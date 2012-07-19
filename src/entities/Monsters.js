@@ -10,7 +10,11 @@ Ghost = Creature.extend(
 {
 	Sprites : ['ghost'],
 	Speed : 0.05,
-	WalkAnimationFrames: 3
+	WalkAnimationFrames: 3,
+	Abilities:
+	{
+		"Primary" : { Type : Ability_Shoot }
+	}
 })
 
 SkeletonArcher = Creature.extend(
@@ -18,7 +22,10 @@ SkeletonArcher = Creature.extend(
 	Sprites : ['skeletonArcher'],
 	Speed : 0.08,
 	WalkAnimationFrames: 9,
-	PlayShootAnim : true,
+	Abilities:
+	{
+		"Primary" : { Type : Ability_Shoot, PlayAnim : true }
+	},
 	ActionAnimations:
 	{
 		"Shoot" : [ 4, 13 ]

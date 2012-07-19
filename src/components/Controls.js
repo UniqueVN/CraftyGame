@@ -71,7 +71,7 @@ Crafty.c('HeroControl',
 		var hit = this._toTileSpace(e.realX, e.realY);
 		var center = this.GetCenter();
 		var dir = Math3D.Direction(center, hit);
-		this.UseAbility("Primary", {dir : dir});
+		this.UseSlot("Primary", {dir : dir});
 	},
 
 	_onMapMouseUp : function(e)

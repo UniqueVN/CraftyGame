@@ -83,7 +83,15 @@ Sprites = Backbone.Model.extend({
 			        armorWhite: [0, 0]
 		        }
 	        },
-            // OBJECTS
+	        swordsman: {
+		        file: 'res/images/Swordsman.png',
+		        tile: 64,
+		        tileh: 64,
+		        elements: {
+			        swordsman: [0, 0]
+		        }
+	        },
+	        // OBJECTS
 	        torii:
 			{
 				file: 'res/images/torii.png',

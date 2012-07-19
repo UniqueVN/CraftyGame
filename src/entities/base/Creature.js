@@ -7,6 +7,7 @@ Creature = MapEntity.extend(
 	ActionAnimations : {},
 	PlayShootAnim : false,
 	Faction : Factions.Ghost,
+	Abilities : {},
 
 	initialize: function()
 	{
@@ -24,8 +25,23 @@ Creature = MapEntity.extend(
 				IsStatic:false,
 				MovementSpeed : this.Speed,
 				Faction : this.Faction
-			})
-			.AddAbility("Primary", new Ability_Shoot(this.PlayShootAnim));
+			});
+
+		for (var slot in this.Abilities)
+		{
+			var data = this.Abilities[slot];
+			var ability = new data.Type();
+			for (var key in data)
+			{
+				if (key === "Type")
+					continue;
+
+				ability[key] = data[key];
+			}
+
+			entity.AddAbility(slot, ability);
+		}
+
 
 		this.set({'entity' : entity });
 	},

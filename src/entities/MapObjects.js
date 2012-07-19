@@ -12,7 +12,7 @@ var GhostSpawnPoint = SpawnPoint.extend(
 var MinionSpawnPoint = SpawnPoint.extend(
 {
 	Sprites : ['torii1'],
-	Creatures : [ PlatinumWorrior ]
+	Creatures : [ PlatinumWorrior, Highlander ]
 });
 
 var TreeManager = Class({
