@@ -111,24 +111,6 @@ var SpawnPoint = MapEntity.extend(
 	}
 });
 
-var GhostSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['grave0'],
-	Creatures : [ Ghost ]
-});
-
-var SkeletonSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['grave1'],
-	Creatures : [ SkeletonArcher ]
-});
-
-var GraveBossSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['graveBig'],
-	Creatures : [SkeletonArcher]
-});
-
 var MinionSpawnPoint = SpawnPoint.extend(
 {
 	Sprites : ['torii1'],
@@ -187,8 +169,8 @@ Crafty.c('SpawnArea',
 		this._startingRegion = start;
 		this._destRegion = end;
 
-		debug.log(this, "SetSpawnedDestination: ", start, end);
-		debug.log(this._spawnPoints);
+		// debug.log(this, "SetSpawnedDestination: ", start, end);
+		// debug.log(this._spawnPoints);
 
 		return this;
 	},
@@ -288,35 +270,28 @@ var SpawnArea = MapEntity.extend(
 	},
 });
 
-var GraveSpawnArea = SpawnArea.extend(
-{
-	Width : 5,
-	Height : 5,
-	WaveDuration: 500,
-	WaveSpawnCount: 3,
-	SpawnPointTypes: [GhostSpawnPoint, SkeletonSpawnPoint]
-});
-
 // ========================================================================================== //
 // REGION
 var RegionTypes =
 {
 	Neutral : 0,
-	Temple : 1,
+	Base : 1,
 	Nest : 2
 };
 
 var Region = Class({
-	constructor : function(world, id, type) {
+	constructor : function(world, id, type, center) {
 		this.Id = id;
 		this.Type = type || RegionTypes.Neutral;
-		this.Center = { x: 0, y : 0 };
+		this.Center = center;
 		this.Neighbours = [];
 		this.Destination = null;
 		this.bClean = true;
 
 		this._world = world;
 		this._spawnPoints = [];
+
+		this._setupSpawnPoint();
 	},
 
 	AddNeighbour : function(region) {
@@ -338,31 +313,10 @@ var Region = Class({
 				this._spawnPoints[i].getEntity().SetSpawnedDestination(this, destination);
 			};
 		}
-		// this._spawnPoint.getEntity().SetSpawnedDestination(this, destination);
 	},
 
-	MakeBase : function(infested)
-	{
-		// this._spawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
-		var newSpawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
-		this._spawnPoints.push(newSpawnPoint);
-
-		if (infested != null) {
-			for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
-				// this._spawnPoints[i].getEntity().SetSpawnedDestination(this, destination);
-				this._spawnPoints[i].getEntity().SetSpawnedDestination(this, infested);
-			};
-		}
-		// this._spawnPoint.getEntity().SetSpawnedDestination(this, infested);
-	},
-
-	Infest : function(destination) {
-		this.bClean = false;
-		this._setupSpawnPoint();
+	Activate: function(destination) {
 		this.SetDestination(destination);
-	},
-
-	Activate: function() {
 		for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
 			this._spawnPoints[i].getEntity().Activate();
 		};
@@ -375,7 +329,6 @@ var Region = Class({
 	},
 
 	_setupSpawnPoint: function() {
-		// this._spawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 		var newSpawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 		this._spawnPoints.push(newSpawnPoint);
 	}
@@ -383,20 +336,34 @@ var Region = Class({
 
 // ========================================================================================== //
 // NEST
-var Nest = Class(Region, {
-	constructor: function(world, id) {
-		Nest.$super.call(this, world, id);
-
-		this.Type = RegionTypes.Nest;
-		this.bossSpawnPoint = null;
+var MinionBase = Class(Region, {
+	constructor: function(world, id, center) {
+		MinionBase.$super.call(this, world, id, RegionTypes.Base, center);
 	},
 
 	_setupSpawnPoint: function() {
+		var newSpawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+		this._spawnPoints.push(newSpawnPoint);
+	}
+});
+
+// ========================================================================================== //
+// NEST
+var Nest = Class(Region, {
+	constructor: function(world, id, center) {
+		this.bossSpawnPoint = null;
+		
+		Nest.$super.call(this, world, id, RegionTypes.Nest, center);
+	},
+
+	_setupSpawnPoint: function() {
+		this._spawnPoints = [];
 		Nest.$super._setupSpawnPoint.call(this);
 		this.bossSpawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 	},
 
 	ReleaseTheBoss: function() {
+		debug.log(this + " RELEASE THE BOSS: bossSpawnPoint = " + this.bossSpawnPoint + " id = " + this.Id);
 		this.bossSpawnPoint.getEntity()._spawn();
 	}
 });
@@ -404,11 +371,13 @@ var Nest = Class(Region, {
 // ========================================================================================== //
 // GRAVEYARD
 var Graveyard = Class(Nest, {
-	constructor: function(world, id) {
-		Graveyard.$super.call(this, world, id);
+	constructor: function(world, id, center) {
+		Graveyard.$super.call(this, world, id, center);
 	},
 
 	_setupSpawnPoint: function() {
+		this._spawnPoints = [];
+
 		var graves = new GraveSpawnArea();
 		graves.Appear(this._world, this.Center.x - graves.Width * 2, this.Center.y - graves.Height);
 		this._spawnPoints.push(graves);
@@ -416,3 +385,100 @@ var Graveyard = Class(Nest, {
 		this.bossSpawnPoint = new GraveBossSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 	}
 });
+
+var GhostSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['grave0'],
+	Creatures : [Ghost]
+});
+
+var SkeletonSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['grave1'],
+	Creatures : [SkeletonArcher]
+});
+
+var GraveBossSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['graveBig'],
+	Creatures : [SkeletonArcher]
+});
+
+var GraveSpawnArea = SpawnArea.extend(
+{
+	Width : 5,
+	Height : 5,
+	WaveDuration: 500,
+	WaveSpawnCount: 3,
+	SpawnPointTypes: [GhostSpawnPoint, SkeletonSpawnPoint]
+});
+
+// ========================================================================================== //
+// FARM
+var Farm = Class(Nest, {
+	constructor: function(world, id, center) {
+		Farm.$super.call(this, world, id, center);
+	},
+
+	_setupSpawnPoint: function() {
+		this._spawnPoints = [];
+
+		var field = new FarmFieldSpawnArea();
+		field.Appear(this._world, this.Center.x - field.Width * 2, this.Center.y - field.Height);
+		this._spawnPoints.push(field);
+
+		this.bossSpawnPoint = new FarmBossSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+	}
+});
+
+var PumpkinSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['plantHole0'],
+	Creatures : [Pumpkin]
+});
+
+var ManEaterFlowerSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['plantHole1'],
+	Creatures : [ManEaterFlower]
+});
+
+var FarmBossSpawnPoint = SpawnPoint.extend(
+{
+	Sprites : ['dummy'],
+	Creatures : [Dummy]
+});
+
+var FarmFieldSpawnArea = SpawnArea.extend(
+{
+	Width : 5,
+	Height : 5,
+	WaveDuration: 500,
+	WaveSpawnCount: 3,
+	SpawnPointTypes: [PumpkinSpawnPoint, ManEaterFlowerSpawnPoint]
+});
+
+// ========================================================================================== //
+// REGION FACTORY
+var RegionFactory = Class({
+	$statics: {
+		NestType: [Graveyard, Farm]
+	},
+
+	Spawn : function(world, id, type, pos) {
+		var region;
+		if (type === RegionTypes.Nest) {
+			var nestType = this.NestType[Crafty.math.randomInt(0, this.NestType.length - 1)];
+			region = new nestType(world, id, pos);
+		}
+		else if (type === RegionTypes.Base) {
+			region = new MinionBase(world, id, pos);
+		}
+		else {
+			region = new Region(world, id, type, pos);
+		}
+
+		return region;
+	}
+});
+

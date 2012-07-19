@@ -83,14 +83,38 @@ Sprites = Backbone.Model.extend({
 			        armorWhite: [0, 0]
 		        }
 	        },
-	        swordsman: {
-		        file: 'res/images/Swordsman.png',
-		        tile: 64,
-		        tileh: 64,
-		        elements: {
-			        swordsman: [0, 0]
-		        }
-	        },
+            swordsman: {
+                file: 'res/images/Swordsman.png',
+                tile: 64,
+                tileh: 64,
+                elements: {
+                    swordsman: [0, 0]
+                }
+            },
+            manEaterFlower: {
+                file: 'res/images/manEaterFlower.png',
+                tile: 60,
+                tileh: 76,
+                elements: {
+                    manEaterFlower: [0, 0]
+                }
+            },
+            pumpkin: {
+                file: 'res/images/pumpkin.png',
+                tile: 46,
+                tileh: 46,
+                elements: {
+                    pumpkin: [0, 0]
+                }
+            },
+            dummy: {
+                file: 'res/images/dummy.png',
+                tile: 64,
+                tileh: 64,
+                elements: {
+                    dummy: [0, 0]
+                }
+            },
 	        // OBJECTS
 	        torii:
 			{
@@ -180,6 +204,15 @@ Sprites = Backbone.Model.extend({
                 elements: {
                     cherryTree0: [0, 0, 4, 1],
                     cherryTree1: [4, 0, 3, 1]
+                }
+            },
+            plant: {
+                file: 'res/images/plants.png',
+                tile: 32,
+                tileh: 64,
+                elements: {
+                    plantHole0: [1, 4],
+                    plantHole1: [2, 4]
                 }
             },
 

@@ -278,7 +278,7 @@ Crafty.c('TileMap', {
 		var regions = [];
         for (var i = 0; i < graphRenderer.nodes.length; i++) {
 			var node = graphRenderer.graph.nodes[i];
-			var nodeType = node.isRoot() ? RegionTypes.Temple : 
+			var nodeType = node.isRoot() ? RegionTypes.Base : 
 											(node.isLeaf() ? RegionTypes.Nest: RegionTypes.Neutral);
 			var nodeCenter = graphRenderer.nodes[i];
 

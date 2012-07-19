@@ -1,12 +1,12 @@
-Slime = Creature.extend(
+var Slime = Creature.extend(
 {
 	Sprites : ['slime'],
 	Speed : 0.05,
 	WalkAnimationFrames: 3,
 	WalkAnimationRows : [0, 3, 2, 1]
-})
+});
 
-Ghost = Creature.extend(
+var Ghost = Creature.extend(
 {
 	Sprites : ['ghost'],
 	Speed : 0.05,
@@ -15,9 +15,9 @@ Ghost = Creature.extend(
 	{
 		"Primary" : { Type : Ability_Shoot }
 	}
-})
+});
 
-SkeletonArcher = Creature.extend(
+var SkeletonArcher = Creature.extend(
 {
 	Sprites : ['skeletonArcher'],
 	Speed : 0.08,
@@ -31,4 +31,40 @@ SkeletonArcher = Creature.extend(
 		"Shoot" : [ 4, 13 ]
 	}
 
+});
+
+var Pumpkin = Creature.extend(
+{
+	Sprites : ['pumpkin'],
+	Speed : 0.07,
+	WalkAnimationFrames: 3,
+	// WalkAnimationRows : [0, 3, 2, 1]
+	Abilities:
+	{
+		"Primary" : { Type : Ability_Shoot }
+	}
+});
+
+var ManEaterFlower = Creature.extend(
+{
+	Sprites : ['manEaterFlower'],
+	Speed : 0.05,
+	WalkAnimationFrames: 3,
+	WalkAnimationRows : [0, 3, 2, 1],
+	Abilities:
+	{
+		"Primary" : { Type : Ability_Shoot }
+	}
 })
+
+var Dummy = Creature.extend(
+{
+	Sprites : ['dummy'],
+	Speed : 0.07,
+	WalkAnimationFrames: 8,
+	WalkAnimationRows : [0, 0, 0, 0],
+	Abilities:
+	{
+		"Primary" : { Type : Ability_Melee, PlayAnim : false }
+	}
+});

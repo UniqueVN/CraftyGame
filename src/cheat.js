@@ -10,5 +10,13 @@ var Cheat = Class({
 	// GOD MODE
 	god: function() {
 		this.playerEntity.toggleComponent("Damageable");
+	},
+
+	ActivateNest: function(id) {
+		this.world.nestedRegions[id].Activate();
+	},
+
+	ReleaseTheBoss: function(id) {
+		this.world.nestedRegions[id].ReleaseTheBoss();
 	}
 });

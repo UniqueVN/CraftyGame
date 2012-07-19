@@ -23,6 +23,7 @@ var World = Class(
 		this.CollisionMap = new CollisionMap(this.MapWidth, this.MapHeight);
 		this.TerrainManager = new TerrainManager();
 		this.Regions = [];
+		this.RegionFactory = new RegionFactory();
 
 		this._staticEntities = [];
 		this._terrainMap = [];
@@ -137,14 +138,8 @@ var World = Class(
 	{
 		id = id || this.Regions.length;
 
-		var region;
+		var region = this.RegionFactory.Spawn(this, id, type, pos);
 
-		// TODO: convert this code to use RegionFactory
-		if (type === RegionTypes.Nest)
-			region = new Graveyard(this, id, type);
-		else
-			region = new Region(this, id, type);
-		region.Center = { x : pos.x, y : pos.y };
 		this.Regions.push(region);
 		return region;
 	},
@@ -173,9 +168,9 @@ var World = Class(
 		for (var i = 0; i < this.Regions.length; i++)
 		{
 			var region = this.Regions[i];
-			if (region.Type == RegionTypes.Nest)
+			if (region.Type === RegionTypes.Nest)
 				nestedRegions.push(region);
-			else if (region.Type == RegionTypes.Temple)
+			else if (region.Type === RegionTypes.Base)
 				templeRegion = region;
 		}
 
@@ -184,12 +179,17 @@ var World = Class(
 
 		var t = Crafty.math.randomInt(0, nestedRegions.length - 1);
 		var initialRegion = nestedRegions[t];
-		templeRegion.MakeBase(initialRegion);
+		templeRegion.SetDestination(initialRegion);
 		templeRegion.Activate();
 
-		initialRegion.Infest(templeRegion);
+		for (var i = 0; i < nestedRegions.length; i++)
+		{
+			nestedRegions[i].SetDestination(templeRegion);
+		}
+		// initialRegion.SetDestination(templeRegion);
 		initialRegion.Activate();
 
+		debug.log("Nest Regions:", this.nestedRegions);
 		debug.log("START INFEST FROM REGION: " + t);
 	}
 });
