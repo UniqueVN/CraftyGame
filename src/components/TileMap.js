@@ -152,6 +152,8 @@ Crafty.c('TileMap', {
         graphRenderer.lineWidth = 3;
         graphRenderer.setGraph(graph);
 
+        this._graphRenderer = graphRenderer;
+
         // Initialize the tiles
 		for (var i = 0; i < this._row; i++) {
 			this._tiles[i] = [];
@@ -258,25 +260,7 @@ Crafty.c('TileMap', {
 			}
 		}
 
-        // Add regions & spawn points
-		var regions = [];
-        for (var i = 0; i < graphRenderer.nodes.length; i++) {
-			var nodeCenter = graphRenderer.nodes[i];
-			regions[i] = this.World.AddRegion(nodeCenter.x, nodeCenter.y);
-			this.World.AddSpawnPoint(graphRenderer.nodes[i]);
-		}
-
-		// Link regions
-		for (var i = 0; i < graphRenderer.nodes.length; i++) {
-			var thisRegion = regions[i];
-			var node = graphRenderer.graph.nodes[i];
-			thisRegion.Type = i == 0 ? RegionTypes.Temple : (node.isLeaf() ? RegionTypes.Nest : RegionTypes.Neutral);
-			for (var linkIdx = 0; linkIdx < node.links.length; linkIdx++)
-			{
-				var otherIdx = node.links[linkIdx].id;
-				thisRegion.AddNeighbour(regions[otherIdx]);
-			}
-        }
+		this.setupRegions();
 
 		this._width = this._tileSize * this._col;
 		this._height = this._tileSize * this._row;
@@ -287,6 +271,33 @@ Crafty.c('TileMap', {
 		return this;
 	},
 
+	setupRegions: function() {
+		var graphRenderer = this._graphRenderer;
+
+        // Add regions & spawn points
+		var regions = [];
+        for (var i = 0; i < graphRenderer.nodes.length; i++) {
+			var node = graphRenderer.graph.nodes[i];
+			var nodeType = node.isRoot() ? RegionTypes.Temple : 
+											(node.isLeaf() ? RegionTypes.Nest: RegionTypes.Neutral);
+			var nodeCenter = graphRenderer.nodes[i];
+
+			regions[i] = this.World.AddRegion(i, nodeType, nodeCenter);
+			this.World.AddSpawnPoint(nodeCenter);
+		}
+
+		// Link regions
+		for (var i = 0; i < graphRenderer.nodes.length; i++) {
+			var thisRegion = regions[i];
+			var node = graphRenderer.graph.nodes[i];
+			for (var linkIdx = 0; linkIdx < node.links.length; linkIdx++)
+			{
+				var otherIdx = node.links[linkIdx].id;
+				thisRegion.AddNeighbour(regions[otherIdx]);
+			}
+        }
+	},
+
 	createBufferCanvas: function() {
 		if (!this._buffer)
 			this._buffer = new TileMapBuffer(this, this._bufferHeight, this._bufferWidth);
@@ -294,11 +305,11 @@ Crafty.c('TileMap', {
 		this._treeManager = new TreeManager();
 		// debug.log("createBufferCanvas: " + this.buffer + " context: " + this.bufferContext);
 
-		var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
-		var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
-		this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
-		this._miniMap.x = gameContainer.conf.get("MINI_MAP_X");
-		this._miniMap.y = gameContainer.conf.get("MINI_MAP_Y");
+		// var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
+		// var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
+		// this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
+		// this._miniMap.x = gameContainer.conf.get("MINI_MAP_X");
+		// this._miniMap.y = gameContainer.conf.get("MINI_MAP_Y");
 	},
 
 	drawTrees: function(context) {
@@ -350,7 +361,7 @@ Crafty.c('TileMap', {
 
 			this.drawTrees(context);
 
-			this._miniMap.draw(context);
+			// this._miniMap.draw(context);
 		};
 
 		this.bind("Draw", draw).bind("RemoveComponent", function (id) {

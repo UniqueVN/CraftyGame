@@ -47,7 +47,9 @@ Crafty.scene("loading", function() {
 			"src/entities/Minions.js?v="+version,
 			"src/entities/MapObjects.js?v="+version,
 			"src/entities/player.js?v="+version,
-			"src/entities/Terrains.js?v="+version
+			"src/entities/Region.js?v="+version,
+			"src/entities/Terrains.js?v="+version,
+			"src/cheat.js?v="+version
 		];
 
 		//when everything is loaded, run the main scene

@@ -23,20 +23,5 @@ MapEntity = BaseEntity.extend(
 			return this.Sprites[Crafty.math.randomInt(0, this.Sprites.length - 1)];
 		return "";
 	}
-});
 
-SpawnPoint = MapEntity.extend(
-{
-	Width : 1,
-	Height : 1,
-	Creatures : [],
-	Sprites : ['grave'],
-
-	initialize: function()
-	{
-		var entity = Crafty.e("2D, DOM, Body, SpawnPoint, " + this._getRandomSprite())
-			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height})
-			.Spawns(this.Creatures);
-		this.set({'entity' : entity });
-	}
 });

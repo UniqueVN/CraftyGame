@@ -102,6 +102,16 @@ Sprites = Backbone.Model.extend({
 				    torii1: [0, 0]
 				}
 			},
+            grave:
+            {
+                file: 'res/images/grave.png',
+                tile: 28,
+                tileh: 27,
+                elements:
+                {
+                    grave0: [0, 0]
+                }
+            },
 	        gravestones:
 	        {
 		        file: 'res/images/gravestones.png',
@@ -109,7 +119,12 @@ Sprites = Backbone.Model.extend({
 		        tileh: 32,
 		        elements:
 		        {
-			        grave : [3, 0, 2, 3]
+                    grave1: [0, 0, 1, 2],
+                    grave2: [1, 0, 2, 2],
+                    grave3: [0, 1],
+                    grave4: [1, 1],
+                    grave5: [2, 1],
+			        graveBig: [3, 0, 2, 3]
 		        }
 	        },
             rock: {

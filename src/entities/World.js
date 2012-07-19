@@ -1,10 +1,3 @@
-var RegionTypes =
-{
-	Neutral : 0,
-	Temple : 1,
-	Nest : 2
-};
-
 var Factions =
 {
 	Undefined : -1,
@@ -140,17 +133,25 @@ var World = Class(
 		return this._dynamicEntities[faction];
 	},
 
+	AddRegion : function(id, type, pos)
+	{
+		id = id || this.Regions.length;
+
+		var region;
+
+		// TODO: convert this code to use RegionFactory
+		if (type === RegionTypes.Nest)
+			region = new Graveyard(this, id, type);
+		else
+			region = new Region(this, id, type);
+		region.Center = { x : pos.x, y : pos.y };
+		this.Regions.push(region);
+		return region;
+	},
+
 	AddSpawnPoint: function(p)
 	{
 		this._spawnPoint.push(p);
-	},
-
-	AddRegion : function(x, y)
-	{
-		var region = new Region(this, this.Regions.length);
-		region.Center = { x : x, y : y };
-		this.Regions.push(region);
-		return region;
 	},
 
 	GetSpawnPoint: function(id)
@@ -178,51 +179,18 @@ var World = Class(
 				templeRegion = region;
 		}
 
-		var initialRegion = nestedRegions[Crafty.math.randomInt(0, nestedRegions.length - 1)];
+		this.templeRegion = templeRegion;
+		this.nestedRegions = nestedRegions;
+
+		var t = Crafty.math.randomInt(0, nestedRegions.length - 1);
+		var initialRegion = nestedRegions[t];
 		templeRegion.MakeBase(initialRegion);
+		templeRegion.Activate();
+
 		initialRegion.Infest(templeRegion);
-	}
-});
+		initialRegion.Activate();
 
-var Region = Class(
-{
-	constructor : function(world, id)
-	{
-		this.Id = id;
-		this.Type = RegionTypes.Neutral;
-		this.Center = { x: 0, y : 0 };
-		this.Neighbours = [];
-
-		this._world = world;
-		this._spawnPoint = null;
-	},
-
-	AddNeighbour : function(region)
-	{
-		if (this.HasNeighbour(region))
-			return;
-
-		this.Neighbours.push(region);
-		region.Neighbours.push(this);
-	},
-
-	HasNeighbour : function(region)
-	{
-		return this.Neighbours.indexOf(region) != -1;
-	},
-
-	MakeBase : function(infested)
-	{
-		this._spawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
-		if (infested != null)
-			this._spawnPoint.getEntity().SetSpawnedDestination(this, infested);
-	},
-
-	Infest : function(destination)
-	{
-		this._spawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
-		if (destination != null)
-			this._spawnPoint.getEntity().SetSpawnedDestination(this, destination);
+		debug.log("START INFEST FROM REGION: " + t);
 	}
 });
 

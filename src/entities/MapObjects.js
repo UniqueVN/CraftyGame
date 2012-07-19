@@ -3,18 +3,6 @@ var Rock = MapEntity.extend(
 	Sprites : ['rock1', 'rock2']
 });
 
-var GhostSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['grave'],
-	Creatures : [ SkeletonArcher, Ghost ]
-});
-
-var MinionSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['torii1'],
-	Creatures : [ PlatinumWorrior, Highlander ]
-});
-
 var TreeManager = Class({
 	constructor: function() {
 		var trees = ["cherryTree0", "cherryTree1"];
