@@ -2,7 +2,7 @@ var Minion = Creature.extend({
 	Faction : Factions.Monk
 });
 
-var PlatinumWorrior = Minion.extend(
+var PlatinumWarrior = Minion.extend(
 {
 	Sprites : ['armorWhite'],
 	Speed : 0.08,

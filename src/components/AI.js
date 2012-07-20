@@ -269,7 +269,7 @@ var Behavior_MeleeAttack = Class(Behavior_Attack,
 
 		var distToTarget = Math3D.Distance(selfCenter, targetCenter);
 
-		if (!self.IsNavigating())
+		if (!self.IsNavigatingTo(target))
 		{
 			if (distToTarget <= 1.5)
 			{
@@ -282,16 +282,7 @@ var Behavior_MeleeAttack = Class(Behavior_Attack,
 			}
 			else
 			{
-				var targetLoc = target.GetCenterRounded();
-				this._entity.NavigateTo(targetLoc.x, targetLoc.y);
-			}
-		}
-		else
-		{
-			var targetLoc = target.GetCenterRounded();
-			if (!this._entity.IsNavigatingTo(targetLoc.x, targetLoc.y))
-			{
-				this._entity.NavigateTo(targetLoc.x, targetLoc.y);
+				this._entity.NavigateTo(target, 0);
 			}
 		}
 	}

@@ -2,20 +2,48 @@ Crafty.c('NavigationHandle',
 {
 	_pendingPath : null,
 	_isNavigationPaused : false,
+	_currentGoal : null,
 
 	init : function()
 	{
 		if (!this.has("Body"))
 			throw new Error("Must have body to move around!");
 		this.bind("MoveFinished", this._movePointReached);
+		this.bind("EnterFrame", this._updateNavigation);
 		return this;
+	},
+
+	_updateNavigation : function()
+	{
+		if (this._currentGoal != null && !this._isNavigationPaused)
+		{
+			if (this._currentGoal.target)
+			{
+				var newCenter = this._currentGoal.target.GetCenter();
+				if (Math3D.DistanceSq(this._currentGoal._goalCenter, newCenter) > 4)
+					this.NavigateTo(this._currentGoal.target, this._currentGoal.radius);
+			}
+		}
 	},
 
 	NavigateTo : function(x, y)
 	{
 		var from = this.GetCenterRounded();
-		var to = { x: x, y : y };
-		this._pendingPath = NavigationManager.GetPathFinder().FindPath(from, to);
+		var to = null;
+
+		if (typeof x === 'object')
+		{
+			to = { target : x, radius : y };
+			to._goalCenter = x.GetCenter();
+		}
+		else
+		{
+			to = { x: x, y : y };
+		}
+
+		this._currentGoal = to;
+
+		this._pendingPath = NavigationManager.FindPath(from, to);
 		this._onNavigationStarted();
 		this._advancePath();
 	},
@@ -50,6 +78,13 @@ Crafty.c('NavigationHandle',
 	{
 		if (this._pendingPath === null || this._pendingPath.length <= 0)
 			return false;
+
+		if (arguments.length === 1)
+		{
+			var target = this._currentGoal.target || null;
+			var result = ((target != null) && (x[0] === target[0]))
+			return result;
+		}
 
 		var last = this._pendingPath[this._pendingPath.length - 1];
 		return last.x === x && last.y === y;
@@ -117,6 +152,7 @@ Crafty.c('NavigationHandle',
 
 	_onNavigationEnded : function()
 	{
+		this._currentGoal = null;
 		this._pendingPath = null;
 	}
 });
@@ -128,7 +164,7 @@ Crafty.c('AvoidanceHandle',
 	init: function()
 	{
 		this.requires("NavigationHandle");
-		this.bind("EnterFrame", this._updateAvoidance);
+		//this.bind("EnterFrame", this._updateAvoidance);
 	},
 
 	_updateAvoidance : function()
@@ -166,15 +202,37 @@ NavigationManager =
 {
 	_world : null,
 	_pathFinders : [],
-	_semantics : null,
+	Semantics : null,
 	_interRegionPathFinder : null,
+	_pathFinder : null,
 
 	SetWorld : function(world)
 	{
 		this._world = world;
 		this._pathFinders.length = 0;
-		this._semantics = new WorldPathSemantics(world);
+		this.Semantics = new WorldPathSemantics(world);
 		this._interRegionPathFinder = new PathFinder(new InterRegionPathSemantics(world));
+		this._pathFinder = new PathFinder(null);
+
+		this._semanticsLoc = new WorldPathSemantics_ToLocation(world);
+		this._semanticsTargetTouch = new WorldPathSemantics_ToTargetTouch(world);
+		this._semanticsTargetRanged = new WorldPathSemantics_ToTargetRanged(world);
+	},
+
+	FindPath : function(from, to)
+	{
+		var semantics = null;
+		if (to.target)
+		{
+			semantics = to.radius > 0 ? this._semanticsTargetRanged : this._semanticsTargetTouch;
+		}
+		else
+		{
+			semantics = this._semanticsLoc;
+		}
+
+		this._pathFinder.Semantics = semantics;
+		return this._pathFinder.FindPath(from, to);
 	},
 
 	GetPathFinder : function()
@@ -189,7 +247,7 @@ NavigationManager =
 
 	_createPathFinder : function()
 	{
-		return new PathFinder(this._semantics);
+		return new PathFinder(this.Semantics);
 	},
 
 	GetInterRegionPathFinder : function()
@@ -198,16 +256,59 @@ NavigationManager =
 	}
 };
 
-var WorldPathSemantics = Class(
+var PathSemantics = Class(
+{
+	constructor : function()
+	{
+	},
+
+	PrePath : function(from, to)
+	{
+		return [ { point : from, cost : 0 } ];
+	},
+
+	PostPath : function(from, to, path)
+	{
+
+	},
+
+	ReachedDestination : function(current, dest)
+	{
+		throw ("Not implemented!");
+	},
+
+	GetKey : function(point)
+	{
+		throw ("Not implemented!");
+	},
+
+	GetNeighbours : function(point)
+	{
+		throw ("Not implemented!");
+	},
+
+	GetMovementCost : function(from, to)
+	{
+		throw ("Not implemented!");
+	},
+
+	GetHeuristicCost : function(current, dest)
+	{
+		throw ("Not implemented!");
+	}
+});
+
+var WorldPathSemantics = Class(PathSemantics,
 {
 	constructor : function(world)
 	{
+		WorldPathSemantics.$super.call(this);
 		this._world = world;
 	},
 
 	ReachedDestination : function(current, dest)
 	{
-		return current.x == dest.x && current.y == dest.y;
+		throw ("Not implemented!");
 	},
 
 	GetKey : function(point)
@@ -242,44 +343,120 @@ var WorldPathSemantics = Class(
 	}
 });
 
-var InterRegionPathSemantics = Class(
+
+var WorldPathSemantics_ToLocation = Class(WorldPathSemantics,
+{
+	constructor : function(world)
 	{
-		constructor : function(world)
-		{
-			this._world = world;
-		},
+		WorldPathSemantics_ToLocation.$super.call(this, world);
+	},
 
-		ReachedDestination : function(current, dest)
-		{
-			return current === dest;
-		},
+	ReachedDestination : function(current, dest)
+	{
+		return current.x == dest.x && current.y == dest.y;
+	}
+});
 
-		GetKey : function(region)
-		{
-			return region.Id;
-		},
+var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
+{
+	constructor : function(world)
+	{
+		WorldPathSemantics_ToTargetTouch.$super.call(this, world);
+	},
 
-		GetNeighbours : function(region)
-		{
-			return region.Neighbours;
-		},
+	PrePath : function(from, to)
+	{
+		to._goal = { x : from.x, y : from.y };
 
-		GetMovementCost : function(from, to)
-		{
-			return 1.0;
-		},
+		var target = to.target;
+		var targetTile = target.GetCenterRounded();
+		var starts = [];
 
-		GetHeuristicCost : function(current, dest)
+		for (var dx = -1; dx <= 1; dx++)
 		{
-			return 0.0;
+			var x = targetTile.x + dx;
+
+			for (var dy = -1; dy <= 1; dy++)
+			{
+				if (dx === 0 && dy === 0)
+					continue;
+
+				var y = targetTile.y + dy;
+
+				// TODO: check occupied
+
+				var cost = (dx === 0 || dy === 0) ? 0 : 1.5;
+				starts.push({ point : { x : x, y : y }, cost : cost });
+			}
 		}
-	});
+
+		return starts;
+	},
+
+	ReachedDestination : function(current, dest)
+	{
+		var goal = dest._goal;
+		return current.x == goal.x && current.y == goal.y;
+	},
+
+	GetHeuristicCost : function(current, dest)
+	{
+		return WorldPathSemantics_ToTargetTouch.$superp.GetHeuristicCost.call(this, current, dest._goal);
+	},
+
+	PostPath : function(from, to, path)
+	{
+		path.reverse();
+	}
+});
+
+var WorldPathSemantics_ToTargetRanged = Class(WorldPathSemantics,
+{
+	constructor : function(world)
+	{
+		WorldPathSemantics_ToTargetRanged.$super.call(this, world);
+	}
+});
+
+var InterRegionPathSemantics = Class(PathSemantics,
+{
+	constructor : function(world)
+	{
+		InterRegionPathSemantics.$super.call(this);
+		this._world = world;
+	},
+
+	ReachedDestination : function(current, dest)
+	{
+		return current === dest;
+	},
+
+	GetKey : function(region)
+	{
+		return region.Id;
+	},
+
+	GetNeighbours : function(region)
+	{
+		return region.Neighbours;
+	},
+
+	GetMovementCost : function(from, to)
+	{
+		return 1.0;
+	},
+
+	GetHeuristicCost : function(current, dest)
+	{
+		return 0.0;
+	}
+});
 
 var PathFinder = Class(
 {
 	constructor : function(semantics)
 	{
-		this._semantics = semantics;
+		this.Semantics = semantics || null;
 		this._nodes = {};
 	},
 
@@ -288,7 +465,7 @@ var PathFinder = Class(
 		var node = {};
 		node.point = point;
 		node.parent = parent;
-		node.id = this._semantics.GetKey(point);
+		node.id = this.Semantics.GetKey(point);
 		node.g = g;
 		node.h = h;
 		node.f = f;
@@ -304,17 +481,33 @@ var PathFinder = Class(
 
 	FindPath : function(from, to)
 	{
-		if(this._semantics == null)
+		if(this.Semantics === null)
 			throw("Exception: You have to provide semantics for the path finding");
 
 		var path = [];
-		var start = this._newNode(from, null, -1,-1,-1);
 		var open = new PriorityQueue();
-		open.push(start, 0);
+		var starts = this.Semantics.PrePath(from, to);
+		if (!starts)
+			throw ("PrePath must return a list of starting points");
+
+		for (var i = 0; i < starts.length; i++)
+		{
+			var start = starts[i];
+			var g = start.cost;
+			var h = this.Semantics.GetHeuristicCost(start.point, to)
+			var f = g + h;
+			var startNode = this._newNode(start.point, null, g, h, f);
+
+			if (start.closed)
+				startNode.closed = true;
+			else
+				open.push(startNode, f);
+		}
+
 		while(open.size() > 0)
 		{
 			var currentNode = open.pop();
-			if(this._semantics.ReachedDestination(currentNode.point, to))
+			if(this.Semantics.ReachedDestination(currentNode.point, to))
 			{
 				while(currentNode != null)
 				{
@@ -329,28 +522,29 @@ var PathFinder = Class(
 
 			currentNode.closed = true;
 
-			var neighbours = this._semantics.GetNeighbours(currentNode.point);
+			var neighbours = this.Semantics.GetNeighbours(currentNode.point);
 			for (var i = 0; i < neighbours.length; i++)
 			{
 				var nextPoint = neighbours[i];
-				var id = this._semantics.GetKey(nextPoint);
+				var id = this.Semantics.GetKey(nextPoint);
 				var nextNode = this._nodes[id] || this._newNode(nextPoint, currentNode, -1, -1, -1);
 
 				if (nextNode.closed)
 					continue;
 
-				var g = this._semantics.GetMovementCost(currentNode.point, nextPoint);
+				var g = this.Semantics.GetMovementCost(currentNode.point, nextPoint) + currentNode.g;
 				if (nextNode.g >= 0 && nextNode.g <= g)
 					continue;
 
 				nextNode.parent = currentNode;
 				nextNode.g = g;
-				nextNode.h = this._semantics.GetHeuristicCost(nextPoint, to);
+				nextNode.h = this.Semantics.GetHeuristicCost(nextPoint, to);
 				nextNode.f = nextNode.g + nextNode.h;
 				open.push(nextNode, nextNode.f);
 			}
 		}
 
+		this.Semantics.PostPath(from, to, path);
 		this._nodes = {};
 		return path;
 	}
