@@ -43,7 +43,7 @@ Crafty.c('SpawnPoint',
 	{
 		this._bActive = true;
 		this._spawnCoolDown = this._waveDuration;
-		this.bind("EnterFrame", this._updateSpawn);
+		this.bind("EnterFrame", this._updateSpawn.bind(this));
 		// this._spawn();
 	},
 
@@ -51,7 +51,7 @@ Crafty.c('SpawnPoint',
 	{
 		this._bActive = false;
 		this._spawnCoolDown = 0;
-		this.unbind("EnterFrame", this._updateSpawn);
+		this.unbind("EnterFrame", this._updateSpawn.bind(this));
 	},
 
 	IsActivated: function()
@@ -146,6 +146,7 @@ Crafty.c('SpawnArea',
 		this._width = width;
 		this._height = height;
 
+		this._spawnPoints = [];
 		for (var i = 0; i < this._width; i++) {
 			this._spawnPoints[i] = [];
 			for (var j = 0; j < this._height; j++) {
@@ -187,15 +188,14 @@ Crafty.c('SpawnArea',
 	{
 		this._bActive = true;
 		this._spawnCoolDown = this._waveDuration;
-		this.bind("EnterFrame", this._updateSpawn);
-		// this._spawn();
+		this.bind("EnterFrame", this._updateSpawn.bind(this));
 	},
 
 	Deactivate: function()
 	{
 		this._bActive = false;
 		this._spawnCoolDown = 0;
-		this.unbind("EnterFrame", this._updateSpawn);
+		this.unbind("EnterFrame", this._updateSpawn.bind(this));
 	},
 
 	IsActivated: function()
@@ -313,12 +313,11 @@ var Region = Class({
 				this._spawnPoints[i].getEntity().SetSpawnedDestination(this, destination);
 			};
 		}
+		debug.log("SetDestination", this.Id);
 	},
 
-	Activate: function(destination) {
-		if (destination)
-			this.SetDestination(destination);
-		
+	Activate: function() {
+		debug.log(this, " ACTIVATED.", this._spawnPoints);
 		for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
 			this._spawnPoints[i].getEntity().Activate();
 		};
@@ -417,7 +416,7 @@ var GraveSpawnArea = SpawnArea.extend(
 {
 	Width : 5,
 	Height : 5,
-	WaveDuration: 500,
+	WaveDuration: 1000,
 	WaveSpawnCount: 3,
 	SpawnPointTypes: [GhostSpawnPoint, SkeletonSpawnPoint]
 });
@@ -462,7 +461,7 @@ var FarmFieldSpawnArea = SpawnArea.extend(
 {
 	Width : 5,
 	Height : 5,
-	WaveDuration: 500,
+	WaveDuration: 1000,
 	WaveSpawnCount: 3,
 	SpawnPointTypes: [PumpkinSpawnPoint, ManEaterFlowerSpawnPoint]
 });

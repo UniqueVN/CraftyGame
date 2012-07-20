@@ -1,8 +1,8 @@
-Minion = Creature.extend({
+var Minion = Creature.extend({
 	Faction : Factions.Monk
 });
 
-PlatinumWorrior = Minion.extend(
+var PlatinumWorrior = Minion.extend(
 {
 	Sprites : ['armorWhite'],
 	Speed : 0.08,
@@ -13,7 +13,7 @@ PlatinumWorrior = Minion.extend(
 	}
 });
 
-Highlander = Minion.extend(
+var Highlander = Minion.extend(
 {
 	Sprites : ['swordsman'],
 	Speed : 0.08,

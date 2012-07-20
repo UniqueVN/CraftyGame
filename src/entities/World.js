@@ -190,7 +190,7 @@ var World = Class(
 		initialRegion.Activate();
 
 		debug.log("Nest Regions:", this.nestedRegions);
-		debug.log("START INFEST FROM REGION: " + t);
+		debug.log("START INFEST FROM REGION: " + t + " - initialRegion.Id = " + initialRegion.Id, initialRegion);
 	}
 });
 
