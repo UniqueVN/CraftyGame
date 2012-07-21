@@ -149,6 +149,97 @@ Crafty.c("TextEx", {
 	}
 });
 
+
+var DebugRender = Class(
+{
+	constructor : function()
+	{
+		if (!Crafty.support.canvas)
+			return;
+
+		var c = document.createElement("canvas");
+		c.id = 'DebugCanvas';
+		c.width = Crafty.viewport.width;
+		c.height = Crafty.viewport.height;
+		c.style.position = 'absolute';
+		c.style.left = "0px";
+		c.style.top = "0px";
+		c.style.zIndex = '1000';
+		Crafty.stage.elem.appendChild(c);
+		this._debugContext = c.getContext('2d');
+
+		var render = this;
+
+		Crafty.bind("DrawFrame", function() {render._drawDebug();} );
+	},
+
+	_drawDebug : function()
+	{
+		this._debugContext.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
+		var rect = Crafty.viewport.rect();
+		var q = Crafty.map.search(rect);
+		var l = q.length;
+
+		for (var i = 0; i < l; i++)
+		{
+			var current = q[i];
+			current.trigger("DrawDebug", { ctx : this._debugContext });
+		}
+	}
+});
+
+if (gameContainer.conf.get("ENABLE_DEBUG"))
+{
+	Crafty.c("DebugRendering",
+	{
+		init : function()
+		{
+			this.bind("DrawDebug", function(data)
+			{
+				var ctx = data.ctx;
+				ctx.beginPath();
+
+				var center = this.GetCenterRounded();
+				var realCenter = this.GetCenterReal();
+				var x = Crafty.viewport.x + (center.x + 0.5) * this._world.TileSize;
+				var y = Crafty.viewport.y + (center.y + 0.5) * this._world.TileSize;
+				var w = this.TileWidth * this._world.TileSize * 0.5;
+				var h = this.TileHeight * this._world.TileSize * 0.5;
+
+				ctx.strokeStyle = NavigationManager.IsTileClaimedBy(center, this) ?
+					"red" : "white";
+
+				var pts = [
+					[ x - w, y - h ],
+					[ x + w, y - h ],
+					[ x + w, y + h ],
+					[ x - w, y + h ]
+				];
+
+				for (var i = 0; i < 4; i++)
+				{
+					ctx.lineTo(pts[i][0], pts[i][1]);
+				}
+				//ctx.moveTo(Crafty.viewport.x + realCenter.x, Crafty.viewport.x + realCenter.y);
+				//ctx.lineTo(Crafty.viewport.x + x, Crafty.viewport.x + y);
+				ctx.closePath();
+
+				var claimed = NavigationManager.GetClaimedTile(this);
+				if (claimed != null)
+				{
+					var cx = Crafty.viewport.x + (claimed.x + 0.5) * this._world.TileSize;
+					var cy = Crafty.viewport.y + (claimed.y + 0.5) * this._world.TileSize;
+					ctx.moveTo(cx, cy);
+					ctx.lineTo(x, y);
+				}
+
+				ctx.stroke();
+			});
+		}
+	});
+}
+
+
 // ========================================================================================== //
 // Renderer
 var Renderer = Class({

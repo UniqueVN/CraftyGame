@@ -10,6 +10,7 @@ Crafty.c('NavigationHandle',
 			throw new Error("Must have body to move around!");
 		this.bind("MoveFinished", this._movePointReached);
 		this.bind("EnterFrame", this._updateNavigation);
+		this.bind("Remove", function(){ NavigationManager.UnClaimTile(this); });
 		return this;
 	},
 
@@ -29,8 +30,8 @@ Crafty.c('NavigationHandle',
 	NavigateTo : function(x, y)
 	{
 		var from = this.GetCenterRounded();
-		var to = null;
 
+		var to = null;
 		if (typeof x === 'object')
 		{
 			to = { target : x, radius : y };
@@ -43,15 +44,27 @@ Crafty.c('NavigationHandle',
 
 		this._currentGoal = to;
 
-		this._pendingPath = NavigationManager.FindPath(from, to);
+		this._pendingPath = NavigationManager.FindPath(this, from, to);
 		this._onNavigationStarted();
 		this._advancePath();
+
+		if (this._pendingPath != null && this._pendingPath.length > 0)
+		{
+			NavigationManager.ClaimTile(this, this._pendingPath[this._pendingPath.length-1]);
+		}
 	},
 
 	StopNavigation : function()
 	{
+		if (!this.IsNavigating())
+			return;
+
 		this._onNavigationEnded();
 		this.StopMoving();
+
+		var curTile = this.GetCenterRounded();
+		if (!NavigationManager.IsTileClaimedByOthers(curTile, this))
+			NavigationManager.ClaimTile(this, curTile);
 	},
 
 	PauseNavigation : function()
@@ -205,6 +218,8 @@ NavigationManager =
 	Semantics : null,
 	_interRegionPathFinder : null,
 	_pathFinder : null,
+	_claimers : {},
+	_claimedTiles : {},
 
 	SetWorld : function(world)
 	{
@@ -217,9 +232,13 @@ NavigationManager =
 		this._semanticsLoc = new WorldPathSemantics_ToLocation(world);
 		this._semanticsTargetTouch = new WorldPathSemantics_ToTargetTouch(world);
 		this._semanticsTargetRanged = new WorldPathSemantics_ToTargetRanged(world);
+
+		// reset claims
+		this._claimers = {};
+		this._claimedTiles = {};
 	},
 
-	FindPath : function(from, to)
+	FindPath : function(entity, from, to)
 	{
 		var semantics = null;
 		if (to.target)
@@ -232,7 +251,7 @@ NavigationManager =
 		}
 
 		this._pathFinder.Semantics = semantics;
-		return this._pathFinder.FindPath(from, to);
+		return this._pathFinder.FindPath(entity, from, to);
 	},
 
 	GetPathFinder : function()
@@ -253,6 +272,72 @@ NavigationManager =
 	GetInterRegionPathFinder : function()
 	{
 		return this._interRegionPathFinder;
+	},
+
+	ClaimTile : function(entity, tile)
+	{
+		var key = this._getTileKey(tile);
+		var id = entity[0];
+
+		if (this._claimedTiles[key] === id)
+			return;
+
+		this.UnClaimTile(entity);
+		this._claimedTiles[key] = id;
+		this._claimers[id] = key;
+	},
+
+	UnClaimTile : function(entity)
+	{
+		var id = entity[0];
+		var claimedKey = this._claimers[id];
+		if (this._claimedTiles[claimedKey] === id)
+		{
+			delete this._claimedTiles[claimedKey];
+			delete this._claimers[id];
+		}
+	},
+
+	IsTileClaimed : function(tile)
+	{
+		var claimer = this._getClaimer(tile);
+		return claimer >= 0;
+	},
+
+	IsTileClaimedBy : function(tile, entity)
+	{
+		var claimer = this._getClaimer(tile);
+		return claimer === entity[0];
+	},
+
+	IsTileClaimedByOthers : function(tile, self)
+	{
+		var claimer = this._getClaimer(tile);
+		return claimer >= 0 && claimer != self[0];
+	},
+
+	GetClaimedTile : function(entity)
+	{
+		var key = this._claimers[entity[0]] || -1;
+		if (key === -1)
+			return null;
+
+		var y = Math.floor(key / this._world.MapWidth);
+		var x = key - y * this._world.MapWidth;
+
+		return { x : x, y : y };
+	},
+
+	_getTileKey : function(tile)
+	{
+		return tile.x + tile.y * this._world.MapWidth;
+	},
+
+	_getClaimer : function(tile)
+	{
+		var key = this._getTileKey(tile);
+		var id = this._claimedTiles[key] || -1;
+		return id;
 	}
 };
 
@@ -262,7 +347,7 @@ var PathSemantics = Class(
 	{
 	},
 
-	PrePath : function(from, to)
+	PrePath : function(entity, from, to)
 	{
 		return [ { point : from, cost : 0 } ];
 	},
@@ -364,7 +449,7 @@ var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
 		WorldPathSemantics_ToTargetTouch.$super.call(this, world);
 	},
 
-	PrePath : function(from, to)
+	PrePath : function(entity, from, to)
 	{
 		to._goal = { x : from.x, y : from.y };
 
@@ -383,10 +468,12 @@ var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
 
 				var y = targetTile.y + dy;
 
-				// TODO: check occupied
+				var point = { x : x, y : y };
+				if (NavigationManager.IsTileClaimedByOthers(point, entity))
+					continue;
 
 				var cost = (dx === 0 || dy === 0) ? 0 : 1.5;
-				starts.push({ point : { x : x, y : y }, cost : cost });
+				starts.push({ point : point, cost : cost });
 			}
 		}
 
@@ -479,14 +566,14 @@ var PathFinder = Class(
 
 	},
 
-	FindPath : function(from, to)
+	FindPath : function(entity, from, to)
 	{
 		if(this.Semantics === null)
 			throw("Exception: You have to provide semantics for the path finding");
 
 		var path = [];
 		var open = new PriorityQueue();
-		var starts = this.Semantics.PrePath(from, to);
+		var starts = this.Semantics.PrePath(entity, from, to);
 		if (!starts)
 			throw ("PrePath must return a list of starting points");
 

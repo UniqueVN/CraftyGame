@@ -886,6 +886,8 @@
                 }
                 if (loops) {
                     Crafty.DrawManager.draw();
+	                // jc - trigger draw frame, so external code can do rendering
+	                Crafty.trigger("DrawFrame");
                 }
             },
             /**@

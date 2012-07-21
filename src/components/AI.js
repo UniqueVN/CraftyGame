@@ -81,7 +81,7 @@ var Goal_DestroyTemple = Class(Goal,
 	{
 		this._destinationRegion = end;
 
-		var path = NavigationManager.GetInterRegionPathFinder().FindPath(start, end);
+		var path = NavigationManager.GetInterRegionPathFinder().FindPath(this._entity, start, end);
 		this._marchingPath = [];
 		// skip first one (start region)
 		for (var i = 1; i < path.length; i++)

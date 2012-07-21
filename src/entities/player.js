@@ -6,7 +6,7 @@ Player = MapEntity.extend({
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser")
+	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false, Faction : Factions.Monk, MovementSpeed: 0.2 })
 		    .text("Jia")
 		    .WalkAnimation(9, [0, 1, 2, 3], 10)

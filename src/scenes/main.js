@@ -15,6 +15,7 @@ Crafty.scene("main", function() {
 	var player = new Player().Appear(world, playerSpawnPoint.x, playerSpawnPoint.y);
 
 	gameContainer.cheat = new Cheat(player);
+	gameContainer.debugRender = new DebugRender();
 
 	// 100 slimes on lose!!!
 	/*
