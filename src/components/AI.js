@@ -224,27 +224,20 @@ var Behavior_RangedAttack = Class(Behavior_Attack,
 			return;
 		}
 
-		if (distToTarget > 3)
+		if (!self.IsNavigatingTo(target))
 		{
-			var targetLoc = target.GetCenterRounded();
-			if (!self.IsNavigatingTo(targetLoc.x, targetLoc.y))
+			if (this._entity.IsNavigating() || distToTarget > 12)
 			{
-				self.NavigateTo(targetLoc.x, targetLoc.y);
+				this._entity.NavigateTo(target, 6);
 			}
-		}
-		else
-		{
-			if (self.IsNavigating())
-				self.StopNavigation();
-		}
-
-		if (distToTarget <= 10)
-		{
-			if (this._attackCoolDown <= 0)
+			else
 			{
-				this._attackCoolDown = 50;
-				var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
-				self.UseAbility(ability, data);
+				if (this._attackCoolDown <= 0)
+				{
+					this._attackCoolDown = 50;
+					var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
+					self.UseAbility(ability, data);
+				}
 			}
 		}
 	}

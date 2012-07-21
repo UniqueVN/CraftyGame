@@ -199,7 +199,7 @@ if (gameContainer.conf.get("ENABLE_DEBUG"))
 				var ctx = data.ctx;
 				ctx.beginPath();
 
-				var center = this.GetCenterRounded();
+				var center = this.GetTile();
 				var realCenter = this.GetCenterReal();
 				var x = Crafty.viewport.x + (center.x + 0.5) * this._world.TileSize;
 				var y = Crafty.viewport.y + (center.y + 0.5) * this._world.TileSize;

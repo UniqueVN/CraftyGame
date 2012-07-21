@@ -29,7 +29,7 @@ Crafty.c('NavigationHandle',
 
 	NavigateTo : function(x, y)
 	{
-		var from = this.GetCenterRounded();
+		var from = this.GetTile();
 
 		var to = null;
 		if (typeof x === 'object')
@@ -62,7 +62,7 @@ Crafty.c('NavigationHandle',
 		this._onNavigationEnded();
 		this.StopMoving();
 
-		var curTile = this.GetCenterRounded();
+		var curTile = this.GetTile();
 		if (!NavigationManager.IsTileClaimedByOthers(curTile, this))
 			NavigationManager.ClaimTile(this, curTile);
 	},
@@ -123,7 +123,7 @@ Crafty.c('NavigationHandle',
 		// try to smooth the path
 		if (this._pendingPath.length >= 2)
 		{
-			var start = this.GetCenterRounded();
+			var start = this.GetTile();
 			var dir = { x: 0, y : 0 };
 
 			for (var i = 0, prev = start; i < this._pendingPath.length; i++)
@@ -357,7 +357,7 @@ var PathSemantics = Class(
 
 	},
 
-	ReachedDestination : function(current, dest)
+	ReachedDestination : function(entity, current, dest)
 	{
 		throw ("Not implemented!");
 	},
@@ -391,7 +391,7 @@ var WorldPathSemantics = Class(PathSemantics,
 		this._world = world;
 	},
 
-	ReachedDestination : function(current, dest)
+	ReachedDestination : function(entity, current, dest)
 	{
 		throw ("Not implemented!");
 	},
@@ -436,7 +436,7 @@ var WorldPathSemantics_ToLocation = Class(WorldPathSemantics,
 		WorldPathSemantics_ToLocation.$super.call(this, world);
 	},
 
-	ReachedDestination : function(current, dest)
+	ReachedDestination : function(entity, current, dest)
 	{
 		return current.x == dest.x && current.y == dest.y;
 	}
@@ -454,7 +454,7 @@ var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
 		to._goal = { x : from.x, y : from.y };
 
 		var target = to.target;
-		var targetTile = target.GetCenterRounded();
+		var targetTile = target.GetTile();
 		var starts = [];
 
 		for (var dx = -1; dx <= 1; dx++)
@@ -480,7 +480,7 @@ var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
 		return starts;
 	},
 
-	ReachedDestination : function(current, dest)
+	ReachedDestination : function(entity, current, dest)
 	{
 		var goal = dest._goal;
 		return current.x == goal.x && current.y == goal.y;
@@ -502,6 +502,34 @@ var WorldPathSemantics_ToTargetRanged = Class(WorldPathSemantics,
 	constructor : function(world)
 	{
 		WorldPathSemantics_ToTargetRanged.$super.call(this, world);
+	},
+
+	PrePath : function(entity, from, to)
+	{
+		var targetTile = to.target.GetTile();
+		to._goal = { x : targetTile.x, y : targetTile.y };
+
+		return WorldPathSemantics_ToTargetRanged.$superp.PrePath.call(this, entity, from, to);;
+	},
+
+	ReachedDestination : function(entity, current, dest)
+	{
+		var goal = dest._goal;
+		var radius = dest.radius;
+
+		if (current.x < goal.x - radius ||
+			current.x > goal.x + radius ||
+			current.y < goal.y - radius ||
+			current.y > goal.y + radius)
+			return false;
+
+		return (Math3D.DistanceSq(goal, current) <= (radius * radius)) &&
+			!NavigationManager.IsTileClaimedByOthers(current, entity);
+	},
+
+	GetHeuristicCost : function(current, dest)
+	{
+		return WorldPathSemantics_ToTargetTouch.$superp.GetHeuristicCost.call(this, current, dest._goal);
 	}
 });
 
@@ -513,7 +541,7 @@ var InterRegionPathSemantics = Class(PathSemantics,
 		this._world = world;
 	},
 
-	ReachedDestination : function(current, dest)
+	ReachedDestination : function(entity, current, dest)
 	{
 		return current === dest;
 	},
@@ -594,7 +622,7 @@ var PathFinder = Class(
 		while(open.size() > 0)
 		{
 			var currentNode = open.pop();
-			if(this.Semantics.ReachedDestination(currentNode.point, to))
+			if(this.Semantics.ReachedDestination(entity, currentNode.point, to))
 			{
 				while(currentNode != null)
 				{

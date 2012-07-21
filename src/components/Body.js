@@ -190,19 +190,19 @@ Crafty.c('Body',
 		return { x : x, y : y };
 	},
 
-	_toTileSpace : function(x, y)
-	{
-		var tileX = (x / this._world.TileSize) - 0.5;
-		var tileY = (y / this._world.TileSize) - 0.5;
-		return { x : tileX, y : tileY };
-	},
-
-	GetCenterRounded : function()
+	GetTile : function()
 	{
 		var center = this.GetCenter();
 		center.x = Math.floor(center.x + 0.5);
 		center.y = Math.floor(center.y + 0.5);
 		return center;
+	},
+
+	_toTileSpace : function(x, y)
+	{
+		var tileX = (x / this._world.TileSize) - 0.5;
+		var tileY = (y / this._world.TileSize) - 0.5;
+		return { x : tileX, y : tileY };
 	},
 
 	IsWithinBoxRange : function(center, size)

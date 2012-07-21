@@ -13,7 +13,7 @@ Config = Backbone.Model.extend({
 		PLAYER_SIZE: 64,
 		PLAYER_SPEED: 6.5,
 		SHOW_TREES: true,
-	    ENABLE_DEBUG: true
+	    ENABLE_DEBUG: false
     },
     initialize: function() {
     },

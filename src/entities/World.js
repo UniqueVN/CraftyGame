@@ -237,7 +237,7 @@ var CollisionMap = Class(
 
 	_addMovable : function(entity)
 	{
-		var centerTile = entity.GetCenterRounded();
+		var centerTile = entity.GetTile();
 
 		var bounds = this._getBounds(centerTile, entity.TileWidth, entity.TileHeight);
 		var minCell = bounds.min;
@@ -305,7 +305,7 @@ var CollisionMap = Class(
 		if (!entry)
 			throw ("No collision map entry found, entity must be added first before updating!");
 
-		var newCenter = entity.GetCenterRounded();
+		var newCenter = entity.GetTile();
 		var oldCenter = entry.center;
 		if (newCenter.x != oldCenter.x || newCenter.y != oldCenter.y)
 		{
