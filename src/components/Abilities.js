@@ -107,7 +107,7 @@ var ActionAbility = Class(Ability,
 		if (this.PlayAnim)
 		{
 			this._actionData = data;
-			user.PauseNavigation();
+			user.trigger("PauseMovement");
 			this._playAbilityAnim(user, this._actionAnimName, this._getActionDir(user, data), this._readForAction);
 		}
 		else
@@ -123,7 +123,7 @@ var ActionAbility = Class(Ability,
 
 	_readForAction : function(user)
 	{
-		user.ResumeNavigation();
+		user.trigger("ResumeMovement");
 		this._performAction(user, this._actionData);
 	},
 

@@ -1,12 +1,10 @@
 Crafty.c('HeroControl',
 {
 	_movementDirection : null,
+	_keyboardMovementPaused : false,
 
 	init : function()
 	{
-		if (!this.has("NavigationHandle"))
-			throw ("MouseMoveControl relies on NavigationHandle to move the dude around!");
-
 		this._movementDirection = { x : 0, y : 0 };
 
 		this.bind("MapMouseDown", this._onMapMouseDown);
@@ -14,6 +12,8 @@ Crafty.c('HeroControl',
 		this.bind("MapMouseMove", this._onMapMouseMove);
 		this.bind("KeyDown", this._onHeroControlKeyDown);
 		this.bind("KeyUp", this._onHeroControlKeyUp);
+		this.bind("PauseMovement", this._pauseKeyboardMovement);
+		this.bind("ResumeMovement", this._resumeKeyboardMovement);
 
 		return this;
 	},
@@ -55,6 +55,9 @@ Crafty.c('HeroControl',
 
 	_updateKeyboardMovement : function()
 	{
+		if (this._keyboardMovementPaused)
+			return;
+
 		if (this._movementDirection.x === 0 && this._movementDirection.y === 0)
 		{
 			this.StopMotion();
@@ -66,12 +69,24 @@ Crafty.c('HeroControl',
 		}
 	},
 
+	_pauseKeyboardMovement : function()
+	{
+		this.StopMotion();
+		this._keyboardMovementPaused = true;
+	},
+
+	_resumeKeyboardMovement : function()
+	{
+		this._keyboardMovementPaused = false;
+		this._updateKeyboardMovement();
+	},
+
 	_onMapMouseDown : function(e)
 	{
 		var hit = this._toTileSpace(e.realX, e.realY);
 		var center = this.GetCenter();
 		var dir = Math3D.Direction(center, hit);
-		this.UseSlot("Primary", {dir : dir});
+		this.UseSlot("Fireball", {dir : dir});
 	},
 
 	_onMapMouseUp : function(e)

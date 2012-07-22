@@ -11,6 +11,8 @@ Crafty.c('NavigationHandle',
 		this.bind("MoveFinished", this._movePointReached);
 		this.bind("EnterFrame", this._updateNavigation);
 		this.bind("Remove", function(){ NavigationManager.UnClaimTile(this); });
+		this.bind("PauseMovement", this.PauseNavigation);
+		this.bind("ResumeMovement", this.ResumeNavigation);
 		return this;
 	},
 

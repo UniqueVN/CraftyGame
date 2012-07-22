@@ -91,6 +91,14 @@ Sprites = Backbone.Model.extend({
                     swordsman: [0, 0]
                 }
             },
+	        mage: {
+		        file: 'res/images/Mage.png',
+		        tile: 64,
+		        tileh: 64,
+		        elements: {
+			        mage: [0, 0]
+		        }
+	        },
             manEaterFlower: {
                 file: 'res/images/manEaterFlower.png',
                 tile: 60,
@@ -383,6 +391,14 @@ Sprites = Backbone.Model.extend({
 		        tileh: 16,
 		        elements: {
 			        RedBullet: [1, 0]
+		        }
+	        },
+	        fireball: {
+		        file: 'res/images/fireball.png',
+		        tile: 100,
+		        tileh: 150,
+		        elements: {
+			        fireball: [0, 0]
 		        }
 	        }
         }

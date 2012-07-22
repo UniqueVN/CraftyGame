@@ -1,4 +1,11 @@
-Player = MapEntity.extend({
+Player = Creature.extend(
+{
+	WalkAnimationSpeed : 10,
+	ActionAnimations:
+	{
+		"Shoot" : [ 4, 7, 3 ]
+	},
+
     initialize: function(){
         var playerSpeed = gameContainer.conf.get("PLAYER_SPEED");
         var playerSize = gameContainer.conf.get("PLAYER_SIZE");
@@ -6,11 +13,24 @@ Player = MapEntity.extend({
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-	    var entity = Crafty.e("2D, DOM, maleNaked, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
+	    var entity = Crafty.e("2D, DOM, mage, Mouse, Body, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, IsStatic:false, Faction : Factions.Monk, MovementSpeed: 0.2 })
-		    .text("Jia")
-		    .WalkAnimation(9, [0, 1, 2, 3], 10)
-		.AddAbility("Primary", new Ability_Shoot())
+		    .text("Jia");
+
+	    for (var slot in SpellBook)
+	    {
+		    var data = SpellBook[slot];
+		    var ability = new data.Type();
+		    for (var key in data)
+		    {
+			    if (key === "Type")
+				    continue;
+
+			    ability[key] = data[key];
+		    }
+
+		    entity.AddAbility(slot, ability);
+	    }
 
 		var followCamera = function()
 		{
@@ -32,5 +52,16 @@ Player = MapEntity.extend({
 	    entity.bind("VisualUpdated", followCamera);
 
     	model.set({'entity' : entity });
+
+	    this._setupAnimations();
     }
 });
+
+var SpellBook =
+{
+	Fireball :
+	{
+		Type : Ability_Shoot,
+		PlayAnim : true
+	}
+};

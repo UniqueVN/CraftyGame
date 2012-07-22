@@ -31,12 +31,12 @@ Crafty.c('BodyAnimations',
 		return this;
 	},
 
-	ActionAnimation : function(name, row, length)
+	ActionAnimation : function(name, row, length, interval)
 	{
 		if (this._bodyAnimData === null)
 			this._bodyAnimData = {};
 
-		var newData = { length : length, interval : 5 };
+		var newData = { length : length, interval : interval };
 		this._bodyAnimData[name] = newData;
 
 		this.animate(name + "_up", 0, row, length - 1)
@@ -130,11 +130,11 @@ Crafty.c('BodyAnimations',
 
 	_getAnimDir : function(dir)
 	{
-		if (dir.x < -0.5)
+		if (dir.x < -0.70711)
 		{
 			return "left";
 		}
-		else if (dir.x > 0.5)
+		else if (dir.x > 0.70711)
 		{
 			return "right";
 		}
@@ -147,5 +147,4 @@ Crafty.c('BodyAnimations',
 			return "down";
 		}
 	}
-
 });

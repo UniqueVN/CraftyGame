@@ -6717,17 +6717,17 @@ Crafty.c("SpriteAnimation", {
 					return;
 				}
 			}
-			else
-			{
-				var pos = data.currentReel[data.currentSlideNumber];
 
-				this.__coord[0] = pos[0];
-				this.__coord[1] = pos[1];
-				this._frame.frameNumberBetweenSlides = 0;
-			}
+			var pos = data.currentReel[data.currentSlideNumber];
+
+			this.__coord[0] = pos[0];
+			this.__coord[1] = pos[1];
+			this._frame.frameNumberBetweenSlides = 0;
 		}
 
-		this.trigger("Change");
+		// jc - don't update if off screen, huge performance saving
+		if (Crafty.DrawManager.onScreen({ _x : this.x, _y : this.y, _w : this.w, _h : this.h }))
+			this.trigger("Change");
 	},
 
 	/**@

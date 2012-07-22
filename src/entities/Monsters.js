@@ -28,7 +28,7 @@ var SkeletonArcher = Creature.extend(
 	},
 	ActionAnimations:
 	{
-		"Shoot" : [ 4, 13 ]
+		"Shoot" : [ 4, 13, 4 ]
 	}
 
 });

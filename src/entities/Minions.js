@@ -24,6 +24,6 @@ var Highlander = Minion.extend(
 	},
 	ActionAnimations:
 	{
-		"Melee" : [ 4, 6 ]
+		"Melee" : [ 4, 6, 3 ]
 	}
 });

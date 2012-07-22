@@ -56,7 +56,8 @@ Creature = MapEntity.extend(
 		for (var name in this.ActionAnimations)
 		{
 			var data = this.ActionAnimations[name];
-			entity.ActionAnimation(name, data[0], data[1]);
+			var interval = data[2] || 5;
+			entity.ActionAnimation(name, data[0], data[1], interval);
 		}
 	}
 });

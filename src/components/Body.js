@@ -8,6 +8,7 @@ Crafty.c('Body',
 	Faction : Factions.Neutral,
 	NotColliding : 0,
 	IsDestroyed : false,
+	SpriteVerticalOffset : 0,
 
 	_world : null,
 	_tileX : 0,
@@ -137,7 +138,7 @@ Crafty.c('Body',
 	GetSpritePosAtTile : function(tileX, tileY)
 	{
 		var x = tileX * this._world.TileSize + (this.TileWidth * this._world.TileSize - this.w) / 2.0;
-		var y = tileY * this._world.TileSize + this.TileHeight * this._world.TileSize - this.h;
+		var y = tileY * this._world.TileSize + this.TileHeight * this._world.TileSize - this.h - this.SpriteVerticalOffset;
 		var z = Math.round((tileY + this.TileHeight + 1) * 10); // add 1 padding with other things (like map, player), could be const
 		return { x : x, y : y, z : z};
 	},
