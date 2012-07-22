@@ -3,20 +3,12 @@ Crafty.c('Body',
 
 	TileWidth : 1,
 	TileHeight : 1,
-	IsStatic : true,
-	MovementSpeed : 0.1,
-	Faction : Factions.Neutral,
-	NotColliding : 0,
 	IsDestroyed : false,
 	SpriteVerticalOffset : 0,
 
 	_world : null,
 	_tileX : 0,
 	_tileY : 0,
-	_moveTo : null,
-	_needUpdateSprite : false,
-	_velocity : null,
-	_avoidVelocity : { x : 0, y : 0 },
 
 	init: function()
 	{
@@ -44,11 +36,6 @@ Crafty.c('Body',
 
 		this.bind("Remove", this._removeBody);
 
-		if (this.IsStatic)
-			this._initStaticBody();
-		else
-			this._initDynamicBody();
-
 		this._updateSpritePos(true);
 		this.trigger("Change");
 		this.trigger("Appeared");
@@ -56,66 +43,9 @@ Crafty.c('Body',
 		return this;
 	},
 
-	_initStaticBody : function()
-	{
-		this._world.AddStaticEntity(this);
-	},
-
-	_initDynamicBody : function()
-	{
-		this._world.AddDynamicEntity(this);
-		this.bind("EnterFrame", this._update);
-	},
-
 	_removeBody : function()
 	{
 		this.IsDestroyed = true;
-		this._world.RemoveEntity(this);
-	},
-
-	_update : function()
-	{
-		if (this._moveTo != null)
-		{
-			var center = this.GetCenter();
-			var delta = {};
-			delta.x = this._moveTo.x - center.x;
-			delta.y = this._moveTo.y - center.y;
-			var dist = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
-			if (dist <= this.MovementSpeed)
-			{
-				this.SetCenter(this._moveTo.x, this._moveTo.y);
-				this.StopMoving();
-				this.trigger("MoveFinished");
-			}
-			else
-			{
-				var speed = this.MovementSpeed;
-				var x = center.x + delta.x / dist * speed + this._avoidVelocity.x;
-				var y = center.y + delta.y / dist * speed + this._avoidVelocity.y;
-				this.SetCenter(x, y);
-			}
-		}
-		else if (this._velocity != null)
-		{
-			var center = this.GetCenter();
-			var x = center.x + this._velocity.x;
-			var y = center.y + this._velocity.y;
-			this.SetCenter(x, y);
-		}
-		else if (this._avoidVelocity.x != 0 || this._avoidVelocity.y != 0)
-		{
-			var center = this.GetCenter();
-			var x = center.x + this._avoidVelocity.x;
-			var y = center.y + this._avoidVelocity.y;
-			this.SetCenter(x, y);
-		}
-
-		if (this._needUpdateSprite)
-		{
-			if (this._updateSpritePos(false))
-				this._needUpdateSprite = false;
-		}
 	},
 
 	_updateSpritePos : function(forceUpdate)
@@ -167,15 +97,6 @@ Crafty.c('Body',
 		return bounds;
 	},
 
-	SetCenter : function(x, y)
-	{
-		var oldCenter = this.GetCenter();
-		this._tileX = x - (this.TileWidth - 1) / 2.0;
-		this._tileY = y - (this.TileHeight - 1) / 2.0;
-		this._needUpdateSprite = true;
-		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
-	},
-
 	GetCenter : function()
 	{
 		var centerX = this._tileX + (this.TileWidth - 1) / 2;
@@ -210,11 +131,109 @@ Crafty.c('Body',
 	{
 		var myCenter = this.GetCenter();
 		return Math.abs(myCenter.x - center.x) <= size && Math.abs(myCenter.y - center.y) <= size;
+	}
+});
+
+Crafty.c('Static',
+{
+	init: function()
+	{
+		this.requires("Body");
+		this.bind("Appeared", this._addStatic);
+		this.bind("Remove", this._removeStatic);
+		return this;
 	},
 
-	IsColliding : function()
+	_addStatic : function()
 	{
-		return this.NotColliding <= 0;
+		if (this.has("Movable"))
+			throw ("Static cannot coexist with Movable!");
+
+		this._world.AddStatic(this);
+	},
+
+	_removeStatic : function()
+	{
+		this._world.RemoveStatic(this);
+	}
+});
+
+Crafty.c('Movable',
+{
+	MovementSpeed : 0.1,
+
+	_moveTo : null,
+	_spritePosDirty : false,
+	_velocity : null,
+	_avoidVelocity : { x : 0, y : 0 },
+
+	init: function()
+	{
+		this.requires("Body");
+		this.bind("Appeared", this._initMovable);
+		return this;
+	},
+
+	_initMovable : function()
+	{
+		if (this.has("Static"))
+			throw ("Movable cannot coexist with Static!");
+
+		this.bind("EnterFrame", this._updateMovable);
+	},
+
+	_updateMovable : function()
+	{
+		if (this._moveTo != null)
+		{
+			var center = this.GetCenter();
+			var delta = {};
+			delta.x = this._moveTo.x - center.x;
+			delta.y = this._moveTo.y - center.y;
+			var dist = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
+			if (dist <= this.MovementSpeed)
+			{
+				this.SetCenter(this._moveTo.x, this._moveTo.y);
+				this.StopMoving();
+				this.trigger("MoveFinished");
+			}
+			else
+			{
+				var speed = this.MovementSpeed;
+				var x = center.x + delta.x / dist * speed + this._avoidVelocity.x;
+				var y = center.y + delta.y / dist * speed + this._avoidVelocity.y;
+				this.SetCenter(x, y);
+			}
+		}
+		else if (this._velocity != null)
+		{
+			var center = this.GetCenter();
+			var x = center.x + this._velocity.x;
+			var y = center.y + this._velocity.y;
+			this.SetCenter(x, y);
+		}
+		else if (this._avoidVelocity.x != 0 || this._avoidVelocity.y != 0)
+		{
+			var center = this.GetCenter();
+			var x = center.x + this._avoidVelocity.x;
+			var y = center.y + this._avoidVelocity.y;
+			this.SetCenter(x, y);
+		}
+
+		if (this._spritePosDirty)
+		{
+			if (this._updateSpritePos(false))
+				this._spritePosDirty = false;
+		}
+	},
+
+	SetCenter : function(x, y)
+	{
+		var oldCenter = this.GetCenter();
+		this._tileX = x - (this.TileWidth - 1) / 2.0;
+		this._tileY = y - (this.TileHeight - 1) / 2.0;
+		this._spritePosDirty = true;
+		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
 	},
 
 	IsMoving : function()
@@ -268,16 +287,6 @@ Crafty.c('Body',
 		{
 			return { x : 0, y : 0 };
 		}
-	},
-
-	IsFriendly : function(other)
-	{
-		return other != null && this.Faction === other.Faction;
-	},
-
-	GetEnemies : function()
-	{
-		var enemyFaction = this._world.GetEnemyFaction(this.Faction);
-		return this._world.GetFactionEntities(enemyFaction);
 	}
 });
+

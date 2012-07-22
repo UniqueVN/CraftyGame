@@ -6,8 +6,8 @@ Crafty.c('NavigationHandle',
 
 	init : function()
 	{
-		if (!this.has("Body"))
-			throw new Error("Must have body to move around!");
+		if (!this.has("Movable"))
+			throw new Error("Must have Movable to move around!");
 		this.bind("MoveFinished", this._movePointReached);
 		this.bind("EnterFrame", this._updateNavigation);
 		this.bind("Remove", function(){ NavigationManager.UnClaimTile(this); });

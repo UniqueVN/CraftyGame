@@ -65,6 +65,7 @@ Crafty.c('SpawnPoint',
 			return;
 
 		// TODO: Make the spawn duration based on real time seconds instead of frame
+		// jc - frame is fine, it's fixed frame game, gameplay timing is all based on frames
 		if (--this._spawnCoolDown <= 0)
 		{
 			this._spawn();

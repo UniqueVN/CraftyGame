@@ -29,10 +29,10 @@ var World = Class(
 		this._terrainMap = [];
 		this._spawnPoint = [];
 
-		this._dynamicEntities = [];
-		this._dynamicEntities[Factions.Neutral] = [];
-		this._dynamicEntities[Factions.Monk] = [];
-		this._dynamicEntities[Factions.Ghost] = [];
+		this._pawns = [];
+		this._pawns[Factions.Neutral] = [];
+		this._pawns[Factions.Monk] = [];
+		this._pawns[Factions.Ghost] = [];
 
 		this._projectileFactory = new ProjectileFactory();
 
@@ -69,7 +69,7 @@ var World = Class(
 			this._terrainMap[i] = [];
 	},
 
-	AddStaticEntity : function(entity)
+	AddStatic : function(entity)
 	{
 		var staticEntityInfo =
 		{
@@ -88,32 +88,29 @@ var World = Class(
 		this.CollisionMap.AddEntity(entity);
 	},
 
-	AddDynamicEntity : function(entity)
+	RemoveStatic : function(entity)
 	{
-		if (!entity.has("Projectile"))
-		{
-			if (entity.Faction === Factions.Undefined)
-				throw ("Cannot have entity with undefined faction!");
-			this._dynamicEntities[entity.Faction].push(entity);
-		}
-
-		if (entity.IsColliding())
-			this.CollisionMap.AddEntity(entity);
+		throw ("Not Implemented!");
 	},
 
-	RemoveEntity : function(entity)
+	AddPawn : function(entity)
 	{
-		if (!entity.has("Projectile"))
-		{
-			var list = this._dynamicEntities[entity.Faction];
-			var i = list.indexOf(entity);
-			if (i === -1)
-				throw ("Entity is no longer in the list, could be in some other lists?");
-			list.splice(i, 1);
-		}
+		if (entity.Faction === Factions.Undefined)
+			throw ("Cannot have entity with undefined faction!");
+		this._pawns[entity.Faction].push(entity);
 
-		if (entity.IsColliding())
-			this.CollisionMap.RemoveEntity(entity);
+		this.CollisionMap.AddEntity(entity);
+	},
+
+	RemovePawn : function(entity)
+	{
+		var list = this._pawns[entity.Faction];
+		var i = list.indexOf(entity);
+		if (i === -1)
+			throw ("Entity is no longer in the list, could be in some other lists?");
+		list.splice(i, 1);
+
+		this.CollisionMap.RemoveEntity(entity);
 	},
 
 	GetEnemyFaction : function(faction)
@@ -126,12 +123,12 @@ var World = Class(
 			return Factions.Undefined;
 	},
 
-	GetFactionEntities : function(faction)
+	GetFactionPawns : function(faction)
 	{
 		if (faction === Factions.Undefined)
 			throw ("Nothing exists in faction Undefined!");
 
-		return this._dynamicEntities[faction];
+		return this._pawns[faction];
 	},
 
 	AddRegion : function(id, type, pos)
@@ -213,30 +210,6 @@ var CollisionMap = Class(
 
 	AddEntity : function(entity)
 	{
-		if (entity.IsStatic)
-		{
-
-		}
-		else
-		{
-			this._addMovable(entity);
-		}
-	},
-
-	RemoveEntity : function(entity)
-	{
-		if (entity.IsStatic)
-		{
-
-		}
-		else
-		{
-			this._removeMovable(entity);
-		}
-	},
-
-	_addMovable : function(entity)
-	{
 		var centerTile = entity.GetTile();
 
 		var bounds = this._getBounds(centerTile, entity.TileWidth, entity.TileHeight);
@@ -258,10 +231,12 @@ var CollisionMap = Class(
 
 		entity._collisionMapEntry = entry;
 		var map = this;
-		entity.bind("BodyMoved", function() { map._updateEntity(this); } );
+
+		if (entity.has("Movable"))
+			entity.bind("BodyMoved", function() { map._updateEntity(this); } );
 	},
 
-	_removeMovable : function(entity)
+	RemoveEntity : function(entity)
 	{
 		var entry = entity._collisionMapEntry;
 		if (!entry)

@@ -8,8 +8,7 @@ Crafty.c('Projectile',
 
 	init: function()
 	{
-		this.requires("Body");
-		this.NotColliding++;
+		this.requires("Movable")
 	},
 
 	Launch : function(instigator, dir)
