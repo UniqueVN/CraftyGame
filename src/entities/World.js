@@ -25,6 +25,8 @@ var World = Class(
 		this.Regions = [];
 		this.RegionFactory = new RegionFactory();
 
+		this.PickupMap = new CollisionMap(this.MapWidth, this.MapHeight);
+
 		this._staticEntities = [];
 		this._terrainMap = [];
 		this._spawnPoint = [];
@@ -129,6 +131,16 @@ var World = Class(
 			throw ("Nothing exists in faction Undefined!");
 
 		return this._pawns[faction];
+	},
+
+	AddPickup : function(pickup)
+	{
+		this.PickupMap.AddEntity(pickup);
+	},
+
+	RemovePickup : function(pickup)
+	{
+		this.PickupMap.RemoveEntity(pickup);
 	},
 
 	AddRegion : function(id, type, pos)
@@ -328,6 +340,7 @@ var CollisionMap = Class(
 	{
 		var result = {};
 		result.hits = [];
+		var added = {};
 
 		var minCell = this._getCell(center.x - radius, center.y - radius);
 		var maxCell = this._getCell(center.x + radius, center.y + radius);
@@ -342,7 +355,15 @@ var CollisionMap = Class(
 					var entity = list[i];
 					var totalRadius = radius + entity.GetRadius();
 					if (Math3D.DistanceSq(center, entity.GetCenter()) <= totalRadius * totalRadius)
+					{
+						var id = entity[0];
+
+						if (added[id])
+							continue;
+
+						added[id] = true;
 						result.hits.push( { entity : entity } );
+					}
 				}
 			}
 		}
@@ -355,6 +376,7 @@ var CollisionMap = Class(
 		var result = {};
 		result.hits = [];
 		radius = radius || 0;
+		var checked = {};
 
 		var minCell = this._getCell(Math.min(start.x, end.x), Math.min(start.y, end.y));
 		var maxCell = this._getCell(Math.max(start.x, end.x), Math.max(start.y, end.y));
@@ -368,6 +390,12 @@ var CollisionMap = Class(
 				for (var i = 0; i < list.length; i++)
 				{
 					var entity = list[i];
+					var id = entity[0];
+					if (checked[id])
+						continue;
+
+					checked[id] = true;
+
 					if (this._lineCircleIntersect(start, end, entity.GetCenter(), entity.GetRadius() + radius))
 						result.hits.push( { entity : entity } );
 				}

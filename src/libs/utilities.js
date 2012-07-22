@@ -205,6 +205,11 @@ var Math3D =
 		return v1.x * v2.x + v1.y * v2.y;
 	},
 
+	Size : function(vector)
+	{
+		return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+	},
+
 	SizeSq : function(vector)
 	{
 		return vector.x * vector.x + vector.y * vector.y;

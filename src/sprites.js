@@ -223,6 +223,16 @@ Sprites = Backbone.Model.extend({
                     plantHole1: [2, 4]
                 }
             },
+	        coins: {
+		        file: 'res/images/coins.png',
+		        tile: 32,
+		        tileh: 32,
+		        elements: {
+			        coin_dark: [0, 0],
+			        coin_fire: [0, 1],
+			        coin_light: [0, 2]
+		        }
+	        },
 
             // TERRAIN TILES
             sand: {

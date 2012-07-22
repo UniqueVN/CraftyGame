@@ -97,6 +97,14 @@ Crafty.c('Body',
 		return bounds;
 	},
 
+	_setCenter : function(x, y)
+	{
+		var oldCenter = this.GetCenter();
+		this._tileX = x - (this.TileWidth - 1) / 2.0;
+		this._tileY = y - (this.TileHeight - 1) / 2.0;
+		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
+	},
+
 	GetCenter : function()
 	{
 		var centerX = this._tileX + (this.TileWidth - 1) / 2;
@@ -193,7 +201,7 @@ Crafty.c('Movable',
 			var dist = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
 			if (dist <= this.MovementSpeed)
 			{
-				this.SetCenter(this._moveTo.x, this._moveTo.y);
+				this.Move(this._moveTo.x, this._moveTo.y);
 				this.StopMoving();
 				this.trigger("MoveFinished");
 			}
@@ -202,7 +210,7 @@ Crafty.c('Movable',
 				var speed = this.MovementSpeed;
 				var x = center.x + delta.x / dist * speed + this._avoidVelocity.x;
 				var y = center.y + delta.y / dist * speed + this._avoidVelocity.y;
-				this.SetCenter(x, y);
+				this.Move(x, y);
 			}
 		}
 		else if (this._velocity != null)
@@ -210,14 +218,14 @@ Crafty.c('Movable',
 			var center = this.GetCenter();
 			var x = center.x + this._velocity.x;
 			var y = center.y + this._velocity.y;
-			this.SetCenter(x, y);
+			this.Move(x, y);
 		}
 		else if (this._avoidVelocity.x != 0 || this._avoidVelocity.y != 0)
 		{
 			var center = this.GetCenter();
 			var x = center.x + this._avoidVelocity.x;
 			var y = center.y + this._avoidVelocity.y;
-			this.SetCenter(x, y);
+			this.Move(x, y);
 		}
 
 		if (this._spritePosDirty)
@@ -227,13 +235,10 @@ Crafty.c('Movable',
 		}
 	},
 
-	SetCenter : function(x, y)
+	Move : function(x, y)
 	{
-		var oldCenter = this.GetCenter();
-		this._tileX = x - (this.TileWidth - 1) / 2.0;
-		this._tileY = y - (this.TileHeight - 1) / 2.0;
 		this._spritePosDirty = true;
-		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
+		this._setCenter(x, y);
 	},
 
 	IsMoving : function()

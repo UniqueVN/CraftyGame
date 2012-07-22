@@ -21,3 +21,26 @@ var ProjectileFactory = Class(
 		return entity;
 	}
 });
+
+var Pickups =
+{
+	Spawn : function(world, x, y)
+	{
+		var pickups = [ 'dark', 'fire', 'light' ];
+		var name = Crafty.math.randomElementOfArray(pickups);
+		var sprite = "coin_" + name;
+
+		var entity = Crafty.e("2D, DOM, Body, Pickup, SpriteAnimation, " + sprite)
+			.attr(
+			{
+				TileWidth:1,
+				TileHeight:1
+			})
+			.Appear(world, x, y);
+
+		var row = Math.round(entity.__coord[1] / entity.h);
+
+		entity.animate('Spin', 0, row, 7);
+		entity.animate('Spin', 32, -1);
+	}
+};

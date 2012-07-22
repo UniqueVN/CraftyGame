@@ -103,7 +103,7 @@ Crafty.c('HeroControl',
 		{
 			var region = this._world.Regions[i];
 			if (region._spawnPoint != null)
-				this.SetCenter(region.Center.x, region.Center.y);
+				this.Move(region.Center.x, region.Center.y);
 		}
 	}
 });

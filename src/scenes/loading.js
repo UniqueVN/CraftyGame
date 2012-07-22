@@ -35,6 +35,7 @@ Crafty.scene("loading", function() {
 			"src/components/Pawn.js?v="+version,
 			"src/components/Abilities.js?v="+version,
 			"src/components/Projectile.js?v="+version,
+			"src/components/Pickup.js?v="+version,
 			"src/components/BodyAnimations.js?v="+version,
 			"src/components/Navigation.js?v="+version,
 			"src/components/AI.js?v="+version,
