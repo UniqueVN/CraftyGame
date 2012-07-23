@@ -134,6 +134,16 @@ Sprites = Backbone.Model.extend({
 				    torii1: [0, 0]
 				}
 			},
+	        platform:
+	        {
+		        file: 'res/images/platform.png',
+		        tile: 256,
+		        tileh: 256,
+		        elements:
+		        {
+			        platform: [0, 0]
+		        }
+	        },
             grave:
             {
                 file: 'res/images/grave.png',

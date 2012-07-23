@@ -114,7 +114,7 @@ var SpawnPoint = MapEntity.extend(
 
 var MinionSpawnPoint = SpawnPoint.extend(
 {
-	Sprites : ['torii1'],
+	Sprites : ['platform'],
 	Creatures : [ PlatinumWarrior, Highlander ]
 });
 
