@@ -14,3 +14,8 @@ body, html
 	margin:5px auto;
 	color:black
 }
+
+@font-face {
+    font-family: 'comic';
+    src: url('../res/fonts/Mothproof_Script.ttf');
+}​

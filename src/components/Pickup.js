@@ -1,5 +1,7 @@
 Crafty.c('Pickup',
 {
+	PickupName : "Void",
+
 	init: function()
 	{
 		this.requires("Body");
@@ -32,6 +34,7 @@ Crafty.c('Pickup',
 
 		if (dist <= avgSpeed)
 		{
+			this._pickingHero.ReceivedPickup(this);
 			this.destroy();
 		}
 		else

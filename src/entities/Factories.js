@@ -34,7 +34,8 @@ var Pickups =
 			.attr(
 			{
 				TileWidth:1,
-				TileHeight:1
+				TileHeight:1,
+				PickupName:name
 			})
 			.Appear(world, x, y);
 

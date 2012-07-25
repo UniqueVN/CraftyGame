@@ -51,6 +51,7 @@ Crafty.scene("loading", function() {
 			"src/entities/player.js?v="+version,
 			"src/entities/Region.js?v="+version,
 			"src/entities/Terrains.js?v="+version,
+			"src/interfaces/HUD.js?v="+version,
 			"src/cheat.js?v="+version
 		];
 

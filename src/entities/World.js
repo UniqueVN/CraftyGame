@@ -36,6 +36,8 @@ var World = Class(
 		this._pawns[Factions.Monk] = [];
 		this._pawns[Factions.Ghost] = [];
 
+		this.Player = null;
+
 		this._projectileFactory = new ProjectileFactory();
 
 		//////////////////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,14 @@
 Crafty.c('Hero',
 {
+	Pickups : null,
+
 	init: function()
 	{
 		this.requires('Pawn');
 		this.bind("EnterFrame", this._updateHero);
+
+		this.Pickups = {};
+
 		return this;
 	},
 
@@ -16,6 +21,19 @@ Crafty.c('Hero',
 		{
 			var pickup = hits[i].entity;
 			pickup.PickedUpBy(this);
+		}
+	},
+
+	ReceivedPickup : function(pickup)
+	{
+		var name = pickup.PickupName;
+		if (this.Pickups[name])
+		{
+			this.Pickups[name]++;
+		}
+		else
+		{
+			this.Pickups[name] = 1;
 		}
 	}
 });
