@@ -20,10 +20,10 @@ Crafty.c('HeroControl',
 
 	_onHeroControlKeyDown : function(e)
 	{
-		// TODO: cheat code, remove later
-		if (e.key === Crafty.keys['1'])
+		if (e.key >= Crafty.keys['1'] && e.key <= Crafty.keys['9'])
 		{
-			this._gotoInfestedRegion();
+			var index = e.key - Crafty.keys['1'];
+			this.CastSpell(index)
 			return;
 		}
 

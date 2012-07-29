@@ -25,11 +25,19 @@ Player = Creature.extend(
 		    {
 			    if (key === "Type")
 				    continue;
+			    else if (key === "Costs")
+			        continue;
+			    else if (key === "Icon")
+			        continue;
 
 			    ability[key] = data[key];
 		    }
-
 		    entity.AddAbility(slot, ability);
+
+		    if (data.Costs)
+		    {
+			    entity.AddSpell(slot, data.Costs, data.Icon);
+		    }
 	    }
 
 		var followCamera = function()
@@ -63,5 +71,34 @@ var SpellBook =
 	{
 		Type : Ability_Shoot,
 		PlayAnim : true
+	},
+
+	FlamingHound :
+	{
+		Costs : { 'light' : 1, 'fire' : 3 },
+		Icon : 'flamingHoundIcon',
+		Type : Ability_Spell,
+		PlayAnim : true,
+		Spell :
+		{
+			Pattern : SpellPatterns.Line,
+			Projectile : FlamingHound,
+			Total : 6
+		}
+	},
+
+	LightningStrike :
+	{
+		Costs : { 'light' : 3, 'dark' : 1 },
+		Icon : 'lightningStrikeIcon',
+		Type : Ability_Spell,
+		PlayAnim : true,
+		Spell :
+		{
+			Pattern : SpellPatterns.Area,
+			Projectile : Lightning,
+			Radius : 16,
+			Total : 12
+		}
 	}
 };

@@ -1,20 +1,19 @@
 var ProjectileFactory = Class(
 {
-	Spawn : function(world, x, y)
+	Spawn : function(world, definition, x, y)
 	{
-		var entity = Crafty.e("2D, DOM, Body, Movable, Projectile, fireball")
+		var entity = Crafty.e("2D, DOM, Body, Movable, Projectile, " + definition.Sprite)
 			.attr(
 			{
 				TileWidth:1,
 				TileHeight:1,
 				MovementSpeed : 0.3,
 				IsDirectionalProjectile : true,
-				SpriteVerticalOffset : -48,
-				ProjectileAnimations :
-				{
-					Flying : [ 0, 0, 2, 6 ],
-					Explosion : [ 3, 0, 18, 64]
-				}
+				SpriteVerticalOffset : (definition.VerticalOffset || 0),
+				ProjectileAnimations : (definition.Animations || {}),
+				Damage : (definition.Damage || 1),
+				DamageRadius : (definition.DamageRadius || 0),
+				Fuse : (definition.Fuse || 0)
 			})
 			.Appear(world, x, y);
 
@@ -22,12 +21,13 @@ var ProjectileFactory = Class(
 	}
 });
 
+var PickupTypes = [ 'dark', 'fire', 'light' ];
+
 var Pickups =
 {
 	Spawn : function(world, x, y)
 	{
-		var pickups = [ 'dark', 'fire', 'light' ];
-		var name = Crafty.math.randomElementOfArray(pickups);
+		var name = Crafty.math.randomElementOfArray(PickupTypes);
 		var sprite = "coin_" + name;
 
 		var entity = Crafty.e("2D, DOM, Body, Pickup, SpriteAnimation, " + sprite)

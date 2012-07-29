@@ -18,5 +18,10 @@ var Cheat = Class({
 
 	ReleaseTheBoss: function(id) {
 		this.world.nestedRegions[id].ReleaseTheBoss();
+	},
+
+	ShowMeTheMoney : function(pickup, amount)
+	{
+		this.playerEntity.IncreasePickup(pickup, amount);
 	}
 });

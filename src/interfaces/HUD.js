@@ -22,17 +22,9 @@ var HUD = Class(
 		this._elements = [];
 
 		var bar = Crafty.e("2D, Color")
-			.attr({x : 0, y : 0, z : 500, w : Crafty.viewport.width, h : 48})
+			.attr({x : 0, y : 0, z : 500, w : Crafty.viewport.width, h : 56})
 			.color("rgba(0,0,0,0.75)");
 		this._elements.push(bar);
-
-		this._pickupText = Crafty.e("2D, TextEx")
-			.attr({x: 50, y: 32, z: 1000, w: 400})
-			.text("Empty")
-			.textColor('#FFFFFF')
-			.textFont({'size' : '18px', 'family': 'comic'});
-
-		this._elements.push(this._pickupText);
 
 		var render = this;
 		Crafty.bind("DrawFrame", function()
@@ -40,17 +32,88 @@ var HUD = Class(
 			render._update();
 			render._draw();
 		});
+
+		this._pickupTexts = {};
+		for (var i = 0; i < PickupTypes.length; i++)
+		{
+			var pickup = PickupTypes[i];
+			var x = 32 + i * 80;
+			var y = 12;
+			var pickupIcon = Crafty.e("2D, coin_icon_" + pickup)
+				.attr({ x : x, y : y });
+			var pickupText = Crafty.e("2D, TextEx")
+				.attr({x: x + 32, y: y+20, z: 1000, w: 80})
+				.text("0")
+				.textColor('#FFFFFF')
+				.textFont({'size' : '14px', 'family': 'comic'});
+			this._elements.push(pickupIcon);
+			this._elements.push(pickupText);
+			this._pickupTexts[pickup] = pickupText;
+		}
+
+		this._spellBarDirty = false;
+		this._spellIcons = {};
+		this._spellBarX = 512;
+		this._spellBarY = 4;
+		this._spellIconSize = 64;
+		this._player.bind("SpellChanged", function(){ render._spellBarDirty = true; });
 	},
 
 	_update : function()
 	{
-		var pickupStr = "";
-		var pickups = this._player.Pickups;
-		for (var name in pickups)
+		for (var name in this._player.Pickups)
 		{
-			pickupStr += name + " : " + pickups[name] + " ";
+			this._pickupTexts[name].text(this._player.Pickups[name]);
 		}
-		this._pickupText.text(pickupStr);
+
+		if (this._spellBarDirty)
+		{
+			this._spellBarDirty = false;
+			this._updateSpellBar();
+		}
+	},
+
+	_updateSpellBar : function()
+	{
+		var spells = this._player.ActiveSpells;
+		var numSpells = spells.length;
+		for (var i = 0; i < numSpells; i++)
+		{
+			var spell = spells[i];
+			var data = this._spellIcons[spell];
+			if (data === undefined)
+			{
+				data = {};
+				data.icon = Crafty.e("2D, " + this._player.GetSpellIcon(spell));
+				data.visible = false;
+				this._spellIcons[spell] = data;
+			}
+			if (!data.visible)
+			{
+				this._elements.push(data.icon);
+				data.visible = true;
+			}
+
+			data.icon.x = this._spellBarX + i * this._spellIconSize;
+			data.icon.y = this._spellBarY;
+		}
+
+		for (var spell in this._spellIcons)
+		{
+			var data = this._spellIcons[spell];
+			if (data.visible && !this._player.IsSpellActive(spell))
+			{
+				data.visible = false;
+				for (var i = 0; i < this._elements.length; i++)
+				{
+					if (this._elements[i][0] === data.icon[0])
+						break;
+				}
+
+				if (i < this._elements.length)
+					this._elements.splice(i, 1);
+			}
+		}
 	},
 
 	_draw : function()
@@ -68,7 +131,14 @@ var HUD = Class(
 				_w : elem.w,
 				_h : elem.h
 			};
-			var co = elem.__coord;
+			var coord = elem.__coord || [0, 0, 0, 0];
+			var co =
+			{
+				x: coord[0],
+				y: coord[1],
+				w: coord[2],
+				h: coord[3]
+			};
 			elem.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: ctx });
 		}
 	}

@@ -240,7 +240,20 @@ Sprites = Backbone.Model.extend({
 		        elements: {
 			        coin_dark: [0, 0],
 			        coin_fire: [0, 1],
-			        coin_light: [0, 2]
+			        coin_light: [0, 2],
+			        coin_icon_dark: [2, 0],
+			        coin_icon_fire: [2, 1],
+			        coin_icon_light: [2, 2]
+		        }
+	        },
+	        pickupicons: {
+		        file: 'res/images/pickupicons.png',
+		        tile: 32,
+		        tileh: 32,
+		        elements: {
+			        coin_icon_dark: [2, 0],
+			        coin_icon_fire: [1, 0],
+			        coin_icon_light: [0, 0]
 		        }
 	        },
 
@@ -419,6 +432,31 @@ Sprites = Backbone.Model.extend({
 		        tileh: 150,
 		        elements: {
 			        fireball: [0, 0]
+		        }
+	        },
+	        flamingHound: {
+		        file: 'res/images/flaminghound.png',
+		        tile: 128,
+		        tileh: 128,
+		        elements: {
+			        flamingHound: [0, 0]
+		        }
+	        },
+	        lightning: {
+		        file: 'res/images/lightning.png',
+		        tile: 128,
+		        tileh: 128,
+		        elements: {
+			        lightning: [0, 0]
+		        }
+	        },
+	        spellIcons: {
+		        file: 'res/images/spells.png',
+		        tile: 48,
+		        tileh: 48,
+		        elements: {
+			        flamingHoundIcon: [0, 0],
+			        lightningStrikeIcon: [1, 0]
 		        }
 	        }
         }

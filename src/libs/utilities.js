@@ -215,3 +215,27 @@ var Math3D =
 		return vector.x * vector.x + vector.y * vector.y;
 	}
 };
+
+var DirectionToString = function(dir)
+{
+	if (dir.x === 0 && dir.y === 0)
+	{
+		return "";
+	}
+	else if (dir.x < -0.70711)
+	{
+		return "left";
+	}
+	else if (dir.x > 0.70711)
+	{
+		return "right";
+	}
+	else if (dir.y < 0)
+	{
+		return "up";
+	}
+	else //if (dir.y > 0)
+	{
+		return "down";
+	}
+};

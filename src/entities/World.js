@@ -62,9 +62,9 @@ var World = Class(
 	// Functions
 	//////////////////////////////////////////////////////////////////////////////////////////
 
-	SpawnProjectile : function(x, y)
+	SpawnProjectile : function(definition, x, y)
 	{
-		return this._projectileFactory.Spawn(this, x, y);
+		return this._projectileFactory.Spawn(this, definition, x, y);
 	},
 
 	InitMapData : function()
