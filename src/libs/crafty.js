@@ -1316,9 +1316,16 @@
 					if (!obj) continue; //skip if deleted
 					id = obj[0]; //unique ID
 
+					// jc - fixed issue that it's not checking the bounding box (rotation busted)
+					if (obj.hasOwnProperty('mbr'))
+					{
+						obj = obj.mbr();
+					}
+
 					//check if not added to hash and that actually intersects
-					if (!found[id] && obj.x < rect._x + rect._w && obj._x + obj._w > rect._x &&
-								 obj.y < rect._y + rect._h && obj._h + obj._y > rect._y)
+					// jc - changed to always check _x, _y etc. instead of x, y (because mbr contains only underscore vars
+					if (!found[id] && obj._x < rect._x + rect._w && obj._x + obj._w > rect._x &&
+								 obj._y < rect._y + rect._h && obj._h + obj._y > rect._y)
 						found[id] = results[i];
 				}
 

@@ -112,12 +112,6 @@ var SpawnPoint = MapEntity.extend(
 	}
 });
 
-var MinionSpawnPoint = SpawnPoint.extend(
-{
-	Sprites : ['platform'],
-	Creatures : [ PlatinumWarrior, Highlander ]
-});
-
 // ========================================================================================== //
 // SPAWN AREA
 Crafty.c('SpawnArea',
@@ -268,7 +262,7 @@ var SpawnArea = MapEntity.extend(
 		}
 
 		return this;
-	},
+	}
 });
 
 // ========================================================================================== //
@@ -281,7 +275,8 @@ var RegionTypes =
 };
 
 var Region = Class({
-	constructor : function(world, id, type, center) {
+	constructor : function(world, id, type, center)
+	{
 		this.Id = id;
 		this.Type = type || RegionTypes.Neutral;
 		this.Center = center;
@@ -295,7 +290,8 @@ var Region = Class({
 		this._setupSpawnPoint();
 	},
 
-	AddNeighbour : function(region) {
+	AddNeighbour : function(region)
+	{
 		if (this.HasNeighbour(region))
 			return;
 
@@ -303,34 +299,43 @@ var Region = Class({
 		region.Neighbours.push(this);
 	},
 
-	HasNeighbour : function(region)	{
+	HasNeighbour : function(region)
+	{
 		return this.Neighbours.indexOf(region) != -1;
 	},
 
-	SetDestination: function(destination) {
+	SetDestination: function(destination)
+	{
 		this.destination = destination;
-		if (this.destination) {
-			for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
+		if (this.destination)
+		{
+			for (var i = this._spawnPoints.length - 1; i >= 0; i--)
+			{
 				this._spawnPoints[i].getEntity().SetSpawnedDestination(this, destination);
 			};
 		}
 		debug.log("SetDestination", this.Id);
 	},
 
-	Activate: function() {
+	Activate: function()
+	{
 		debug.log(this, " ACTIVATED.", this._spawnPoints);
-		for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
+		for (var i = this._spawnPoints.length - 1; i >= 0; i--)
+		{
 			this._spawnPoints[i].getEntity().Activate();
 		};
 	},
 
-	Deactivate: function() {
-		for (var i = this._spawnPoints.length - 1; i >= 0; i--) {
+	Deactivate: function()
+	{
+		for (var i = this._spawnPoints.length - 1; i >= 0; i--)
+		{
 			this._spawnPoints[i].getEntity().Deactivate();
 		};
 	},
 
-	_setupSpawnPoint: function() {
+	_setupSpawnPoint: function()
+	{
 		var newSpawnPoint = new GhostSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
 		this._spawnPoints.push(newSpawnPoint);
 	}
@@ -338,14 +343,164 @@ var Region = Class({
 
 // ========================================================================================== //
 // NEST
-var MinionBase = Class(Region, {
-	constructor: function(world, id, center) {
+var MinionBase = Class(Region,
+{
+	constructor: function(world, id, center)
+	{
+		this.Shrine = null;
+		this.SummoningCircles = [];
+
 		MinionBase.$super.call(this, world, id, RegionTypes.Base, center);
 	},
 
-	_setupSpawnPoint: function() {
-		var newSpawnPoint = new MinionSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
-		this._spawnPoints.push(newSpawnPoint);
+	ActivateAgainstInfested : function(infested)
+	{
+		var bestScore = -100;
+		var bestIndex = -1;
+
+		for (var i = 0; i < this.SummoningCircles.length; i++)
+		{
+			var circle = this.SummoningCircles[i];
+			if (circle.IsActive)
+				continue;
+
+			var regionToInfested = Math3D.Direction(this.Center, infested.Center);
+			var regionToCircle = Math3D.Direction(this.Center, circle.Center);
+			var score = Math3D.Dot(regionToInfested, regionToCircle)
+
+			console.log("checking" + i + "region to inf" + regionToInfested + "circle to" + regionToCircle + "score" + score);
+
+			if (bestIndex === -1 || score > bestScore)
+			{
+				bestIndex = i;
+				bestScore = score;
+			}
+		}
+
+		console.log("chosen" + bestIndex);
+		if (bestIndex != -1)
+		{
+			this.SummoningCircles[bestIndex].Activate(infested);
+		}
+	},
+
+	_setupSpawnPoint: function()
+	{
+		var templeCenter = this.Center;
+		var radius = 5;
+		var offset = radius + 5;
+
+		var summoningCenters =
+			[
+				{ x : templeCenter.x - offset, y : templeCenter.y - offset },
+				{ x : templeCenter.x + offset, y : templeCenter.y - offset },
+				{ x : templeCenter.x + offset, y : templeCenter.y + offset },
+				{ x : templeCenter.x - offset, y : templeCenter.y + offset }
+			];
+
+
+		for (var i = 0; i < summoningCenters.length; i++)
+		{
+			var summoningCircle = new SummoningCircle(this._world, summoningCenters[i], radius, this);
+			this.SummoningCircles.push(summoningCircle);
+		}
+
+		this.Shrine = new Shrine().Appear(this._world, this.Center.x, this.Center.y);
+	}
+});
+
+
+var SummoningCircle = Class(
+{
+	constructor : function(world, tile, radius, base)
+	{
+		this.Center = tile;
+		this.IsActive = false;
+		this.Base = base;
+		this.Infested = null;
+
+		this._world = world;
+		this._radius = radius;
+		this._beams = [];
+
+		var corners =
+			[
+				{ x : tile.x - radius, y : tile.y - radius },
+				{ x : tile.x + radius, y : tile.y - radius },
+				{ x : tile.x + radius, y : tile.y + radius },
+				{ x : tile.x - radius, y : tile.y + radius }
+			];
+
+		var angle = 0;
+		for (var i = 0; i < corners.length; i++)
+		{
+			var corner = corners[i];
+			var cornerStone = Crafty.e("2D, DOM, Body, Static, toro").Appear(world, corner.x, corner.y);
+			var center = cornerStone.GetCenterReal();
+			var beam = Crafty.e("2D, Canvas, yellowBeam");
+			var x = center.x;
+			var y = center.y - beam.h / 2;
+			var length = radius * 2 * world.TileSize;
+			beam.attr({ x : x, y : y, w : length}).origin("middle left");
+
+			if (angle > 0)
+				beam.rotation = angle;
+			angle += 90;
+
+			beam.visible = false;
+			this._beams.push(beam);
+		}
+	},
+
+	Activate : function(infested)
+	{
+		this.IsActive = true;
+		this.Infested = infested;
+
+		for (var i = 0; i < this._beams.length; i++)
+		{
+			this._beams[i].visible = true;
+		}
+	},
+
+	IsInside : function(x, y)
+	{
+		var cx = this.Center.x;
+		var cy = this.Center.y;
+		var radius = this._radius;
+		return (x > cx - radius && x < cx + radius && y > cy - radius && y < cy + radius);
+	}
+});
+
+
+var Shrine = MapEntity.extend(
+{
+	Width : 7,
+	Height : 1,
+	PlatformWidth : 7,
+	PlatformHeight : 5,
+
+	initialize: function()
+	{
+		var entity = Crafty.e("2D, DOM, Body, Static, DimensionGate, torii1")
+			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, SpriteVerticalOffset:-16});
+
+		var platform = Crafty.e("2D, Canvas, Body, Static, platform2")
+			.attr({z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
+
+		this.set({'entity' : entity });
+		this.set({'platform' : platform });
+	},
+
+	Appear : function(world, x, y)
+	{
+		var entity = this.get('entity');
+		var platform = this.get('platform');
+
+		entity.Appear(world, x - Math.floor(this.Width/2), y - Math.floor(this.Height/2) - 1);
+		platform.Appear(world, x - Math.floor(this.PlatformWidth/2), y - Math.floor(this.PlatformHeight/2));
+
+		return this;
 	}
 });
 
@@ -490,4 +645,3 @@ var RegionFactory = Class({
 		return region;
 	}
 });
-

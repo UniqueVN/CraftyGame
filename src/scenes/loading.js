@@ -32,6 +32,7 @@ Crafty.scene("loading", function() {
 			"src/maps/Shape.js?v="+version,
 			"src/components/TileMap.js?v="+version,
 			"src/components/Body.js?v="+version,
+			"src/components/Summoning.js?v="+version,
 			"src/components/Pawn.js?v="+version,
 			"src/components/Spell.js?v="+version,
 			"src/components/Abilities.js?v="+version,

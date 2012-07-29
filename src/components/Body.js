@@ -73,6 +73,13 @@ Crafty.c('Body',
 		return { x : x, y : y, z : z};
 	},
 
+	GetTileAtSpritePos : function(x, y)
+	{
+		var tileX = (x - (this.TileWidth * this._world.TileSize - this.w) / 2.0) / this._world.TileSize;
+		var tileY = (y - this.TileHeight * this._world.TileSize + this.h + this.SpriteVerticalOffset) / this._world.TileSize;
+		return { x: tileX, y : tileY };
+	},
+
 	GetRadius : function()
 	{
 		return Math.max(this.TileWidth, this.TileHeight) * 0.5;
@@ -103,6 +110,14 @@ Crafty.c('Body',
 		this._tileX = x - (this.TileWidth - 1) / 2.0;
 		this._tileY = y - (this.TileHeight - 1) / 2.0;
 		this.trigger("BodyMoved", { from : oldCenter, to : { x : x, y : y } } );
+	},
+
+	_setCorner : function(x, y)
+	{
+		var oldCenter = this.GetCenter();
+		this._tileX = x;
+		this._tileY = y;
+		this.trigger("BodyMoved", { from : oldCenter, to : this.GetCenter() } );
 	},
 
 	GetCenter : function()

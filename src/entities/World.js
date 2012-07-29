@@ -88,8 +88,6 @@ var World = Class(
 			var pos = staticEntityInfo.Bounds[i];
 			this._terrainMap[pos.x][pos.y] = entity;
 		}
-
-		this.CollisionMap.AddEntity(entity);
 	},
 
 	RemoveStatic : function(entity)
@@ -185,13 +183,12 @@ var World = Class(
 				templeRegion = region;
 		}
 
-		this.templeRegion = templeRegion;
+		this.TempleRegion = templeRegion;
 		this.nestedRegions = nestedRegions;
 
 		var t = Crafty.math.randomInt(0, nestedRegions.length - 1);
 		var initialRegion = nestedRegions[t];
-		templeRegion.SetDestination(initialRegion);
-		templeRegion.Activate();
+		templeRegion.ActivateAgainstInfested(initialRegion);
 
 		for (var i = 0; i < nestedRegions.length; i++)
 		{

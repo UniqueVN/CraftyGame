@@ -124,16 +124,39 @@ Sprites = Backbone.Model.extend({
                 }
             },
 	        // OBJECTS
+	        statues:
+	        {
+		        file: 'res/images/statues.png',
+		        tile: 64,
+		        tileh: 64,
+		        elements:
+		        {
+			        statue_highlander: [0, 0],
+			        statue_highlander_summon: [1, 0],
+			        statue_platinumWarrior: [2, 0],
+			        statue_platinumWarrior_summon: [3, 0]
+		        }
+	        },
 	        torii:
 			{
-				file: 'res/images/torii.png',
-				tile: 160,
+				file: 'res/images/torii2.png',
+				tile: 234,
 				tileh: 128,
 				elements:
 				{
 				    torii1: [0, 0]
 				}
 			},
+	        toro:
+	        {
+		        file: 'res/images/toro.png',
+		        tile: 32,
+		        tileh: 64,
+		        elements:
+		        {
+			        toro: [0, 0]
+		        }
+	        },
 	        platform:
 	        {
 		        file: 'res/images/platform.png',
@@ -142,6 +165,16 @@ Sprites = Backbone.Model.extend({
 		        elements:
 		        {
 			        platform: [0, 0]
+		        }
+	        },
+	        platform2:
+	        {
+		        file: 'res/images/platform2.png',
+		        tile: 288,
+		        tileh: 256,
+		        elements:
+		        {
+			        platform2: [0, 0]
 		        }
 	        },
             grave:
@@ -415,7 +448,8 @@ Sprites = Backbone.Model.extend({
 		        tile: 32,
 		        tileh: 32,
 		        elements: {
-			        blueBeam: [3, 3]
+			        blueBeam: [3, 3],
+			        yellowBeam: [3, 4]
 		        }
 	        },
 	        effects: {
