@@ -368,8 +368,6 @@ var MinionBase = Class(Region,
 			var regionToCircle = Math3D.Direction(this.Center, circle.Center);
 			var score = Math3D.Dot(regionToInfested, regionToCircle)
 
-			console.log("checking" + i + "region to inf" + regionToInfested + "circle to" + regionToCircle + "score" + score);
-
 			if (bestIndex === -1 || score > bestScore)
 			{
 				bestIndex = i;
@@ -377,7 +375,6 @@ var MinionBase = Class(Region,
 			}
 		}
 
-		console.log("chosen" + bestIndex);
 		if (bestIndex != -1)
 		{
 			this.SummoningCircles[bestIndex].Activate(infested);
