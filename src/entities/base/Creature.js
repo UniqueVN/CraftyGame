@@ -7,6 +7,7 @@ Creature = MapEntity.extend(
 	ActionAnimations : {},
 	PlayShootAnim : false,
 	Faction : Factions.Ghost,
+	SoulPoints : 0,
 	Abilities : {},
 
 	initialize: function()
@@ -17,13 +18,14 @@ Creature = MapEntity.extend(
 
 	_createEntity : function()
 	{
-		var entity = Crafty.e("2D, DOM, Body, Pawn, Damageable, BodyAnimations, DebugRendering, AbilityUser, NavigationHandle, AvoidanceHandle, AI, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, DOM, Body, Pawn, Soul, Damageable, BodyAnimations, DebugRendering, AbilityUser, NavigationHandle, AvoidanceHandle, AI, " + this._getRandomSprite())
 			.attr(
 			{
 				TileWidth:this.Width,
 				TileHeight:this.Height,
 				MovementSpeed : this.Speed,
-				Faction : this.Faction
+				Faction : this.Faction,
+				SoulPoints : this.SoulPoints
 			});
 
 		for (var slot in this.Abilities)

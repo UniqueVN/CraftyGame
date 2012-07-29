@@ -129,18 +129,27 @@ Crafty.c('Summoner',
 
 	_stopDrag : function()
 	{
-		var center = this.GetCenter();
-		var base = this._world.TempleRegion;
-		for (var i = 0; i < base.SummoningCircles.length; i++)
+		var souls = this._world.Player.Pickups['soul'] || -1;
+		var data = Minions[this.Summon];
+
+		if (souls >= data.Cost)
 		{
-			var circle = base.SummoningCircles[i];
-			if (circle.IsInside(center.x, center.y))
+			var center = this.GetCenter();
+			var base = this._world.TempleRegion;
+			for (var i = 0; i < base.SummoningCircles.length; i++)
 			{
-				this.unbind("MouseDown", this._ondown);
-				this._beginSummoning(circle);
-				return;
+				var circle = base.SummoningCircles[i];
+				if (circle.IsInside(center.x, center.y))
+				{
+					this._world.Player.Pickups['soul'] -= data.Cost;
+					this.unbind("MouseDown", this._ondown);
+					this._beginSummoning(circle);
+					return;
+				}
 			}
 		}
+
+
 
 		this._setCenter(this._gateTile.x, this._gateTile.y);
 		this._updateSpritePos(true);

@@ -127,7 +127,7 @@ Sprites = Backbone.Model.extend({
 	        statues:
 	        {
 		        file: 'res/images/statues.png',
-		        tile: 64,
+		        tile: 32,
 		        tileh: 64,
 		        elements:
 		        {
@@ -284,9 +284,10 @@ Sprites = Backbone.Model.extend({
 		        tile: 32,
 		        tileh: 32,
 		        elements: {
-			        coin_icon_dark: [2, 0],
-			        coin_icon_fire: [1, 0],
-			        coin_icon_light: [0, 0]
+			        coin_icon_dark: [3, 0],
+			        coin_icon_fire: [2, 0],
+			        coin_icon_light: [1, 0],
+			        coin_icon_soul: [0, 0]
 		        }
 	        },
 

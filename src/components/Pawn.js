@@ -38,3 +38,22 @@ Crafty.c('Pawn',
 		return this._world.GetFactionPawns(enemyFaction);
 	}
 });
+
+Crafty.c('Soul',
+{
+	SoulPoints : 0,
+
+	init : function()
+	{
+		this.requires("Pawn");
+		this.bind("Remove", this._banishTheSoul);
+	},
+
+	_banishTheSoul : function()
+	{
+		if (this.SoulPoints > 0 && this.Faction === Factions.Ghost)
+		{
+			this._world.Player.IncreasePickup('soul', this.SoulPoints);
+		}
+	}
+});

@@ -34,9 +34,10 @@ var HUD = Class(
 		});
 
 		this._pickupTexts = {};
-		for (var i = 0; i < PickupTypes.length; i++)
+		var pickups = PickupTypes.concat('soul');
+		for (var i = 0; i < pickups.length; i++)
 		{
-			var pickup = PickupTypes[i];
+			var pickup = pickups[i];
 			var x = 32 + i * 80;
 			var y = 12;
 			var pickupIcon = Crafty.e("2D, coin_icon_" + pickup)
@@ -63,7 +64,7 @@ var HUD = Class(
 	{
 		for (var name in this._player.Pickups)
 		{
-			this._pickupTexts[name].text(this._player.Pickups[name]);
+			this._pickupTexts[name].text(this._player.Pickups[name].toString());
 		}
 
 		if (this._spellBarDirty)
