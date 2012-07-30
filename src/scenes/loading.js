@@ -33,6 +33,8 @@ Crafty.scene("loading", function() {
 			"src/components/TileMap.js?v="+version,
 			"src/components/Body.js?v="+version,
 			"src/components/Summoning.js?v="+version,
+			"src/components/Faction.js?v="+version,
+			"src/components/Building.js?v="+version,
 			"src/components/Pawn.js?v="+version,
 			"src/components/Spell.js?v="+version,
 			"src/components/Abilities.js?v="+version,

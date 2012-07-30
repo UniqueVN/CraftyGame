@@ -479,11 +479,11 @@ var Shrine = MapEntity.extend(
 
 	initialize: function()
 	{
-		var entity = Crafty.e("2D, DOM, Body, Static, DimensionGate, torii1")
+		var entity = Crafty.e("2D, DOM, Body, DimensionGate, torii1")
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, SpriteVerticalOffset:-16});
 
-		var platform = Crafty.e("2D, Canvas, Body, Static, platform2")
-			.attr({z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
+		var platform = Crafty.e("2D, Canvas, Body, Static, Building, platform2")
+			.attr({Faction : Factions.Monk, z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
 
 		this.set({'entity' : entity });
 		this.set({'platform' : platform });

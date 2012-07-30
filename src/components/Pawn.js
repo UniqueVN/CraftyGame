@@ -1,10 +1,8 @@
 Crafty.c('Pawn',
 {
-	Faction : Factions.Neutral,
-
 	init: function()
 	{
-		this.requires("Movable");
+		this.requires("Movable, Faction");
 		this.bind("Appeared", this._addPawn);
 		this.bind("Remove", this._removePawn);
 		return this;
@@ -25,17 +23,6 @@ Crafty.c('Pawn',
 		}
 
 		this._world.RemovePawn(this);
-	},
-
-	IsFriendly : function(other)
-	{
-		return other != null && this.Faction === other.Faction;
-	},
-
-	GetEnemies : function()
-	{
-		var enemyFaction = this._world.GetEnemyFaction(this.Faction);
-		return this._world.GetFactionPawns(enemyFaction);
 	}
 });
 

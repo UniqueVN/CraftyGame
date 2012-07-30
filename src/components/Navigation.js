@@ -29,7 +29,7 @@ Crafty.c('NavigationHandle',
 		}
 	},
 
-	NavigateTo : function(x, y)
+	NavigateTo : function(x, y, radius)
 	{
 		var from = this.GetTile();
 
@@ -41,7 +41,7 @@ Crafty.c('NavigationHandle',
 		}
 		else
 		{
-			to = { x: x, y : y };
+			to = { x: x, y : y, radius : radius || 0 };
 		}
 
 		this._currentGoal = to;
@@ -232,6 +232,7 @@ NavigationManager =
 		this._pathFinder = new PathFinder(null);
 
 		this._semanticsLoc = new WorldPathSemantics_ToLocation(world);
+		this._semanticsLocRanged = new WorldPathSemantics_ToLocationRanged(world);
 		this._semanticsTargetTouch = new WorldPathSemantics_ToTargetTouch(world);
 		this._semanticsTargetRanged = new WorldPathSemantics_ToTargetRanged(world);
 
@@ -249,7 +250,7 @@ NavigationManager =
 		}
 		else
 		{
-			semantics = this._semanticsLoc;
+			semantics = to.radius > 0 ? this._semanticsLocRanged : this._semanticsLoc;
 		}
 
 		this._pathFinder.Semantics = semantics;
@@ -385,6 +386,18 @@ var PathSemantics = Class(
 	}
 });
 
+var Neighbours =
+[
+	{ x : 0, y : - 1 },
+	{ x : 1, y : - 1 },
+	{ x : 1, y : 0 },
+	{ x : 1, y : 1 },
+	{ x : 0, y : 1 },
+	{ x : - 1, y : 1 },
+	{ x : - 1, y : 0 },
+	{ x : - 1, y : - 1 }
+]
+
 var WorldPathSemantics = Class(PathSemantics,
 {
 	constructor : function(world)
@@ -405,7 +418,8 @@ var WorldPathSemantics = Class(PathSemantics,
 
 	GetNeighbours : function(point)
 	{
-		return [
+		/*
+		var neighbours = [
 			{ x : point.x, y : point.y - 1 },
 			{ x : point.x + 1, y : point.y - 1 },
 			{ x : point.x + 1, y : point.y },
@@ -415,6 +429,20 @@ var WorldPathSemantics = Class(PathSemantics,
 			{ x : point.x - 1, y : point.y },
 			{ x : point.x - 1, y : point.y - 1 }
 		]
+		*/
+		var neighbours = [];
+
+		for (var i = 0; i < Neighbours.length; i++)
+		{
+			var neighbour = Neighbours[i];
+			var x = point.x + neighbour.x;
+			var y = point.y + neighbour.y;
+
+			//if (!this._world.TerrainMap.IsCellBlocked(x, y))
+				neighbours.push({ x : x, y :y });
+		}
+
+		return neighbours;
 	},
 
 	GetMovementCost : function(from, to)
@@ -441,6 +469,29 @@ var WorldPathSemantics_ToLocation = Class(WorldPathSemantics,
 	ReachedDestination : function(entity, current, dest)
 	{
 		return current.x == dest.x && current.y == dest.y;
+	}
+});
+
+var WorldPathSemantics_ToLocationRanged = Class(WorldPathSemantics,
+{
+	constructor : function(world)
+	{
+		WorldPathSemantics_ToLocationRanged.$super.call(this, world);
+	},
+
+	ReachedDestination : function(entity, current, dest)
+	{
+		var radius = dest.radius;
+
+		if (current.x < dest.x - radius ||
+			current.x > dest.x + radius ||
+			current.y < dest.y - radius ||
+			current.y > dest.y + radius)
+			return false;
+
+		return (Math3D.DistanceSq(dest, current) <= (radius * radius)) &&
+			!NavigationManager.IsTileClaimedByOthers(current, entity) &&
+			!this._world.TerrainMap.IsCellBlocked(current.x, current.y);
 	}
 });
 
@@ -471,7 +522,8 @@ var WorldPathSemantics_ToTargetTouch = Class(WorldPathSemantics,
 				var y = targetTile.y + dy;
 
 				var point = { x : x, y : y };
-				if (NavigationManager.IsTileClaimedByOthers(point, entity))
+				if (NavigationManager.IsTileClaimedByOthers(point, entity) ||
+					this._world.TerrainMap.IsCellBlocked(x, y))
 					continue;
 
 				var cost = (dx === 0 || dy === 0) ? 0 : 1.5;
@@ -510,6 +562,7 @@ var WorldPathSemantics_ToTargetRanged = Class(WorldPathSemantics,
 	{
 		var targetTile = to.target.GetTile();
 		to._goal = { x : targetTile.x, y : targetTile.y };
+		to._fullRadius = to.radius + to.target.GetRadius();
 
 		return WorldPathSemantics_ToTargetRanged.$superp.PrePath.call(this, entity, from, to);;
 	},
@@ -517,7 +570,7 @@ var WorldPathSemantics_ToTargetRanged = Class(WorldPathSemantics,
 	ReachedDestination : function(entity, current, dest)
 	{
 		var goal = dest._goal;
-		var radius = dest.radius;
+		var radius = dest._fullRadius;
 
 		if (current.x < goal.x - radius ||
 			current.x > goal.x + radius ||
@@ -526,7 +579,8 @@ var WorldPathSemantics_ToTargetRanged = Class(WorldPathSemantics,
 			return false;
 
 		return (Math3D.DistanceSq(goal, current) <= (radius * radius)) &&
-			!NavigationManager.IsTileClaimedByOthers(current, entity);
+			!NavigationManager.IsTileClaimedByOthers(current, entity)&&
+			!this._world.TerrainMap.IsCellBlocked(current.x, current.y);
 	},
 
 	GetHeuristicCost : function(current, dest)
@@ -621,6 +675,8 @@ var PathFinder = Class(
 				open.push(startNode, f);
 		}
 
+		var visits = 0;
+
 		while(open.size() > 0)
 		{
 			var currentNode = open.pop();
@@ -633,6 +689,9 @@ var PathFinder = Class(
 				}
 				break;
 			}
+
+			if (++visits >= 1000)
+				break;
 
 			if (currentNode.closed)
 				continue;

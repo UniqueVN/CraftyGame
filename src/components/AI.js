@@ -64,7 +64,23 @@ var Goal = Class(
 
 	Think : function() {},
 
-	Behave : function(frame) {}
+	Behave : function(frame) {},
+
+	_createAttackBehavior : function()
+	{
+		var primary = this._entity.GetAbility("Primary");
+		if (primary)
+		{
+			switch (primary.BehaviorType)
+			{
+				case AbilityBehaviorType.Melee:
+					return new Behavior_MeleeAttack(this._entity, primary);
+				case AbilityBehaviorType.Ranged:
+					return new Behavior_RangedAttack(this._entity, primary);
+			}
+		}
+		throw ("no proper ability found!");
+	}
 });
 
 var Goal_DestroyTemple = Class(Goal,
@@ -75,6 +91,8 @@ var Goal_DestroyTemple = Class(Goal,
 
 		this._destinationRegion = null;
 		this._marchingPath = [];
+		this._attackBehavior = this._createAttackBehavior();
+		this._target = null;
 	},
 
 	SetDestinationRegion : function(start, end)
@@ -96,7 +114,7 @@ var Goal_DestroyTemple = Class(Goal,
 
 	Think : function()
 	{
-		if (this._marchingPath.length > 0)
+		if (this._marchingPath.length > 1)
 		{
 			var nextCheckpoint = this._marchingPath[0];
 			var center = this._entity.GetCenter();
@@ -107,14 +125,40 @@ var Goal_DestroyTemple = Class(Goal,
 					this.IsActive = false;
 			}
 		}
+
+		var buildings = this._entity.GetEnemyBuildings();
+		var myCenter = this._entity.GetCenter();
+
+		if (this._target === null)
+		{
+			for (var i = 0; i < buildings.length; i++)
+			{
+				var building = buildings[i];
+				if (building.IsWithinBoxRange(myCenter, 20))
+				{
+					this._target = building;
+					this.IsActive = true;
+					break;
+				}
+			}
+		}
+
 	},
 
 	Behave : function(frame)
 	{
-		if (!this._entity.IsNavigating() && this._marchingPath.length > 0)
+		if (this._target != null)
+		{
+			if (!this._target.IsDestroyed)
+				this._attackBehavior.Update(this._target);
+			else
+				this._target = null;
+		}
+		else if (!this._entity.IsNavigating() && this._marchingPath.length > 0)
 		{
 			var nextCheckpoint = this._marchingPath[0];
-			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y);
+			var radius = this._marchingPath.length === 1 ? 10 : 5;
+			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y, radius);
 		}
 	}
 });
@@ -128,19 +172,7 @@ var Goal_AttackEnemy = Class(Goal,
 		this._target = null;
 		this._nextAttackFrame = 0;
 
-		this._primaryAbility = entity.GetAbility("Primary");
-		if (this._primaryAbility)
-		{
-			switch (this._primaryAbility.BehaviorType)
-			{
-				case AbilityBehaviorType.Melee:
-					this._attackBehavior = new Behavior_MeleeAttack(entity);
-					break;
-				case AbilityBehaviorType.Ranged:
-					this._attackBehavior = new Behavior_RangedAttack(entity);
-					break;
-			}
-		}
+		this._attackBehavior = this._createAttackBehavior();
 	},
 
 	Think : function()
@@ -167,7 +199,7 @@ var Goal_AttackEnemy = Class(Goal,
 	{
 		if (this._target != null && !this._target.IsDestroyed)
 		{
-			this._attackBehavior.Update(this._entity, this._target, this._primaryAbility);
+			this._attackBehavior.Update(this._target);
 		}
 		else
 		{
@@ -187,8 +219,10 @@ var Behavior = Class(
 var Behavior_Attack = Class(Behavior,
 {
 
-	constructor : function(entity)
+	constructor : function(entity, ability)
 	{
+		this._ability = ability;
+
 		Behavior_Attack.$super.call(this, entity);
 	},
 
@@ -201,17 +235,20 @@ var Behavior_Attack = Class(Behavior,
 var Behavior_RangedAttack = Class(Behavior_Attack,
 {
 
-	constructor : function(entity)
+	constructor : function(entity, ability)
 	{
-		Behavior_RangedAttack.$super.call(this, entity);
+		Behavior_RangedAttack.$super.call(this, entity, ability);
 
 		this._attackCoolDown = 0;
 	},
 
-	Update : function(self, target, ability)
+	Update : function(target)
 	{
 		if (this._attackCoolDown > 0)
 			this._attackCoolDown--;
+
+		var self = this._entity;
+		var ability = this._ability;
 
 		var selfCenter = self.GetCenter();
 		var targetCenter = target.GetCenter();
@@ -226,9 +263,9 @@ var Behavior_RangedAttack = Class(Behavior_Attack,
 
 		if (!self.IsNavigatingTo(target))
 		{
-			if (this._entity.IsNavigating() || distToTarget > 12)
+			if (this._entity.IsNavigating() || distToTarget > 13)
 			{
-				this._entity.NavigateTo(target, 6);
+				this._entity.NavigateTo(target, 8);
 			}
 			else
 			{
@@ -245,17 +282,20 @@ var Behavior_RangedAttack = Class(Behavior_Attack,
 
 var Behavior_MeleeAttack = Class(Behavior_Attack,
 {
-	constructor : function(entity)
+	constructor : function(entity, ability)
 	{
-		Behavior_MeleeAttack.$super.call(this, entity);
+		Behavior_MeleeAttack.$super.call(this, entity, ability);
 
 		this._attackCoolDown = 0;
 	},
 
-	Update : function(self, target, ability)
+	Update : function(target)
 	{
 		if (this._attackCoolDown > 0)
 			this._attackCoolDown--;
+
+		var self = this._entity;
+		var ability = this._ability;
 
 		var selfCenter = self.GetCenter();
 		var targetCenter = target.GetCenter();

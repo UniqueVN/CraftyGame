@@ -66,20 +66,37 @@ Crafty.c('Projectile',
 
 		var result = this._world.CollisionMap.LineCheck(from, to)
 		var hits = result.hits;
-		var hitSomething = false;
+		var hitEntities = [];
 		for (var i = 0; i < hits.length; i++)
 		{
 			var hitEntity = hits[i].entity;
 			if (hitEntity != this._instigator && !hitEntity.IsFriendly(this._instigator))
 			{
-				hitSomething = true;
-
-				if (this.DamageRadius <= 0 && hitEntity.has("Damageable"))
-					hitEntity.TakeDamage(this.Damage);
+				hitEntities.push(hitEntity);
 			}
 		}
 
-		if (hitSomething || Math3D.Distance(this._projectileStartLoc, to) >= this.MaxFlyDistance)
+		if (hitEntities.length <= 0)
+		{
+			var hit = this._world.TerrainMap.LineCheck(from, to, 0);
+			if (hit != null)
+			{
+				var entity = hit.cell.entity;
+				if (entity.has('Building') && !entity.IsFriendly(this._instigator))
+					hitEntities.push(entity);
+			}
+		}
+
+		if (hitEntities.length > 0 && this.DamageRadius <= 0)
+		{
+			for (var i = 0; i < hitEntities.length; i++)
+			{
+				if (hitEntities[i].has("Damageable"))
+					hitEntities[i].TakeDamage(this.Damage);
+			}
+		}
+
+		if (hitEntities.length > 0 || Math3D.Distance(this._projectileStartLoc, to) >= this.MaxFlyDistance)
 		{
 			this.StopMotion();
 			this.rotation = 0;

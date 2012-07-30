@@ -21,6 +21,7 @@ var World = Class(
 		this.PhysicalHeight = this.MapHeight * this.TileSize;
 
 		this.CollisionMap = new CollisionMap(this.MapWidth, this.MapHeight);
+		this.TerrainMap = new TerrainMap(this.MapWidth, this.MapHeight);
 		this.TerrainManager = new TerrainManager();
 		this.Regions = [];
 		this.RegionFactory = new RegionFactory();
@@ -35,6 +36,11 @@ var World = Class(
 		this._pawns[Factions.Neutral] = [];
 		this._pawns[Factions.Monk] = [];
 		this._pawns[Factions.Ghost] = [];
+
+		this._buildings = [];
+		this._buildings[Factions.Neutral] = [];
+		this._buildings[Factions.Monk] = [];
+		this._buildings[Factions.Ghost] = [];
 
 		this.Player = null;
 
@@ -75,6 +81,7 @@ var World = Class(
 
 	AddStatic : function(entity)
 	{
+		/*
 		var staticEntityInfo =
 		{
 			Id : this._staticEntities.length,
@@ -87,12 +94,31 @@ var World = Class(
 		{
 			var pos = staticEntityInfo.Bounds[i];
 			this._terrainMap[pos.x][pos.y] = entity;
-		}
+		}*/
+
+		this.TerrainMap.AddEntity(entity);
+
 	},
 
 	RemoveStatic : function(entity)
 	{
 		throw ("Not Implemented!");
+	},
+
+	AddBuilding : function(entity)
+	{
+		if (entity.Faction === Factions.Undefined)
+			throw ("Cannot have entity with undefined faction!");
+		this._buildings[entity.Faction].push(entity);
+	},
+
+	RemoveBuilding : function(entity)
+	{
+		var list = this._buildings[entity.Faction];
+		var i = list.indexOf(entity);
+		if (i === -1)
+			throw ("Entity is no longer in the list, could be in some other lists?");
+		list.splice(i, 1);
 	},
 
 	AddPawn : function(entity)
@@ -131,6 +157,14 @@ var World = Class(
 			throw ("Nothing exists in faction Undefined!");
 
 		return this._pawns[faction];
+	},
+
+	GetFactionBuildings : function(faction)
+	{
+		if (faction === Factions.Undefined)
+			throw ("Nothing exists in faction Undefined!");
+
+		return this._buildings[faction];
 	},
 
 	AddPickup : function(pickup)
@@ -199,6 +233,277 @@ var World = Class(
 
 		debug.log("Nest Regions:", this.nestedRegions);
 		debug.log("START INFEST FROM REGION: " + t + " - initialRegion.Id = " + initialRegion.Id, initialRegion);
+	}
+});
+
+var TerrainMap = Class(
+{
+	constructor : function(w, h)
+	{
+		this._width = w;
+		this._height = h;
+		this._cells = [];
+
+		for (var i = 0; i < w; i++)
+			this._cells[i] = [];
+	},
+
+	AddEntity : function(entity)
+	{
+		var bounds = entity.GetBounds();
+		var entry =
+		{
+			bounds : bounds
+		}
+
+		for (var i = 0; i < bounds.length; i++)
+		{
+			var pos = bounds[i];
+			var cell = this._cells[pos.x][pos.y];
+			if (cell === undefined)
+			{
+				cell = { entity : null };
+				this._cells[pos.x][pos.y] = cell;
+			}
+
+			if (cell.entity != null)
+				throw ("Cell " + pos.x + ", " + pos.y + " already occupied by " + cell.entity[0]);
+
+			cell.entity = entity;
+		}
+	},
+
+	IsCellBlocked : function(x, y)
+	{
+		if (x < 0 || x >= this._width || y <0 || y >= this._height)
+			return true;
+
+		var cell = this._cells[x][y];
+		if (cell && cell.entity != null)
+			return true;
+
+		return false;
+	},
+
+	LineCheck : function(start, end, radius)
+	{
+		radius = radius || 0;
+
+		var minX = Math.min(start.x, end.x);
+		var minY = Math.min(start.y, end.y);
+		var maxX = Math.max(start.x, end.x);
+		var maxY = Math.max(start.y, end.y);
+
+		var r = Math.ceil(radius);
+		var x0 = Math.floor(minX + 0.5) - r;
+		var y0 = Math.floor(minY + 0.5) - r;
+		var x1 = Math.floor(maxX + 0.5) + r;
+		var y1 = Math.floor(maxY + 0.5) + r;
+
+		var bestHit = null;
+
+		for (var x = x0; x <= x1; x++)
+		{
+			for (var y = y0; y <= y1; y++)
+			{
+				var cell = this._cells[x][y];
+				if (cell === undefined)
+					continue;
+
+				if (cell.entity === null)
+					continue;
+
+				var box = { x : x - 0.5, y : y - 0.5, w : 1, h : 1 };
+
+				var hit = this._lineBoxIntersect(start, end, radius, box)
+				if (hit)
+				{
+					if (bestHit === null || hit.dist < bestHit.dist)
+					{
+						hit.cell = cell;
+						bestHit = hit;
+					}
+				}
+			}
+		}
+
+		if (bestHit != null)
+		{
+			bestHit.location = Math3D.Add(start, Math3D.Scale(Math3D.Direction(start, end), bestHit.dist));
+		}
+
+		return bestHit;
+		/*
+		var r = Math.ceil(radius);
+		var size = 1 + r * 2;
+		var x0 = Math.floor(start.x + 0.5);
+		var y0 = Math.floor(start.y + 0.5);
+
+		var bestHit = null;
+
+		// starting cells
+		for (var x = x0 - r; x <= x0 + r; x++)
+		{
+			for (var y = y0 - r; y <= y0 + r; y++)
+			{
+				var hit = this._lineCellIntersect(start, end, radius, this._cells[x][y])
+				if (hit)
+				{
+					if (bestHit === null || hit.dist < bestHit.dist)
+						bestHit = hit;
+				}
+			}
+		}
+
+		if (bestHit === null)
+		{
+			var fx = end.x - start.x;
+			var fy = end.y - start.x;
+			var sx = fx > 0 ? 1 : (fx < 0 ? -1 : 0);
+			var sy = fy > 0 ? 1 : (fy < 0 ? -1 : 0);
+
+
+			if (fx === 0)
+			{
+
+			}
+			else if (fy === 0)
+			{
+
+			}
+			else
+			{
+				var k = fy / fx;
+				var cx = start.x;
+				var cy = start.y;
+				var tx = x0;
+				var ty = y0;
+
+				while (true)
+				{
+					var nx = tx + sx * 0.5;
+					var dx = (nx - cx) * sx;
+				}
+			}
+		}*/
+	},
+
+	_lineBoxIntersect : function(start, end, radius, box)
+	{
+		var o = { x : box.x + box.w/2, y : box.y + box.h/2 };
+		var r = Math.max(box.w, box.h) + radius;
+
+		var a = Math3D.Delta(start, end);
+		var b = Math3D.Delta(start, o);
+		var p = Math3D.Dot(a, b);
+		var la = Math3D.SizeSq(a);
+		var lb = Math3D.SizeSq(b);
+		var lp = p * p / la;
+		var ld = lb - lp;
+		var lr = r * r * 2;
+		if (ld > lr)
+			return false;
+
+		if (this._circleBoxIntersect(start, radius, box))
+			return { dist : 0 };
+
+		var bestHit = null;
+
+		if (radius > 0)
+		{
+			var corners =
+				[
+					{ x : box.x, y : box.y },
+					{ x : box.x + box.w, y : box.y },
+					{ x : box.x + box.w, y : box.y + box.h },
+					{ x : box.x, y : box.y + box.h }
+				]
+
+			for (var i = 0; i < corners.length; i++)
+			{
+				var hit = this._lineCircleIntersect(start, end, corners[i], radius);
+				if (hit && (bestHit === null || hit.dist < bestHit.dist))
+					bestHit = hit;
+			}
+		}
+
+		var min = { x : box.x - radius, y : box.y - radius };
+		var max = { x : box.x + box.w + radius, y : box.y + box.h + radius };
+
+		var sides =
+		[
+			[ start.x, end.x, min.x, start.y, end.y, min.y, max.y ],
+			[ start.x, end.x, max.x, start.y, end.y, min.y, max.y ],
+			[ start.y, end.y, min.y, start.x, end.x, min.x, max.x ],
+			[ start.y, end.y, max.y, start.x, end.x, min.x, max.x ]
+		]
+
+		for (var i = 0; i < sides.length; i++)
+		{
+			var side = sides[i];
+			var hit = this._lineSideIntersect(side[0], side[1], side[2], side[3], side[4], side[5], side[6]);
+			if (hit && (bestHit === null || hit.dist < bestHit.dist))
+				bestHit = hit;
+		}
+
+		if (bestHit === null)
+			return false;
+
+		return bestHit;
+	},
+
+	_circleBoxIntersect : function(center, radius, box)
+	{
+		var cx = Crafty.math.clamp(center.x, box.x, box.x + box.w);
+		var cy = Crafty.math.clamp(center.y, box.y, box.y + box.h);
+		var dx = cx - center.x;
+		var dy = cy - center.y;
+
+		return (cx *  cx + cy * cy <= radius * radius);
+	},
+
+	_lineCircleIntersect : function(start, end, o, r)
+	{
+		var a = Math3D.Delta(start, end);
+		var b = Math3D.Delta(start, o);
+		var p = Math3D.Dot(a, b);
+		var la = Math3D.SizeSq(a);
+		var lb = Math3D.SizeSq(b);
+		var lp = p * p / la;
+		var ld = lb - lp;
+		var lr = r * r;
+		if (ld > lr)
+			return false;
+
+		if (p < 0)
+		{
+			if (lb > lr)
+				return false;
+			return { dist : 0 };
+		}
+		else if (p > la)
+		{
+			if (Math3D.DistanceSq(end, o) > lr)
+				return false;
+		}
+
+		var dp = Math.sqrt(lp);
+		var de = Math.sqrt(lr - ld);
+
+		return { dist : Math.max(dp - de, 0) };
+	},
+
+	_lineSideIntersect : function(start, end, side, startH, endH, sideMin, sideMax)
+	{
+		if ((start < side && end < side) || (start > side && end > side))
+			return false;
+
+		var sideH = startH + (endH - startH) / (end - start) * (side - start);
+		if (sideH >= sideMin && sideH <= sideMax)
+		{
+			return { dist : Math.abs(side - start) };
+		}
+		return false;
 	}
 });
 
