@@ -3,7 +3,7 @@ Crafty.c('TileMap', {
 	_row: 0,
 	_col: 0,
 	_tileSize: 1,
-	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'fence', 'rock', 'flower', 'cherryTree', 'bush'],
+	_terrains : [ 'water', 'sand', 'dirt', 'grass', 'fence', 'rock', 'flower', 'cherryTree', 'deadTree', 'bush'],
 	_tileSprite: [],
 	_width: 0,
 	_height: 0,
@@ -282,8 +282,12 @@ Crafty.c('TileMap', {
 											(node.isLeaf() ? RegionTypes.Nest: RegionTypes.Neutral);
 			var nodeCenter = graphRenderer.nodes[i];
 
-			regions[i] = this.World.AddRegion(i, nodeType, nodeCenter);
-			this.World.AddSpawnPoint(nodeCenter);
+			regions[i] = this.World.AddRegion(this, i, nodeType, nodeCenter);
+
+			if (nodeType === RegionTypes.Neutral)
+				this.CreateObject(TowerBase, nodeCenter.x, nodeCenter.y);
+			else if (nodeType === RegionTypes.Base)
+				this.World.AddSpawnPoint(nodeCenter);
 		}
 
 		// Link regions

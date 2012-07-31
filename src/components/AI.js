@@ -330,7 +330,7 @@ var Behavior_RangedAttack = Class(Behavior_Attack,
 	constructor : function(entity, ability)
 	{
 		Behavior_RangedAttack.$super.call(this, entity, ability);
-
+		this._range = 20;
 		this._attackCoolDown = 0;
 	},
 
@@ -347,26 +347,29 @@ var Behavior_RangedAttack = Class(Behavior_Attack,
 
 		var distToTarget = Math3D.Distance(selfCenter, targetCenter);
 
-		if (distToTarget > 20)
+		if (distToTarget > this._range)
 		{
 			this.IsActive = false;
 			return;
 		}
 
-		if (!self.IsNavigatingTo(target))
+		var bCanShoot = true;
+		if (self.has('NavigationHandle') && !self.IsNavigatingTo(target))
 		{
 			if (this._entity.IsNavigating() || distToTarget > 13)
 			{
 				this._entity.NavigateTo(target, 8);
+				bCanShoot = false;
 			}
-			else
+		}
+
+		if (bCanShoot)
+		{
+			if (this._attackCoolDown <= 0)
 			{
-				if (this._attackCoolDown <= 0)
-				{
-					this._attackCoolDown = 50;
-					var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
-					self.UseAbility(ability, data);
-				}
+				this._attackCoolDown = 50;
+				var data = { dir : Math3D.Direction(selfCenter, targetCenter) };
+				self.UseAbility(ability, data);
 			}
 		}
 	}

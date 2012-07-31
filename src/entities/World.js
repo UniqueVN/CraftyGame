@@ -102,7 +102,8 @@ var World = Class(
 
 	RemoveStatic : function(entity)
 	{
-		throw ("Not Implemented!");
+		// tht073012 - Don't throw exception now
+		// throw ("Not Implemented!");
 	},
 
 	AddBuilding : function(entity)
@@ -177,11 +178,11 @@ var World = Class(
 		this.PickupMap.RemoveEntity(pickup);
 	},
 
-	AddRegion : function(id, type, pos)
+	AddRegion : function(tileMap, id, type, pos)
 	{
 		id = id || this.Regions.length;
 
-		var region = this.RegionFactory.Spawn(this, id, type, pos);
+		var region = this.RegionFactory.Spawn(tileMap, this, id, type, pos);
 
 		this.Regions.push(region);
 		return region;
@@ -266,8 +267,9 @@ var TerrainMap = Class(
 				this._cells[pos.x][pos.y] = cell;
 			}
 
-			if (cell.entity != null)
-				throw ("Cell " + pos.x + ", " + pos.y + " already occupied by " + cell.entity[0]);
+			// tht073012 - Temporary disable this check so we can add the tower on top of the base
+			// if (cell.entity != null)
+			// 	throw ("Cell " + pos.x + ", " + pos.y + " already occupied by " + cell.entity[0]);
 
 			cell.entity = entity;
 		}

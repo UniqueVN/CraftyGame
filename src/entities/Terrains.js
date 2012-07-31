@@ -9,6 +9,10 @@ var TerrainDefinitions =
 	{
 		Sprites: ['cherryTree0', 'cherryTree1']
 	},
+	deadTree:
+	{
+		Sprites: ['deadTree']
+	},
 	treeTop:
 	{
 		Sprites: ['treetop0', 'treetop1', 'treetop2', 'treetop3']
@@ -69,6 +73,15 @@ var TerrainDefinitions =
 				  "grassEdge9", "grassEdge5", "grassEdge10", "grassEdge6",
 				  "grassHole0", "grassHole1"
 				  ]
+	},
+	field:
+	{
+		Sprites: ["field0", "field1", "field2", "field3",
+				  "fieldEdge1", "fieldEdge2", "fieldEdge4", "fieldEdge8",
+				  "fieldEdge12", "fieldEdge15", "fieldEdge18", "fieldEdge21",
+				  "fieldEdge9", "fieldEdge5", "fieldEdge10", "fieldEdge6",
+				  "fieldHole0", "fieldHole1"
+				  ]
 	}
 };
 
@@ -100,6 +113,11 @@ var Terrain = Class(
 
 		debug.log("CAN'T FIND SPRITE NAME: " + name);
 		return this._entities[0];
+	},
+
+	GetEdgeSprite: function(id)
+	{
+		return this.GetSpriteByName(this._name + "Edge" + id);
 	},
 
 	GetGroundSprite: function()

@@ -5,7 +5,10 @@ var Rock = MapEntity.extend(
 
 var TreeManager = Class({
 	constructor: function() {
-		var trees = ["cherryTree0", "cherryTree1"];
+		// var trees = ["cherryTree0", "cherryTree1"];
+		                    treetrunk1: [1, 0]
+		// var trees = ["deadTree", "cherryTree0", "cherryTree1"];
+		var trees = ["deadTree", "treeStump"];
 		this.treeSprites = [];
 		for (var i = 0; i < trees.length; i++) {
 			this.treeSprites.push(Crafty.e(trees[i]));
