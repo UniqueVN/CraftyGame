@@ -11,6 +11,19 @@ FireBall =
 	VerticalOffset : -48
 };
 
+MagicMissle =
+{
+	Sprite : 'magicMissle',
+	Animations :
+	{
+		//Flying : [ 0, 0, 2, 6 ],
+		Explosion : [ 1, 0, 8, 32]
+	},
+	Damage : 20,
+
+	VerticalOffset : -20
+};
+
 FlamingHound =
 {
 	Sprite : 'flamingHound',

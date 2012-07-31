@@ -9,6 +9,10 @@ Creature = MapEntity.extend(
 	Faction : Factions.Ghost,
 	SoulPoints : 0,
 	Abilities : {},
+	AIProfile :
+	{
+		Goals : [ Goal_AttackEnemy, Goal_DestroyTemple ]
+	},
 
 	initialize: function()
 	{
@@ -25,7 +29,8 @@ Creature = MapEntity.extend(
 				TileHeight:this.Height,
 				MovementSpeed : this.Speed,
 				Faction : this.Faction,
-				SoulPoints : this.SoulPoints
+				SoulPoints : this.SoulPoints,
+				AIProfile: this.AIProfile
 			});
 
 		for (var slot in this.Abilities)

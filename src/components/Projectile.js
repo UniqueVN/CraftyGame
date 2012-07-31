@@ -178,6 +178,7 @@ Crafty.c('Projectile',
 			}
 		}
 
-		callback.call(this);
+		if (repeat >= 0)
+			callback.call(this);
 	}
 });

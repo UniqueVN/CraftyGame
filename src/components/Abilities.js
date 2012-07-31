@@ -155,6 +155,8 @@ var Ability_Shoot = Class(ActionAbility,
 
 		this._actionAnimName = "Shoot";
 		this.BehaviorType = AbilityBehaviorType.Ranged;
+
+		this.Projectile = FireBall;
 	},
 
 	_getActionDir : function(user, data)
@@ -168,7 +170,7 @@ var Ability_Shoot = Class(ActionAbility,
 	_performAction : function(user, data)
 	{
 		var center = user.GetCenter();
-		var projectile = user.GetWorld().SpawnProjectile(FireBall, center.x, center.y);
+		var projectile = user.GetWorld().SpawnProjectile(this.Projectile, center.x, center.y);
 		projectile.Launch(user, this._getActionDir(user, data));
 		return false;
 	}
@@ -206,6 +208,7 @@ var Ability_Spell = Class(ActionAbility,
 			switch (this.Spell.Pattern)
 			{
 				case SpellPatterns.Line:
+				case SpellPatterns.Arc:
 					spell.Activate(user, user.GetCenter(), this._getActionDir(user, data));
 					break;
 				case SpellPatterns.Area:

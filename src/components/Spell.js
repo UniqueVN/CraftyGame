@@ -1,7 +1,8 @@
 var SpellPatterns =
 {
 	Line : 0,
-	Area : 1
+	Area : 1,
+	Arc : 2
 };
 
 Crafty.c('Spell',
@@ -10,6 +11,8 @@ Crafty.c('Spell',
 	Projectile : null,
 	Radius : 0,
 	Total : 1,
+	Arc : 0,
+	RandomAngle : 0,
 
 	_center : { x : 0, y : 0 },
 	_direction : { x : 1, y : 0 },
@@ -38,6 +41,9 @@ Crafty.c('Spell',
 			case SpellPatterns.Line:
 				this._dist = 2;
 				break;
+			case SpellPatterns.Arc:
+				this._activateSpell_Arc();
+				return;
 		}
 
 		this.bind("EnterFrame", this._updateSpell);
@@ -102,6 +108,31 @@ Crafty.c('Spell',
 		else
 		{
 			this._delay--;
+		}
+	},
+
+	_activateSpell_Arc : function()
+	{
+		var dx = this._direction.x;
+		var dy = this._direction.y;
+
+		var theta = Math.acos(dx) * 180.0 / Math.PI;
+		if (dy < 0)
+			theta = - theta;
+
+		var halfRand = this.RandomAngle / 2;
+		theta += Crafty.math.randomNumber(-halfRand, halfRand);
+		var arc = this.Total === 1 ? 0 : this.Arc;
+		var start = theta - arc / 2;
+		var delta = arc / (this.Total - 1);
+
+		for (var i = 0; i < this.Total; i++)
+		{
+			var angle = (start + delta * i) * Math.PI / 180.0;
+			var center = this._center;
+			var dir = { x : Math.cos(angle), y : Math.sin(angle) };
+			var projectile = this._world.SpawnProjectile(this.Projectile, center.x, center.y);
+			projectile.Launch(this._instigator, dir);
 		}
 	}
 });

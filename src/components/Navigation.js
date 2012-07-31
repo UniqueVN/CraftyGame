@@ -100,9 +100,11 @@ Crafty.c('NavigationHandle',
 			var result = ((target != null) && (x[0] === target[0]))
 			return result;
 		}
-
-		var last = this._pendingPath[this._pendingPath.length - 1];
-		return last.x === x && last.y === y;
+		else
+		{
+			var goal = this._currentGoal;
+			return goal.x === x && goal.y === y;
+		}
 	},
 
 	_movePointReached : function()
@@ -142,8 +144,18 @@ Crafty.c('NavigationHandle',
 
 				prev = current;
 			}
-			if (i >= 2) // TODO: line check to validate
-				this._pendingPath.splice(0, i - 1);
+			i -= 1;
+			while (i >= 1) // TODO: line check to validate
+			{
+				var hit = this._world.TerrainMap.LineCheck(this.GetCenter(), this._pendingPath[i], this.GetRadius() * 0.9);
+				if (hit === null)
+				{
+					this._pendingPath.splice(0, i);
+					break;
+				}
+
+				i = Math.floor(i / 2);
+			}
 		}
 
 		if (!this._isNavigationPaused)
@@ -389,13 +401,13 @@ var PathSemantics = Class(
 var Neighbours =
 [
 	{ x : 0, y : - 1 },
-	{ x : 1, y : - 1 },
+	//{ x : 1, y : - 1 },
 	{ x : 1, y : 0 },
-	{ x : 1, y : 1 },
+	//{ x : 1, y : 1 },
 	{ x : 0, y : 1 },
-	{ x : - 1, y : 1 },
-	{ x : - 1, y : 0 },
-	{ x : - 1, y : - 1 }
+	//{ x : - 1, y : 1 },
+	{ x : - 1, y : 0 }//,
+	//{ x : - 1, y : - 1 }
 ]
 
 var WorldPathSemantics = Class(PathSemantics,
@@ -438,7 +450,7 @@ var WorldPathSemantics = Class(PathSemantics,
 			var x = point.x + neighbour.x;
 			var y = point.y + neighbour.y;
 
-			//if (!this._world.TerrainMap.IsCellBlocked(x, y))
+			if (!this._world.TerrainMap.IsCellBlocked(x, y))
 				neighbours.push({ x : x, y :y });
 		}
 

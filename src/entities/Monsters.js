@@ -31,7 +31,38 @@ var SkeletonArcher = Creature.extend(
 	},
 	ActionAnimations:
 	{
-		"Shoot" : [ 4, 13, 4 ]
+		"Shoot" : [ 4, 13, 2 ]
+	}
+
+});
+
+var Lich = Creature.extend(
+{
+	Sprites : ['lich'],
+	Speed : 0.3,
+	SoulPoints : 500,
+	AIProfile : { Goals : [ Goal_Boss ]	},
+	WalkAnimationFrames: 9,
+	WalkAnimationSpeed : 1,
+	Abilities:
+	{
+		"Primary" :
+		{
+			Type : Ability_Spell,
+			PlayAnim : true,
+			Spell :
+			{
+				Pattern : SpellPatterns.Arc,
+				Projectile : FireBall,
+				Arc : 90,
+				Total : 6,
+				RandomAngle : 90
+			}
+		}
+	},
+	ActionAnimations:
+	{
+		"Shoot" : [ 4, 7, 2 ]
 	}
 
 });

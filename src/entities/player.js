@@ -70,7 +70,8 @@ var SpellBook =
 	Fireball :
 	{
 		Type : Ability_Shoot,
-		PlayAnim : true
+		PlayAnim : true,
+		Projectile : FireBall
 	},
 
 	FlamingHound :

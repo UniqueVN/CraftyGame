@@ -169,7 +169,7 @@ var Goal_DestroyTemple = Class(Goal,
 		{
 			var nextCheckpoint = this._marchingPath[0];
 			var radius = this._marchingPath.length === 1 ? 14 : 0;
-			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y, radius);
+			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y + 1, radius);
 		}
 	}
 });
