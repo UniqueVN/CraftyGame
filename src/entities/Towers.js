@@ -6,7 +6,7 @@ var TowerBase = MapEntity.extend(
 
 	initialize: function()
 	{
-		var entity = Crafty.e("2D, DOM, SpriteAnimation, Body, Static, Mouse, " + this.Sprites[0])
+		var entity = Crafty.e("2D, Canvas, SpriteAnimation, Body, Static, Mouse, " + this.Sprites[0])
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height});
 		entity.bind('Click', this.onClick.bind(this));
 
@@ -37,7 +37,7 @@ var Tower = MapEntity.extend(
 
 	initialize: function()
 	{
-		var entity = Crafty.e("2D, DOM, SpriteAnimation, Body, Static, AbilityUser, Faction, TowerAI, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, Canvas, SpriteAnimation, Body, Static, AbilityUser, Faction, TowerAI, " + this._getRandomSprite())
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, Faction : this.Faction});
 		for (var slot in this.Abilities)
 		{

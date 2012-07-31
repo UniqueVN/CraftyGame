@@ -13,7 +13,7 @@ Player = Creature.extend(
     	var model = this;
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
-	    var entity = Crafty.e("2D, DOM, mage, Body, Pawn, Hero, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
+	    var entity = Crafty.e("2D, Canvas, mage, Body, Pawn, Hero, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
 		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, Faction : Factions.Monk, MovementSpeed: 0.2 })
 		    .text("Jia");
 

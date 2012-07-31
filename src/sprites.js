@@ -273,6 +273,15 @@ Sprites = Backbone.Model.extend({
                     cherryTree1: [4, 0, 3, 1]
                 }
             },
+            deadCherryTree: {
+                file: 'res/images/deadCherryTree.png',
+                tile: 32,
+                tileh: 128,
+                elements: {
+                    deadCherryTree0: [0, 0, 4, 1],
+                    deadCherryTree1: [4, 0, 3, 1]
+                }
+            },
             deadTree: {
                 file: 'res/images/deadTree.png',
                 tile: 76,

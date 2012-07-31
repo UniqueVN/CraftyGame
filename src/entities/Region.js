@@ -104,7 +104,7 @@ var SpawnPoint = MapEntity.extend(
  
  	initialize: function()
  	{
-		var entity = Crafty.e("2D, DOM, Body, SpawnPoint, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, Canvas, Body, SpawnPoint, " + this._getRandomSprite())
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height})
 			.Spawns(this.Creatures)
 			.SetupWave(this.WaveDuration, this.WaveSpawnCount);
@@ -243,7 +243,7 @@ var SpawnArea = MapEntity.extend(
 
  	initialize: function()
  	{
-		var entity = Crafty.e("2D, DOM, Body, SpawnArea, " + this._getRandomSprite())
+		var entity = Crafty.e("2D, Canvas, Body, SpawnArea, " + this._getRandomSprite())
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height})
 			.SetupSpawnPoint(this.SpawnPointTypes, this.Width, this.Height)
 			.SetupWave(this.WaveDuration, this.WaveSpawnCount);
@@ -342,7 +342,7 @@ var Region = Class({
 });
 
 // ========================================================================================== //
-// NEST
+// MINION BASE
 var MinionBase = Class(Region,
 {
 	constructor: function(tileMap, world, id, center)
@@ -432,7 +432,7 @@ var SummoningCircle = Class(
 		for (var i = 0; i < corners.length; i++)
 		{
 			var corner = corners[i];
-			var cornerStone = Crafty.e("2D, DOM, Body, Static, toro").Appear(world, corner.x, corner.y);
+			var cornerStone = Crafty.e("2D, Canvas, Body, Static, toro").Appear(world, corner.x, corner.y);
 			var center = cornerStone.GetCenterReal();
 			var beam = Crafty.e("2D, Canvas, yellowBeam");
 			var x = center.x;
@@ -479,7 +479,7 @@ var Shrine = MapEntity.extend(
 
 	initialize: function()
 	{
-		var entity = Crafty.e("2D, DOM, Body, DimensionGate, torii1")
+		var entity = Crafty.e("2D, Canvas, Body, DimensionGate, torii1")
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, SpriteVerticalOffset:-16});
 
 		var platform = Crafty.e("2D, Canvas, Body, Static, Building, platform2")

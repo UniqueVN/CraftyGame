@@ -34,8 +34,8 @@ Crafty.c('DimensionGate',
 		var start = { x : tile.x - Math.floor(this.TotalStatues/2), y : tile.y + 1 };
 		var randMinion = Crafty.math.randomElementOfArray(this._availableMinions);
 		var data = Minions[randMinion];
-		var statue = Crafty.e("2D, DOM, Mouse, Draggable, Body, Summoner, " + data.StatueSprite)
-			.attr({Summon : randMinion})
+		var statue = Crafty.e("2D, Canvas, Mouse, Draggable, Body, Summoner, " + data.StatueSprite)
+			.attr({z:2, Summon : randMinion})
 			.Appear(this._world, start.x + index, start.y);
 
 		this._statues[index] = statue;
@@ -91,7 +91,7 @@ Crafty.c('Summoner',
 		var data = Minions[this.Summon];
 
 		var sprite = data.StatueSprite + "_summon";
-		this._summoningImage = Crafty.e("2D, DOM, " + sprite).attr({ x : this.x, y : this.y, z : this.z - 1});
+		this._summoningImage = Crafty.e("2D, Canvas, " + sprite).attr({ x : this.x, y : this.y, z : this.z - 1});
 
 		this._originalHeight = this.h;
 		this._totalProgress = data.SummonTime || 100;

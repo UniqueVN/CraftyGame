@@ -225,7 +225,7 @@ Crafty.c('TileMap', {
                 	}
 
 					this._tiles[i][j].push(this.terrains[cellType].GetGroundSprite());
-                	if (cellType === 3) {
+                	if (cellType === 3 && i < this._row - 4 && j < this._col - 4 && i > 4 && j > 4) {
                 		// Add a flower at a random forest tile
 		            	var t = Crafty.math.randomInt(0, 101);
                 		if (t > 95)
@@ -240,10 +240,12 @@ Crafty.c('TileMap', {
 		            			// var i0 = Math.max(i - 2, 0);
 		            			// var j0 = Math.max(j - 3, 0);
 		            			// this._tiles[i0][j0].push(this.terrains[7].GetRandomSprite());
-		            			this._trees[i][j] = Crafty.math.randomInt(0, 1);
+		            			// this._trees[i][j] = Crafty.math.randomInt(0, 1);
+
+								this.CreateObject(MapTree, j, i);
 		            		}
 		            		else {
-		            			this._trees[i][j] = -1;	
+		            			// this._trees[i][j] = -1;	
 		            		}
                 		}
                 	}
@@ -363,7 +365,7 @@ Crafty.c('TileMap', {
 			this._buffer.updateViewport();
 			this._buffer.draw(context);
 
-			this.drawTrees(context);
+			// this.drawTrees(context);
 
 			// this._miniMap.draw(context);
 		};

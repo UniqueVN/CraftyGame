@@ -3,6 +3,19 @@ var Rock = MapEntity.extend(
 	Sprites : ['rock1', 'rock2']
 });
 
+var MapTree = MapEntity.extend(
+{
+	Width : 3,
+	Height : 4,
+	Sprites : ['deadCherryTree0', 'deadCherryTree1'],
+
+	Appear: function(world, x, y)
+	{
+		this.getEntity().Appear(world, x, y);
+		return this;
+	},
+});
+
 var TreeManager = Class({
 	constructor: function() {
 		// var trees = ["cherryTree0", "cherryTree1"];
