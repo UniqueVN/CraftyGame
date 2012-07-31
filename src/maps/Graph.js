@@ -56,12 +56,40 @@ var Tree = Class(Graph, {
 		}
 	},
 
+	generateDirectionalTree: function(depth, dirCount) {
+		var nodeCount = depth * dirCount + 1;
+		this.populateNodes(nodeCount);
+
+		this.nodes[0].depth = 0;
+		this.root = this.nodes[0];
+
+		var t = 1;
+		for (var i = 0; i < dirCount; i++)	{
+
+			this.root.addChild(this.nodes[t]);
+			this.nodes[t].parent = this.root;
+			this.nodes[t].depth = 1;
+
+			for (var j = 1; j < depth; j++) {
+				this.nodes[t].addChild(this.nodes[t + 1]);
+				this.nodes[t + 1].parent = this.nodes[t];
+				this.nodes[t + 1].depth = j + 1;
+
+				t++;
+			}
+			t++;
+		}
+
+		this.computeDepth(this.root);
+		this.countLeaf(this.root);
+	},
+
 	generateGraph: function(nodeCount, maxEdge, maxDepth) {
 		this.populateNodes(nodeCount);
 
 		var t = 0;
 		this.nodes[0].depth = 0;
-		
+
 		for (var i = 1; i < nodeCount; i++) {
 			t = i - 1;
 			// Possible parent id
@@ -332,6 +360,21 @@ var GridLayout = Class(GraphLayout, {
 		var DIRECTION = [{x: 0, y: 1}, {x: 1, y: 0}, {x:-1, y:0}, {x: 0, y: -1},
 						 {x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: -1, y: -1}];
 
+		if (node !== this.graph.root) {
+			// SHUFFLE the direction list
+			for (var i = 1; i < DIRECTION.length; i++) {
+				// if (i === 4)
+				// 	continue;
+				// var t = i > 4 ? 4 : 0;
+				// var j = random(t, i - 1);
+				var j = random(0, i - 1);
+
+				var tmp = DIRECTION[i];
+				DIRECTION[i] = DIRECTION[j];
+				DIRECTION[j] = tmp;
+			}
+		}
+
 		for (var i = 0; i < node.links.length; i++) {
 			var x1, y1;
 			// Select an empty place in the grid
@@ -340,7 +383,7 @@ var GridLayout = Class(GraphLayout, {
 				y1 = y0 + DIRECTION[d].y;
 
 				if (x1 >= 0 && y1 >= 0 && x1 < this.grid.length && y1 < this.grid.length &&
-					this.grid[x1][y1] === 0) {
+					this.grid[x1][y1] === 0 && this.canConnect(x0, y0, x1, y1)) {
 					break;
 				}
 			}
@@ -350,12 +393,23 @@ var GridLayout = Class(GraphLayout, {
 			childNode.x = x1;
 			childNode.y = y1;
 			this.grid[x1][y1] = 1;
+
+			this.lines.push(x0, y0, x1, y1);
 		}
 
 		// Only layout the child node's children after all the direct children are placed
 		for (var i = 0; i < node.links.length; i++) {
 			this.placeNode(node.links[i]);
 		}
+	},
+
+	canConnect: function(x0, y0, x1, y1) {
+		// Check to see if any line cut this line
+		for (var i = 0; i < this.lines.length; i++) {
+			var bCut = false;
+		}
+
+		return true;
 	},
 
 	createGrid: function() {
@@ -368,6 +422,8 @@ var GridLayout = Class(GraphLayout, {
 				this.grid[i][j] = 0;
 			}
 		}
+
+		this.lines =[];
 	},
 
 	createLayout: function() {

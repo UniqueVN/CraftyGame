@@ -129,7 +129,8 @@ Crafty.c('TileMap', {
         // var graph = new BinaryTree();
         // graph.generateGraph(NODE_COUNT);
         var graph = new Tree();
-        graph.generateGraph(NODE_COUNT, 4, 2);
+        // graph.generateGraph(NODE_COUNT, 4, 2);
+        graph.generateDirectionalTree(3, 4);
         // graph.debug();
 
         this._graphs = graph;
