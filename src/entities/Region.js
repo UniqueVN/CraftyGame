@@ -496,6 +496,7 @@ var Shrine = MapEntity.extend(
 
 		entity.Appear(world, x - Math.floor(this.Width/2), y - Math.floor(this.Height/2) - 1);
 		platform.Appear(world, x - Math.floor(this.PlatformWidth/2), y - Math.floor(this.PlatformHeight/2));
+		platform.z = 100; // hardcode making sure platform doesn't obstruct anything
 
 		return this;
 	}

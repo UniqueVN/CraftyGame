@@ -31,7 +31,19 @@ var Tower = MapEntity.extend(
 	Sprites : ['cherryTree0', 'cherryTree1'],
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Shoot, PlayAnim : false }
+		"Primary" :
+		{
+			Type : Ability_Spell,
+			PlayAnim : false,
+			Spell :
+			{
+				Pattern : SpellPatterns.Arc,
+				Projectile : MagicMissle,
+				Arc : 60,
+				Total : 3,
+				RandomAngle : 10
+			}
+		}
 	},
 	Faction: Factions.Monk,
 
