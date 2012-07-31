@@ -275,8 +275,7 @@ var RegionTypes =
 };
 
 var Region = Class({
-	constructor : function(world, id, type, center)
-	{
+	constructor : function(tileMap, world, id, type, center) {
 		this.Id = id;
 		this.Type = type || RegionTypes.Neutral;
 		this.Center = center;
@@ -284,6 +283,7 @@ var Region = Class({
 		this.Destination = null;
 		this.bClean = true;
 
+		this._tileMap = tileMap;
 		this._world = world;
 		this._spawnPoints = [];
 
@@ -345,12 +345,12 @@ var Region = Class({
 // NEST
 var MinionBase = Class(Region,
 {
-	constructor: function(world, id, center)
+	constructor: function(tileMap, world, id, center)
 	{
 		this.Shrine = null;
 		this.SummoningCircles = [];
 
-		MinionBase.$super.call(this, world, id, RegionTypes.Base, center);
+		MinionBase.$super.call(this, tileMap, world, id, RegionTypes.Base, center);
 	},
 
 	ActivateAgainstInfested : function(infested)
@@ -504,10 +504,10 @@ var Shrine = MapEntity.extend(
 // ========================================================================================== //
 // NEST
 var Nest = Class(Region, {
-	constructor: function(world, id, center) {
+	constructor: function(tileMap, world, id, center) {
 		this.bossSpawnPoint = null;
 
-		Nest.$super.call(this, world, id, RegionTypes.Nest, center);
+		Nest.$super.call(this, tileMap, world, id, RegionTypes.Nest, center);
 	},
 
 	_setupSpawnPoint: function() {
@@ -532,8 +532,8 @@ var Nest = Class(Region, {
 // ========================================================================================== //
 // GRAVEYARD
 var Graveyard = Class(Nest, {
-	constructor: function(world, id, center) {
-		Graveyard.$super.call(this, world, id, center);
+	constructor: function(tileMap, world, id, center) {
+		Graveyard.$super.call(this, tileMap, world, id, center);
 	},
 
 	_setupSpawnPoint: function() {
@@ -577,8 +577,8 @@ var GraveSpawnArea = SpawnArea.extend(
 // ========================================================================================== //
 // FARM
 var Farm = Class(Nest, {
-	constructor: function(world, id, center) {
-		Farm.$super.call(this, world, id, center);
+	constructor: function(tileMap, world, id, center) {
+		Farm.$super.call(this, tileMap, world, id, center);
 	},
 
 	_setupSpawnPoint: function() {
@@ -589,6 +589,53 @@ var Farm = Class(Nest, {
 		this._spawnPoints.push(field);
 
 		this.bossSpawnPoint = new FarmBossSpawnPoint().Appear(this._world, this.Center.x, this.Center.y);
+
+		// Generate the field
+		var terrainManager = this._world.TerrainManager;
+		var fieldSprites = terrainManager["field"];
+		var tileMap = this._tileMap;
+
+		var w = field.Width;
+		var h = field.Height;
+		var px = field.PadX;
+		var py = field.PadY;
+		var x0 = this.Center.x - w * 2 - 1;
+		var y0 = this.Center.y - h - 1;
+
+		w *= 2;
+		h *= 2;
+
+		tileMap._tiles[y0 - 1][x0 - 1].push(fieldSprites.GetEdgeSprite(12));
+		tileMap._tiles[y0 - 1][x0 + w].push(fieldSprites.GetEdgeSprite(15));
+		tileMap._tiles[y0 + h][x0 - 1].push(fieldSprites.GetEdgeSprite(18));
+		tileMap._tiles[y0 + h][x0 + w].push(fieldSprites.GetEdgeSprite(21));
+		// TOP
+		for (var i = 0; i < w; i++) {
+			tileMap._tiles[y0 - 1][x0 + i].push(fieldSprites.GetEdgeSprite(2));
+		}
+		// BOTTOM
+		for (var i = 0; i < w; i++) {
+			tileMap._tiles[y0 + h][x0 + i].push(fieldSprites.GetEdgeSprite(1));
+		}
+		// RIGHT
+		for (var i = 0; i < h; i++) {
+			tileMap._tiles[y0 + i][x0 + w].push(fieldSprites.GetEdgeSprite(8));
+		}
+		// LEFT
+		for (var i = 0; i < h; i++) {
+			tileMap._tiles[y0 + i][x0 - 1].push(fieldSprites.GetEdgeSprite(4));
+		}
+
+		for (var j = 0; j < h; j++) {
+			for (var i = 0; i < w; i++) {
+				var x = x0 + i;
+				var y = y0 + j;
+				// var x = x0 + i + (i - 1) * px;
+				// var y = y0 + j + (j - 1) * py;
+
+				tileMap._tiles[y][x].push(fieldSprites.GetGroundSprite());
+			}
+		}
 	}
 });
 
@@ -626,17 +673,17 @@ var RegionFactory = Class({
 		NestType: [Graveyard, Farm]
 	},
 
-	Spawn : function(world, id, type, pos) {
+	Spawn : function(tileMap, world, id, type, pos) {
 		var region;
 		if (type === RegionTypes.Nest) {
 			var nestType = this.NestType[Crafty.math.randomInt(0, this.NestType.length - 1)];
-			region = new nestType(world, id, pos);
+			region = new nestType(tileMap, world, id, pos);
 		}
 		else if (type === RegionTypes.Base) {
-			region = new MinionBase(world, id, pos);
+			region = new MinionBase(tileMap, world, id, pos);
 		}
 		else {
-			region = new Region(world, id, type, pos);
+			region = new Region(tileMap, world, id, type, pos);
 		}
 
 		return region;

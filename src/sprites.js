@@ -248,6 +248,14 @@ Sprites = Backbone.Model.extend({
                     treetrunk1: [1, 0]
                 }
             },
+            treeStump: {
+                file: 'res/images/treeStump.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    treeStump: [0, 0]
+                }
+            },            
             cherryTree: {
                 file: 'res/images/cherryTree.png',
                 tile: 32,
@@ -255,6 +263,14 @@ Sprites = Backbone.Model.extend({
                 elements: {
                     cherryTree0: [0, 0, 4, 1],
                     cherryTree1: [4, 0, 3, 1]
+                }
+            },
+            deadTree: {
+                file: 'res/images/deadTree.png',
+                tile: 76,
+                tileh: 92,
+                elements: {
+                    deadTree: [0, 0]
                 }
             },
             plant: {
@@ -290,6 +306,16 @@ Sprites = Backbone.Model.extend({
 			        coin_icon_soul: [0, 0]
 		        }
 	        },
+
+            // TOWER TILES
+            cup: {
+                file: 'res/images/cup.png',
+                tile: 32,
+                tileh: 64,
+                elements: {
+                    cup: [0, 0]
+                }
+            },
 
             // TERRAIN TILES
             sand: {
@@ -410,6 +436,36 @@ Sprites = Backbone.Model.extend({
                     grass1: [0, 5],
                     grass2: [1, 5],
                     grass3: [2, 5]
+                }
+            },
+            field: {
+                file: 'res/images/fieldSoil.png',
+                tile: 32,
+                tileh: 32,
+                elements: {
+                    // Edge
+                    fieldEdge1: [1, 4], // TOP
+                    fieldEdge2: [1, 2], // BOTTOM
+                    fieldEdge4: [0, 3], // RIGHT
+                    fieldEdge8: [2, 3], // LEFT
+                    // Convex Corner
+                    fieldEdge12: [0, 2], // TOP-LEFT
+                    fieldEdge15: [2, 2], // TOP-RIGHT
+                    fieldEdge18: [0, 4], // BOTTOM-LEFT
+                    fieldEdge21: [2, 4], // BOTTOM-RIGHT
+                    // Valley Corner
+                    fieldEdge9: [1, 0], // TOP-LEFT
+                    fieldEdge5: [2, 0], // TOP-RIGHT
+                    fieldEdge10: [1, 1], // BOTTOM-LEFT
+                    fieldEdge6: [2, 1], // BOTTOM-RIGHT
+                    // Hole
+                    fieldHole0: [0, 0],
+                    fieldHole1: [0, 1],
+                    // Center
+                    field0: [1, 3],
+                    field1: [0, 5],
+                    field2: [1, 5],
+                    field3: [2, 5]
                 }
             },
             fence: {

@@ -53,6 +53,7 @@ Crafty.scene("loading", function() {
 			"src/entities/Monsters.js?v="+version,
 			"src/entities/Minions.js?v="+version,
 			"src/entities/MapObjects.js?v="+version,
+			"src/entities/Towers.js?v="+version,
 			"src/entities/player.js?v="+version,
 			"src/entities/Region.js?v="+version,
 			"src/entities/Terrains.js?v="+version,
