@@ -123,6 +123,14 @@ Sprites = Backbone.Model.extend({
                     dummy: [0, 0]
                 }
             },
+	        lich: {
+		        file: 'res/images/lich.png',
+		        tile: 128,
+		        tileh: 128,
+		        elements: {
+			        lich: [0, 0]
+		        }
+	        },
 	        // OBJECTS
 	        statues:
 	        {
@@ -467,6 +475,14 @@ Sprites = Backbone.Model.extend({
 		        tileh: 150,
 		        elements: {
 			        fireball: [0, 0]
+		        }
+	        },
+	        magicMissle: {
+		        file: 'res/images/magic_missle.png',
+		        tile: 100,
+		        tileh: 100,
+		        elements: {
+			        magicMissle: [0, 0]
 		        }
 	        },
 	        flamingHound: {
