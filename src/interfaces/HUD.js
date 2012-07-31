@@ -66,6 +66,19 @@ var HUD = Class(
 		var render = this;
 		this._player = this._world.Player;
 		this._player.bind("SpellChanged", function(){ render._spellBarDirty = true; });
+
+		// Set up announcement
+		this._announcement = "";
+	},
+
+	Announce: function(announceStr)
+	{
+		this._announcement = announceStr;
+	},
+
+	StopAnnouncement: function()
+	{
+		this._announcement = "";
 	},
 
 	_update : function()
@@ -149,6 +162,21 @@ var HUD = Class(
 				h: coord[3]
 			};
 			elem.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: ctx });
+		}
+
+		if (this._announcement !== "")
+		{
+			ctx.lineWidth = 5;
+			// TODO: don't hardcode
+			var fontSize = 50;
+			ctx.font = fontSize + "pt MeriendaOne-Regular";
+			var x = Crafty.viewport.width / 2;
+			var y = Crafty.viewport.height / 2;
+			// ctx.strokeStyle = 'red';
+			// ctx.strokeText(this._announcement, x, y);
+			ctx.textAlign = "center";
+			ctx.fillStyle = '#D70500';
+			ctx.fillText(this._announcement, x, y);
 		}
 	}
 });

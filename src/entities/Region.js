@@ -381,6 +381,11 @@ var MinionBase = Class(Region,
 		}
 	},
 
+	DestroyShrine: function()
+	{
+		this.Shrine.Destroy();
+	},
+
 	_setupSpawnPoint: function()
 	{
 		var templeCenter = this.Center;
@@ -482,11 +487,19 @@ var Shrine = MapEntity.extend(
 		var entity = Crafty.e("2D, Canvas, Body, DimensionGate, torii1")
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, SpriteVerticalOffset:-16});
 
-		var platform = Crafty.e("2D, Canvas, Body, Static, Building, platform2")
+		var platform = Crafty.e("2D, Canvas, Body, Static, Building, platform2, Damageable")
 			.attr({Faction : Factions.Monk, z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
+		platform.bind("Remove", this.onShrineDestroyed.bind(this));
 
 		this.set({'entity' : entity });
 		this.set({'platform' : platform });
+	},
+
+	onShrineDestroyed: function()
+	{
+		debug.log("THE BASE IS DESTROYED!!!!!!!!!! FAILED!!!!");
+		var entity = this.get('entity');
+		entity._world.Announce("THE BASE IS DESTROYED");
 	},
 
 	Appear : function(world, x, y)

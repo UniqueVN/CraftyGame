@@ -168,6 +168,11 @@ var World = Class(
 		return this._buildings[faction];
 	},
 
+	Announce: function(announceStr)
+	{
+		this.hud.Announce(announceStr);
+	},
+
 	AddPickup : function(pickup)
 	{
 		this.PickupMap.AddEntity(pickup);

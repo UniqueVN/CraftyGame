@@ -15,6 +15,7 @@ Crafty.scene("main", function() {
 	var player = new Player().Appear(world, playerSpawnPoint.x, playerSpawnPoint.y);
 	//world.Player = player.getEntity();
 	var hud = new HUD(world);
+	world.hud = hud;
 
 	gameContainer.cheat = new Cheat(player);
 	gameContainer.debugRender = new DebugRender();
