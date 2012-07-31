@@ -523,6 +523,13 @@ var Nest = Class(Region, {
 			this.bossSpawnPoint.getEntity().SetSpawnedDestination(this, destination);
 	},
 
+	Activate : function()
+	{
+		Nest.$superp.Activate.call(this);
+
+		this.ReleaseTheBoss();
+	},
+
 	ReleaseTheBoss: function() {
 		debug.log(this + " RELEASE THE BOSS: bossSpawnPoint = " + this.bossSpawnPoint + " id = " + this.Id);
 		this.bossSpawnPoint.getEntity()._spawn();
@@ -562,7 +569,7 @@ var SkeletonSpawnPoint = SpawnPoint.extend(
 var GraveBossSpawnPoint = SpawnPoint.extend(
 {
 	Sprites : ['graveBig'],
-	Creatures : [SkeletonArcher]
+	Creatures : [Lich]
 });
 
 var GraveSpawnArea = SpawnArea.extend(

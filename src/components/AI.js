@@ -1,5 +1,7 @@
 Crafty.c('AI',
 {
+	AIProfile : null,
+
 	init: function()
 	{
 		this.requires("NavigationHandle");
@@ -7,8 +9,17 @@ Crafty.c('AI',
 		this._goals = [];
 		this.bind("Appeared", function()
 		{
-			this._goals.push(new Goal_AttackEnemy(this));
-			this._goals.push(new Goal_DestroyTemple(this));
+			if (this.AIProfile === null)
+				throw ("AI has no profile!");
+
+			var goals = this.AIProfile.Goals;
+			for (var i = 0; i < goals.length; i++)
+			{
+				this._goals.push(new goals[i](this));
+			}
+
+			//this._goals.push(new Goal_AttackEnemy(this));
+			//this._goals.push(new Goal_DestroyTemple(this));
 		});
 
 		this.bind("EnterFrame", this._think);
@@ -157,7 +168,7 @@ var Goal_DestroyTemple = Class(Goal,
 		else if (!this._entity.IsNavigating() && this._marchingPath.length > 0)
 		{
 			var nextCheckpoint = this._marchingPath[0];
-			var radius = this._marchingPath.length === 1 ? 10 : 5;
+			var radius = this._marchingPath.length === 1 ? 14 : 0;
 			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y, radius);
 		}
 	}
@@ -204,6 +215,87 @@ var Goal_AttackEnemy = Class(Goal,
 		else
 		{
 			this.IsActive = false;
+		}
+	}
+});
+
+var Goal_Boss = Class(Goal,
+{
+	constructor : function(entity)
+	{
+		Goal_DestroyTemple.$super.call(this, entity);
+
+		this._attackBehavior = this._createAttackBehavior();
+		this._target = null;
+		this._defenseCenter = entity.GetTile();
+		this._retreating = false;
+	},
+
+	SetDestinationRegion : function(start, end)
+	{
+		this._defenseCenter = start.Center;
+		this.IsActive = true;
+	},
+
+	Think : function()
+	{
+		if (!this._retreating)
+		{
+			var toCenter = Math3D.Distance(this._defenseCenter, this._entity.GetCenter());
+			if (toCenter > 40)
+				this._retreating = true;
+		}
+		else
+		{
+			var toCenter = Math3D.Distance(this._defenseCenter, this._entity.GetCenter());
+			if (toCenter < 10)
+				this._retreating = false;
+		}
+
+		if (this._target === null)
+		{
+			var enemies = this._entity.GetEnemies();
+			var myCenter = this._entity.GetCenter();
+
+			for (var i = 0; i < enemies.length; i++)
+			{
+				var enemy = enemies[i];
+				if (enemy.IsWithinBoxRange(myCenter, 20))
+				{
+					this._target = enemy;
+					break;
+				}
+			}
+		}
+
+	},
+
+	Behave : function(frame)
+	{
+		if (this._retreating)
+		{
+			var center = this._defenseCenter;
+			if (!this._entity.IsNavigatingTo(center.x, center.y))
+				this._entity.NavigateTo(center.x, center.y);
+		}
+		else if (this._target != null)
+		{
+			if (!this._target.IsDestroyed)
+				this._attackBehavior.Update(this._target);
+			else
+				this._target = null;
+		}
+		else
+		{
+			if (!this._entity.IsNavigating())
+			{
+				var center = this._defenseCenter;
+				var dist = Math3D.Distance(center, this._entity.GetCenter());
+				if (dist > 10)
+				{
+					this._entity.NavigateTo(center.x, center.y);
+				}
+			}
 		}
 	}
 });
