@@ -40,5 +40,13 @@ var Minions =
 				"Primary" : { Type : Ability_Shoot }
 			}
 		})
+	},
+
+	Player :
+	{
+		Cost : 0,
+		SummonTime : 800,
+		StatueSprite : 'statue_player',
+		Definition: Player
 	}
 };

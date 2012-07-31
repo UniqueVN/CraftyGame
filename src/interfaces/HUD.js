@@ -6,7 +6,7 @@ var HUD = Class(
 			return;
 
 		this._world = world;
-		this._player = world.Player;
+		this._setPlayer();
 
 		var c = document.createElement("canvas");
 		c.id = 'HUD';
@@ -57,6 +57,14 @@ var HUD = Class(
 		this._spellBarX = 512;
 		this._spellBarY = 4;
 		this._spellIconSize = 64;
+
+		Crafty.bind("HeroReborn", function() { render._setPlayer(); });
+	},
+
+	_setPlayer : function()
+	{
+		var render = this;
+		this._player = this._world.Player;
 		this._player.bind("SpellChanged", function(){ render._spellBarDirty = true; });
 	},
 

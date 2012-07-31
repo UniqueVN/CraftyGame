@@ -142,7 +142,9 @@ Sprites = Backbone.Model.extend({
 			        statue_highlander: [0, 0],
 			        statue_highlander_summon: [1, 0],
 			        statue_platinumWarrior: [2, 0],
-			        statue_platinumWarrior_summon: [3, 0]
+			        statue_platinumWarrior_summon: [3, 0],
+			        statue_player : [4, 0],
+			        statue_player_summon : [5, 0]
 		        }
 	        },
 	        torii:

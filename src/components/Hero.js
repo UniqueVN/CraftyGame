@@ -8,6 +8,8 @@ Crafty.c('Hero',
 	{
 		this.requires('Pawn');
 		this.bind("EnterFrame", this._updateHero);
+		this.bind("Appeared", this._heroAppeared);
+		this.bind("Remove", this._heroDied)
 
 		this.Pickups = {};
 		this.Spells = {};
@@ -16,6 +18,21 @@ Crafty.c('Hero',
 		this.IncreasePickup('soul', 500);
 
 		return this;
+	},
+
+	_heroAppeared : function()
+	{
+		var oldPlayer = this._world.Player;
+		if (oldPlayer != null)
+		{
+			if (!oldPlayer.IsDestroyed)
+				throw ("cannot have two living players in the world!");
+
+			this.Pickups = oldPlayer.Pickups;
+			this._checkActivateSpells();
+		}
+		this._world.Player = this;
+		Crafty.trigger("HeroReborn", { hero : this });
 	},
 
 	AddSpell : function(name, costs, icon)
@@ -134,5 +151,15 @@ Crafty.c('Hero',
 				return false;
 		}
 		return true;
+	},
+
+	_heroDied : function()
+	{
+		var playerSpawnPoint = this._world.GetSpawnPoint(0);
+		var x0 = (playerSpawnPoint.x + 0.5) * this._world.TileSize - Crafty.viewport.width / 2,
+			y0 = (playerSpawnPoint.y + 0.5) * this._world.TileSize - Crafty.viewport.height / 2;
+		Crafty.viewport.scrollTo(-x0, -y0);
+
+		Crafty.trigger("HeroDied", { hero : this });
 	}
 });

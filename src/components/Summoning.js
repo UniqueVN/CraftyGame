@@ -12,6 +12,7 @@ Crafty.c('DimensionGate',
 
 		this.requires("Body");
 		this.bind("Appeared", this._setupGate);
+		this.bind("HeroDied", this._respawnHero);
 		return this;
 	},
 
@@ -21,26 +22,41 @@ Crafty.c('DimensionGate',
 
 		for (var name in Minions)
 		{
+			if (name === "Player")
+				continue;
+
 			this._availableMinions.push(name);
 		}
 
 		for (var i = 0; i < this.TotalStatues; i++)
-			this._placeStatue(i);
+			this._placeRandomStatue(i);
 	},
 
-	_placeStatue : function(index)
+	_placeRandomStatue : function(index)
+	{
+		var randMinion = Crafty.math.randomElementOfArray(this._availableMinions);
+		this._placeStatue(randMinion, index);
+	},
+
+	_placeStatue : function(summon, index)
 	{
 		var tile = this.GetTile();
 		var start = { x : tile.x - Math.floor(this.TotalStatues/2), y : tile.y + 1 };
-		var randMinion = Crafty.math.randomElementOfArray(this._availableMinions);
-		var data = Minions[randMinion];
+		var data = Minions[summon];
 		var statue = Crafty.e("2D, Canvas, Mouse, Draggable, Body, Summoner, " + data.StatueSprite)
-			.attr({z:2, Summon : randMinion})
+			.attr({z:2, Summon : summon})
 			.Appear(this._world, start.x + index, start.y);
 
 		this._statues[index] = statue;
 		var gate = this;
 		statue.bind("BeginSummon", function() { gate._replenishStatue(index); } );
+	},
+
+	_respawnHero : function()
+	{
+		var mid = Math.floor(this.TotalStatues / 2);
+		this._statues[mid].destroy();
+		this._placeStatue("Player", mid);
 	},
 
 	_replenishStatue : function(removed)
@@ -56,8 +72,8 @@ Crafty.c('DimensionGate',
 		var draw = Crafty.math.randomElementOfArray(rest);
 		this._statues[draw].destroy();
 
-		this._placeStatue(removed);
-		this._placeStatue(draw);
+		this._placeRandomStatue(removed);
+		this._placeRandomStatue(draw);
 	}
 });
 
@@ -110,13 +126,23 @@ Crafty.c('Summoner',
 			var data = Minions[this.Summon];
 			var tile = this.GetTile();
 			var summoned = new data.Definition().Appear(this._world, tile.x, tile.y).getEntity();
-			summoned.NavigateTo(tile.x, tile.y+1);
-			summoned.SetDestinationRegion(this._summoningCircle.Base, this._summoningCircle.Infested);
+
+			if (summoned.has('AI'))
+			{
+				summoned.NavigateTo(tile.x, tile.y+1);
+				summoned.SetDestinationRegion(this._summoningCircle.Base, this._summoningCircle.Infested);
+			}
+			else
+			{
+				this._summoningImage.destroy();
+				this.destroy();
+				return;
+			}
 		}
 
 		if (Crafty.DrawManager.onScreen({ _x : this.x, _y : this.y, _w : this.w, _h : this.h }))
 		{
-			var h = (1 - this._progress / this._totalProgress) * this._originalHeight;
+			var h = Math.floor((1 - this._progress / this._totalProgress) * this._originalHeight);
 			this.crop(0, 0, this.w, h);
 			//this.h = h;
 		}
