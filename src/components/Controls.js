@@ -28,13 +28,13 @@ Crafty.c('HeroControl',
 		}
 
 		if (e.key === Crafty.keys['W'])
-			this._movementDirection.y -= 1;
+			this._movementDirection.y = Math.max(-1, this._movementDirection.y - 1);
 		else if (e.key === Crafty.keys['S'])
-			this._movementDirection.y += 1;
+			this._movementDirection.y = Math.min(1, this._movementDirection.y + 1);
 		else if (e.key === Crafty.keys['A'])
-			this._movementDirection.x -= 1;
+			this._movementDirection.x = Math.max(-1, this._movementDirection.x - 1);
 		else if (e.key === Crafty.keys['D'])
-			this._movementDirection.x += 1;
+			this._movementDirection.x = Math.min(1, this._movementDirection.x + 1);
 
 		this._updateKeyboardMovement();
 	},
@@ -42,13 +42,13 @@ Crafty.c('HeroControl',
 	_onHeroControlKeyUp : function(e)
 	{
 		if (e.key === Crafty.keys['W'])
-			this._movementDirection.y += 1;
+			this._movementDirection.y = Math.min(1, this._movementDirection.y + 1);
 		else if (e.key === Crafty.keys['S'])
-			this._movementDirection.y -= 1;
+			this._movementDirection.y = Math.max(-1, this._movementDirection.y - 1);
 		else if (e.key === Crafty.keys['A'])
-			this._movementDirection.x += 1;
+			this._movementDirection.x = Math.min(1, this._movementDirection.x + 1);
 		else if (e.key === Crafty.keys['D'])
-			this._movementDirection.x -= 1;
+			this._movementDirection.x = Math.max(-1, this._movementDirection.x - 1);
 
 		this._updateKeyboardMovement();
 	},

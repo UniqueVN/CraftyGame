@@ -348,7 +348,7 @@ var TerrainMap = Class(
 
 		if (bestHit != null)
 		{
-			bestHit.location = Math3D.Add(start, Math3D.Scale(Math3D.Direction(start, end), bestHit.dist));
+			bestHit.location = Math3D.Add(start, Math3D.Scale(Math3D.Direction(start, end), Math.max(0, bestHit.dist - 0.01)));
 		}
 
 		return bestHit;

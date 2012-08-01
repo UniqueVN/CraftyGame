@@ -9,7 +9,8 @@ Crafty.c('Hero',
 		this.requires('Pawn');
 		this.bind("EnterFrame", this._updateHero);
 		this.bind("Appeared", this._heroAppeared);
-		this.bind("Remove", this._heroDied)
+		this.bind("Remove", this._heroDied);
+		this.bind("BodyMoved", this._heroMoved);
 
 		this.Pickups = {};
 		this.Spells = {};
@@ -161,5 +162,19 @@ Crafty.c('Hero',
 		Crafty.viewport.scrollTo(-x0, -y0);
 
 		Crafty.trigger("HeroDied", { hero : this });
+	},
+
+	_heroMoved : function(e)
+	{
+		var from = e.from;
+		var to = e.to;
+
+		var hit = this._world.TerrainMap.LineCheck(from, to, this.GetRadius());
+		if (hit != null)
+		{
+			var newCenter = hit.location;
+			this._tileX = newCenter.x - (this.TileWidth - 1) / 2.0;
+			this._tileY = newCenter.y - (this.TileHeight - 1) / 2.0;
+		}
 	}
 });
