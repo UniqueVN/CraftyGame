@@ -117,8 +117,8 @@ var World = Class(
 	{
 		var list = this._buildings[entity.Faction];
 		var i = list.indexOf(entity);
-		if (i === -1)
-			throw ("Entity is no longer in the list, could be in some other lists?");
+		// if (i === -1)
+		// 	throw ("Entity is no longer in the list, could be in some other lists?");
 		list.splice(i, 1);
 	},
 
@@ -135,8 +135,8 @@ var World = Class(
 	{
 		var list = this._pawns[entity.Faction];
 		var i = list.indexOf(entity);
-		if (i === -1)
-			throw ("Entity is no longer in the list, could be in some other lists?");
+		// if (i === -1)
+		// 	throw ("Entity is no longer in the list, could be in some other lists?");
 		list.splice(i, 1);
 
 		this.CollisionMap.RemoveEntity(entity);
@@ -166,6 +166,12 @@ var World = Class(
 			throw ("Nothing exists in faction Undefined!");
 
 		return this._buildings[faction];
+	},
+
+	GameOver: function()
+	{
+		this.hud.GameOver();
+		//Crafty.scene("gameOver");
 	},
 
 	Announce: function(announceStr)

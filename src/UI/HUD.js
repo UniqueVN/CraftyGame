@@ -178,5 +178,24 @@ var HUD = Class(
 			ctx.fillStyle = '#D70500';
 			ctx.fillText(this._announcement, x, y);
 		}
+	},
+
+	GameOver: function()
+	{
+		this.Announce("Base destroyed!!!\n We're doom!!!");
+
+		var w = 90;
+		var h = 30;
+		var x = (Crafty.viewport.width - w) / 2;
+		var y = (Crafty.viewport.height - h) / 2 + 50;
+
+		var onBtnRestartClick = function() {
+			window.location.reload();
+		};
+
+		var btnRestart = new Button(this._context, "Restart", x, y, w, h, onBtnRestartClick);
+		// var btnRestart = new Button(this._context, "Restart", x, y, w, h);
+		// var btnRestart = new Button(this._context, "Restart", 100, 100);
+
 	}
 });
