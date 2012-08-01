@@ -210,6 +210,12 @@ var World = Class(
 		return this._spawnPoint[id];
 	},
 
+	GetPlayerSpawnPoint: function()
+	{
+		debug.log(this.TempleRegion, this.TempleRegion.PlayerSpawnPoint);
+		return this.TempleRegion.PlayerSpawnPoint;
+	},
+
 	GetRandomSpawnPoint: function()
 	{
 		id = Crafty.math.randomInt(0, this._spawnPoint.length - 1);

@@ -289,8 +289,8 @@ Crafty.c('TileMap', {
 
 			if (nodeType === RegionTypes.Neutral)
 				this.CreateObject(TowerBase, nodeCenter.x, nodeCenter.y);
-			else if (nodeType === RegionTypes.Base)
-				this.World.AddSpawnPoint(nodeCenter);
+			// else if (nodeType === RegionTypes.Base)
+			// 	this.World.AddSpawnPoint(nodeCenter);
 		}
 
 		// Link regions

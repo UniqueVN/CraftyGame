@@ -155,7 +155,7 @@ Crafty.c('Hero',
 
 	_heroDied : function()
 	{
-		var playerSpawnPoint = this._world.GetSpawnPoint(0);
+		var playerSpawnPoint = this._world.GetPlayerSpawnPoint();
 		var x0 = (playerSpawnPoint.x + 0.5) * this._world.TileSize - Crafty.viewport.width / 2,
 			y0 = (playerSpawnPoint.y + 0.5) * this._world.TileSize - Crafty.viewport.height / 2;
 		Crafty.viewport.scrollTo(-x0, -y0);

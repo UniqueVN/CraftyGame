@@ -41,10 +41,17 @@ Crafty.c('SpawnPoint',
 
 	Activate: function()
 	{
-		this._bActive = true;
-		this._spawnCoolDown = this._waveDuration;
-		this.bind("EnterFrame", this._updateSpawn.bind(this));
-		// this._spawn();
+		// Only update and spawn if the duration is positive
+		if (this._waveDuration > 0)
+		{
+			this._bActive = true;
+			this._spawnCoolDown = this._waveDuration;
+			this.bind("EnterFrame", this._updateSpawn.bind(this));
+		}
+		else
+		{
+			this._spawn();
+		}
 	},
 
 	Deactivate: function()
@@ -345,10 +352,13 @@ var Region = Class({
 // MINION BASE
 var MinionBase = Class(Region,
 {
+	PlayerSpawnPointOffset: 4,
+
 	constructor: function(tileMap, world, id, center)
 	{
 		this.Shrine = null;
 		this.SummoningCircles = [];
+		this.PlayerSpawnPoint = null;
 
 		MinionBase.$super.call(this, tileMap, world, id, RegionTypes.Base, center);
 	},
@@ -388,6 +398,9 @@ var MinionBase = Class(Region,
 
 	_setupSpawnPoint: function()
 	{
+		this.PlayerSpawnPoint = new PlayerSpawnPoint()
+			.Appear(this._world, this.Center.x, this.Center.y + this.PlayerSpawnPointOffset);
+
 		var templeCenter = this.Center;
 		var radius = 5;
 		var offset = radius + 5;
@@ -513,6 +526,30 @@ var Shrine = MapEntity.extend(
 		platform.z = 100; // hardcode making sure platform doesn't obstruct anything
 
 		return this;
+	}
+});
+
+var PlayerSpawnPoint = SpawnPoint.extend(
+{
+	WaveDuration: -1,
+	WaveSpawnCount: 1,
+
+ 	initialize: function()
+ 	{
+	},
+
+	Appear : function(world, x, y)
+	{
+		this.world = world;
+		this.x = x;
+		this.y = y;
+
+		return this;
+	},
+
+	Spawn: function()
+	{
+		return new Player().Appear(this.world, this.x, this.y);
 	}
 });
 
