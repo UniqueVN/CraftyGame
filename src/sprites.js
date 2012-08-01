@@ -24,6 +24,16 @@ Sprites = Backbone.Model.extend({
 					player: [0,3]
 				}
 			},
+            UI: {
+                file: 'res/images/UI.png',
+                tile: 1,
+                tileh: 1,
+                elements: {
+                    buttonNormal: [0, 65, 95, 30],
+                    buttonClick: [0, 95, 95, 30]
+                }
+            },
+
             // CHARACTERS
 			charMale: {
 			    file: 'res/images/charMale.png',

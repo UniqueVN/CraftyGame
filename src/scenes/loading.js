@@ -57,7 +57,8 @@ Crafty.scene("loading", function() {
 			"src/entities/Minions.js?v="+version,
 			"src/entities/Region.js?v="+version,
 			"src/entities/Terrains.js?v="+version,
-			"src/interfaces/HUD.js?v="+version,
+			"src/UI/UI.js?v="+version,
+			"src/UI/HUD.js?v="+version,
 			"src/cheat.js?v="+version
 		];
 

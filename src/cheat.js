@@ -20,6 +20,10 @@ var Cheat = Class({
 		this.world.nestedRegions[id].ReleaseTheBoss();
 	},
 
+	Doom: function() {
+		this.world.GameOver();
+	},
+
 	ShowMeTheMoney : function(pickup, amount)
 	{
 		this.playerEntity.IncreasePickup(pickup, amount);
