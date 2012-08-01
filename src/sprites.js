@@ -150,6 +150,16 @@ Sprites = Backbone.Model.extend({
 		        }
 	        },
 	        // OBJECTS
+            lionStatue:
+            {
+                file: 'res/images/lionStatue.png',
+                tile: 64,
+                tileh: 96,
+                elements:
+                {
+                    lionStatue: [0, 0]
+                }
+            },
 	        statues:
 	        {
 		        file: 'res/images/statues.png',

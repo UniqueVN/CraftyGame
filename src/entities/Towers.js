@@ -28,7 +28,7 @@ var Tower = MapEntity.extend(
 {
 	Width : 1,
 	Height : 1,
-	Sprites : ['cherryTree0', 'cherryTree1'],
+	Sprites : ['cherryTree0', 'cherryTree1', 'lionStatue'],
 	Abilities:
 	{
 		"Primary" :
