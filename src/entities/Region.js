@@ -398,28 +398,39 @@ var MinionBase = Class(Region,
 
 	_setupSpawnPoint: function()
 	{
+		// Add player spawn point
 		this.PlayerSpawnPoint = new PlayerSpawnPoint()
 			.Appear(this._world, this.Center.x, this.Center.y + this.PlayerSpawnPointOffset);
 
 		var templeCenter = this.Center;
-		var radius = 5;
-		var offset = radius + 5;
+		var radius = 3;
+		var offset = 9;
 
-		var summoningCenters =
-			[
-				{ x : templeCenter.x - offset, y : templeCenter.y - offset },
-				{ x : templeCenter.x + offset, y : templeCenter.y - offset },
-				{ x : templeCenter.x + offset, y : templeCenter.y + offset },
-				{ x : templeCenter.x - offset, y : templeCenter.y + offset }
-			];
-
-
-		for (var i = 0; i < summoningCenters.length; i++)
+		// Add summoning circles for each direction
+		var SUMMON_CIRCLE_DIRECTION = [{x: 0, y: 1}, {x: 0, y: -1}, {x: 1, y: 0}, {x: -1, y: 0}];
+		for (var d = 0; d < SUMMON_CIRCLE_DIRECTION.length; d++)
 		{
-			var summoningCircle = new SummoningCircle(this._world, summoningCenters[i], radius, this);
+			var summoningCenter = {x: templeCenter.x, y: templeCenter.y};
+			summoningCenter.x += SUMMON_CIRCLE_DIRECTION[d].x * offset;
+			summoningCenter.y += SUMMON_CIRCLE_DIRECTION[d].y * offset;
+
+			var summoningCircle = new SummoningCircle(this._world, summoningCenter, radius, this);
 			this.SummoningCircles.push(summoningCircle);
 		}
 
+		// Add tower at each corner
+		this.Towers = [];
+		var TOWER_DIRECTION = [{x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: -1, y: -1}];
+		for (var d = 0; d < SUMMON_CIRCLE_DIRECTION.length; d++)
+		{
+			var x = templeCenter.x + TOWER_DIRECTION[d].x * offset;
+			var y = templeCenter.y + TOWER_DIRECTION[d].y * offset;
+
+			var towerBase = new TowerBase().Appear(this._world, x, y);
+			this.Towers.push(towerBase);
+		}
+
+		// Add Shrine on top of the platform
 		this.Shrine = new Shrine().Appear(this._world, this.Center.x, this.Center.y);
 	}
 });
@@ -550,6 +561,21 @@ var PlayerSpawnPoint = SpawnPoint.extend(
 	Spawn: function()
 	{
 		return new Player().Appear(this.world, this.x, this.y);
+	}
+});
+
+// ========================================================================================== //
+// MIDDLE REGION - the region between monster nests and player's base
+var MiddleRegion = Class(Region, {
+	constructor: function(tileMap, world, id, center) {
+		this.towerBase = null;
+
+		MiddleRegion.$super.call(this, tileMap, world, id, RegionTypes.Neutral, center);
+	},
+
+	_setupSpawnPoint: function()
+	{
+		this.towerBase = new TowerBase().Appear(this._world, this.Center.x, this.Center.y);
 	}
 });
 
@@ -740,6 +766,9 @@ var RegionFactory = Class({
 		}
 		else if (type === RegionTypes.Base) {
 			region = new MinionBase(tileMap, world, id, pos);
+		}
+		else if (type === RegionTypes.Neutral) {
+			region = new MiddleRegion(tileMap, world, id, pos);
 		}
 		else {
 			region = new Region(tileMap, world, id, type, pos);

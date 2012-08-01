@@ -118,7 +118,7 @@ Crafty.c('TileMap', {
         var NODE_SIZE = 12;
         var TREE_NODE_SIZE = 8;
         var LEAF_NODE_SIZE = 18;
-        var ROOT_NODE_SIZE = 16;
+        var ROOT_NODE_SIZE = 20;
         var LINE_WIDTH = 2;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
@@ -287,8 +287,8 @@ Crafty.c('TileMap', {
 
 			regions[i] = this.World.AddRegion(this, i, nodeType, nodeCenter);
 
-			if (nodeType === RegionTypes.Neutral)
-				this.CreateObject(TowerBase, nodeCenter.x, nodeCenter.y);
+			// if (nodeType === RegionTypes.Neutral)
+			// 	this.CreateObject(TowerBase, nodeCenter.x, nodeCenter.y);
 			// else if (nodeType === RegionTypes.Base)
 			// 	this.World.AddSpawnPoint(nodeCenter);
 		}
