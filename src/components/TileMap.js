@@ -31,43 +31,6 @@ Crafty.c('TileMap', {
         console.log(debugStr);
     },
 
-    generateBeach: function(beachStart, beachSize) {
-    	var i0 = beachStart;
-    	var i1 = i0 + beachSize;
-
-    	// Generate grass border
-		for (var j = 0; j < this._col; j++) {
-			this._tiles[i0][j].push(this.terrains[1].GetGroundSprite());
-			this._tiles[i0][j].push(this.terrains[3].GetSpriteByName("grassEdge1"));
-			this.cells[j][i0] = 1;
-		}
-
-    	// Generate beach sand
-		for (var i = i0 + 1; i < i1; i++) {
-			for (var j = 0; j < this._col; j++) {
-				this._tiles[i][j].push(this.terrains[1].GetGroundSprite());
-				this.cells[j][i] = 1;
-			}
-		}
-
-    	// Generate sand border
-		for (var j = 0; j < this._col; j++) {
-			// this._tiles[i1][j].push(this.terrains[1].GetGroundSprite());
-			// this._tiles[i1][j].push(this.terrains[0].GetSpriteByName("waterEdge2"));
-			this._tiles[i1][j].push(this.terrains[0].GetGroundSprite());
-			this._tiles[i1][j].push(this.terrains[1].GetSpriteByName("sandEdge1"));
-			this.cells[j][i1] = 1;
-		}
-
-    	// Generate water
-		for (var i = i1 + 1; i < this._row; i++) {
-			for (var j = 0; j < this._col; j++) {
-				this._tiles[i][j].push(this.terrains[0].GetGroundSprite());
-				this.cells[j][i] = 0;
-			}
-		}
-    },
-
     generateBorder: function(cells) {
         // Generate real border
         // Check direct neighbor
@@ -122,6 +85,7 @@ Crafty.c('TileMap', {
         var LINE_WIDTH = 2;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
+        var MAP_PADDING = 3;
 
         var pixelRenderer = new PixelRenderer("", this._col, this._row);
         // var pixelRenderer = new PixelRenderer("", this._col, this._row - WATER_PATCH - BEACH_PATCH);
@@ -185,37 +149,50 @@ Crafty.c('TileMap', {
         graphRenderer.nodeRenderer = irregularShape;
         graphRenderer.draw();
 
-        this.cells = pixelRenderer.cells;
+        var minX = this._col;
+        var minY = this._row;
+        var maxX = 0;
+        var maxY = 0;
+        for (var i = 1; i < graphRenderer.nodes.length; i++) {
+			var nodeCenter = graphRenderer.nodes[i];
+
+			maxY = Math.max(maxY, nodeCenter.y + ROOT_NODE_SIZE);
+			minY = Math.min(minY, nodeCenter.y - ROOT_NODE_SIZE);
+			maxX = Math.max(maxX, nodeCenter.x + ROOT_NODE_SIZE);
+			minX = Math.min(minX, nodeCenter.x - ROOT_NODE_SIZE);
+        }
+        maxX = Math.min(this._col, maxX + MAP_PADDING);
+        maxY = Math.min(this._row, maxY + MAP_PADDING);
+        minX = Math.max(0, minX - MAP_PADDING);
+        minY = Math.max(0, minY - MAP_PADDING);
+        debug.log("minX = " + minX + " maxX = " + maxX + " minY = " + minY + " maxY = " + maxY);
+
+        // Only copy the cells in the valid ranges
+        this.cells = [];
+        for (var i = minX; i < maxX; i++) {
+        	var i1 = i - minX;
+        	this.cells.push([]);
+        	for (var j = minY; j < maxY; j++) {
+        		var j1 = j - minY;
+        		this.cells[i1][j1] = pixelRenderer.cells[i][j];
+        	}
+        }
+
+        this._col = maxX - minX;
+        this._row = maxY - minY;
+        // this.cells = pixelRenderer.cells;
         var cells = this.cells;
         this.generateBorder(cells);
 
-        var t = 0;
         for (var i = 1; i < graphRenderer.nodes.length; i++) {
-			var nodeCenter = graphRenderer.nodes[i];
-			if (nodeCenter.y > graphRenderer.nodes[t].y)
-				t = i;
+        	graphRenderer.nodes[i].x -= minX;
+        	graphRenderer.nodes[i].y -= minY;
         }
-        // Generate a beach under the last ground tiles
-        var beachStart = graphRenderer.nodes[t].y + NODE_SIZE + 2;
-        // for (var i = cells.length - 1; i >= beachStart; i--) {
-        // 	var bEmpty = true;
-        // 	for (var j = cells[i].length - 1; j >= 0; j--) {
-        // 		if (cells[i][j] !== 0) {
-        // 			bEmpty = false;
-        // 			break;
-        // 		}
-        // 	};
-
-        // 	if (bEmpty) {
-        // 		beachStart = i;
-        // 	}
-        // };
-        this.generateBeach(beachStart, BEACH_SIZE);
 
         var bShowTrees = gameContainer.conf.get("SHOW_TREES");
 
 		// Paint tiles
-		for (var i = 0; i < beachStart; i++){
+		for (var i = 0; i < this._row; i++){
 			for (var j = 0; j < this._col; j++){
                 var cellType = cells[j][i];
                 if (cellType >= 0) {
@@ -234,7 +211,7 @@ Crafty.c('TileMap', {
 
                 		if (bShowTrees) {
 		            		t = Crafty.math.randomInt(0, 101);
-		            		if (t > 95) {
+		            		if (t > 95 || j === this._col - 1 || i === this._row - 1) {
 		            			// TODO: Must implement a tree renderer
 		            			// HACK: choose a random tree and add it to the right tile
 		            			// Compute the top-left corner of the tree
@@ -269,6 +246,7 @@ Crafty.c('TileMap', {
 		this._height = this._tileSize * this._row;
 
 		this.createBufferCanvas();
+		this.createMiniMap();
 		
 		this.ready = true;
 		return this;
@@ -286,11 +264,6 @@ Crafty.c('TileMap', {
 			var nodeCenter = graphRenderer.nodes[i];
 
 			regions[i] = this.World.AddRegion(this, i, nodeType, nodeCenter);
-
-			// if (nodeType === RegionTypes.Neutral)
-			// 	this.CreateObject(TowerBase, nodeCenter.x, nodeCenter.y);
-			// else if (nodeType === RegionTypes.Base)
-			// 	this.World.AddSpawnPoint(nodeCenter);
 		}
 
 		// Link regions
@@ -311,7 +284,9 @@ Crafty.c('TileMap', {
 		this._buffer.updateViewport();
 		this._treeManager = new TreeManager();
 		// debug.log("createBufferCanvas: " + this.buffer + " context: " + this.bufferContext);
+	},
 
+	createMiniMap: function() {
 		// var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
 		// var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
 		// this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);

@@ -40,29 +40,33 @@ Player = Creature.extend(
 		    }
 	    }
 
-		var followCamera = function()
-		{
-			//if (this._x === undefined || this._y === undefined)
-			//	return;
-			var center = this.GetCenterReal();
-			var x0 = center.x - Crafty.viewport.width / 2,
-				y0 = center.y - Crafty.viewport.height / 2;
-			if (x0 < 0) x0 = 0;
-			if (y0 < 0) y0 = 0;
-//			if (x0 + Crafty.viewport.width > tileMap._width)
-//				x0 = tileMap._width - Crafty.viewport.width;
-//			if (y0 + Crafty.viewport.height > tileMap._height)
-//				y0 = tileMap._height - Crafty.viewport.height;
-			Crafty.viewport.scrollTo(-x0, -y0);
-		};
-
 	    // must bind to visual updated but not BodyMoved, otherwise could cause the map redraw twice
-	    entity.bind("VisualUpdated", followCamera);
+	    entity.bind("VisualUpdated", this.followCamera.bind(this));
 
     	model.set({'entity' : entity });
 
 	    this._setupAnimations();
-    }
+    },
+
+	followCamera: function()
+	{
+		//if (this._x === undefined || this._y === undefined)
+		//	return;
+		var entity = this.getEntity();
+		
+		var center = entity.GetCenterReal();
+		var x0 = center.x - Crafty.viewport.width / 2,
+			y0 = center.y - Crafty.viewport.height / 2;
+		if (x0 < 0) x0 = 0;
+		if (y0 < 0) y0 = 0;
+
+		var tileMap = entity._world.TileMap;
+		if (x0 + Crafty.viewport.width > tileMap._width)
+			x0 = tileMap._width - Crafty.viewport.width;
+		if (y0 + Crafty.viewport.height > tileMap._height)
+			y0 = tileMap._height - Crafty.viewport.height;
+		Crafty.viewport.scrollTo(-x0, -y0);
+	}
 });
 
 var SpellBook =

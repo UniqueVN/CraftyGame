@@ -12,6 +12,7 @@ var MapTree = MapEntity.extend(
 	{
 		this.TreeID = Crafty.math.randomInt(0, this.Sprites.length - 1);
 		var entity = Crafty.e("2D, Canvas, Body, Static, " + this.Sprites[this.TreeID])
+		// var entity = Crafty.e("2D, Canvas, Body, Static")
 			.attr({z:2, TileWidth: 1, TileHeight: 1});
 		this.set({'entity' : entity });
 	},
