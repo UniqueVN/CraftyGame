@@ -23,7 +23,7 @@ var MapTree = MapEntity.extend(
 		var w = TreeSize[this.TreeID].w;
 		var h = TreeSize[this.TreeID].h;
 
-		this.getEntity().Appear(world, x - Math.floor(w / 2), y - h);
+		this.getEntity().Appear(world, x - Math.floor(w / 2), y);
 		return this;
 	},
 });
