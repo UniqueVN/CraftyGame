@@ -155,6 +155,7 @@ var Ability_Shoot = Class(ActionAbility,
 
 		this._actionAnimName = "Shoot";
 		this.BehaviorType = AbilityBehaviorType.Ranged;
+		this.MaxRange = 13;
 
 		this.Projectile = FireBall;
 	},
@@ -185,6 +186,7 @@ var Ability_Spell = Class(ActionAbility,
 			this._actionAnimName = "Shoot";
 			this.BehaviorType = AbilityBehaviorType.Ranged;
 			this.Spell = null;
+			this.MaxRange = 20;
 
 			this._delay = 0;
 			this._dist = 0;

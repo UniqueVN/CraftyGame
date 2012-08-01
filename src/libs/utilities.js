@@ -213,6 +213,27 @@ var Math3D =
 	SizeSq : function(vector)
 	{
 		return vector.x * vector.x + vector.y * vector.y;
+	},
+
+	ClosestPointOnSegment : function(start, end, point)
+	{
+		var a = Math3D.Delta(start, end);
+		var b = Math3D.Delta(start, point);
+		var p = Math3D.Dot(a, b);
+		var la = Math3D.SizeSq(a);
+		if (p <= 0)
+		{
+			return start;
+		}
+		else if (p >= la)
+		{
+			return end;
+		}
+		else
+		{
+			var k = p / la;
+			return { x : start.x + a.x * k, y : start.y + a.y * k  };
+		}
 	}
 };
 

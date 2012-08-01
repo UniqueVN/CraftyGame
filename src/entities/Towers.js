@@ -93,7 +93,7 @@ Crafty.c('TowerAI',
 		for (var i = 0; i < this._goals.length; i++)
 		{
 			var goal = this._goals[i];
-			if (goal.IsActive)
+			if (goal.Priority > 0)
 			{
 				goal.Behave(frame);
 				break;
