@@ -13,7 +13,8 @@ var ProjectileFactory = Class(
 				ProjectileAnimations : (definition.Animations || {}),
 				Damage : (definition.Damage || 1),
 				DamageRadius : (definition.DamageRadius || 0),
-				Fuse : (definition.Fuse || 0)
+				Fuse : (definition.Fuse || 0),
+				Size : (definition.Size || 0)
 			})
 			.Appear(world, x, y);
 

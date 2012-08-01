@@ -7,6 +7,7 @@ FireBall =
 		Explosion : [ 3, 0, 18, 64]
 	},
 	Damage : 20,
+	Size : 0.25,
 
 	VerticalOffset : -48
 };
@@ -22,7 +23,7 @@ IonSplit =
 	},
 	Damage : 20,
 
-	VerticalOffset : 32
+	VerticalOffset : 16
 };
 
 MagicMissle =

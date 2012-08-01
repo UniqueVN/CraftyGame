@@ -6,6 +6,7 @@ Crafty.c('Projectile',
 	DamageRadius : 0,
 	Damage : 1,
 	ProjectileAnimations : null,
+	Size : 0,
 
 	_instigator : null,
 	_projectileStartLoc : null,
@@ -64,7 +65,7 @@ Crafty.c('Projectile',
 		var from = data.from;
 		var to = data.to;
 
-		var result = this._world.CollisionMap.LineCheck(from, to)
+		var result = this._world.CollisionMap.LineCheck(from, to, this.Size)
 		var hits = result.hits;
 		var hitEntities = [];
 		for (var i = 0; i < hits.length; i++)
@@ -78,7 +79,7 @@ Crafty.c('Projectile',
 
 		if (hitEntities.length <= 0)
 		{
-			var hit = this._world.TerrainMap.LineCheck(from, to, 0);
+			var hit = this._world.TerrainMap.LineCheck(from, to, this.Size);
 			if (hit != null)
 			{
 				var entity = hit.cell.entity;
