@@ -466,7 +466,7 @@ var WorldPathSemantics = Class(PathSemantics,
 
 	GetHeuristicCost : function(current, dest)
 	{
-		return Math.abs(dest.x - current.x) + Math.abs(dest.y - current.y);
+		return Math3D.Distance(current, dest);//Math.abs(dest.x - current.x) + Math.abs(dest.y - current.y);
 	}
 });
 

@@ -25,6 +25,29 @@ var Minions =
 		})
 	},
 
+	Dragoon :
+	{
+		Cost : 600,
+		SummonTime : 3000,
+		StatueSprite : 'statue_dragoon',
+		Definition : Minion.extend(
+		{
+			Sprites : ['dragoon'],
+			Speed : 0.15,
+			Health : 600,
+			WalkAnimationFrames: 9,
+			WalkAnimationSpeed :18,
+			Abilities:
+			{
+				"Primary" : { Type : Ability_Melee, PlayAnim : true, Range : 2, Span : 2, Damage : 30 }
+			},
+			ActionAnimations:
+			{
+				"Melee" : [ 4, 8, 4 ]
+			}
+		})
+	},
+
 	PlatinumWarrior :
 	{
 		Cost : 250,
@@ -37,7 +60,11 @@ var Minions =
 			WalkAnimationFrames: 9,
 			Abilities:
 			{
-				"Primary" : { Type : Ability_Shoot }
+				"Primary" : { Type : Ability_Shoot, PlayAnim:true, Projectile:IonSplit }
+			},
+			ActionAnimations:
+			{
+				"Shoot" : [ 4, 9, 2 ]
 			}
 		})
 	},

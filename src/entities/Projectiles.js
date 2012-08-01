@@ -11,6 +11,20 @@ FireBall =
 	VerticalOffset : -48
 };
 
+IonSplit =
+{
+	Sprite : 'laser',
+
+	Animations :
+	{
+		//Flying : [ 0, 1, 3, 8 ]
+		Explosion : [ 1, 0, 17, 34]
+	},
+	Damage : 20,
+
+	VerticalOffset : 32
+};
+
 MagicMissle =
 {
 	Sprite : 'magicMissle',
@@ -22,6 +36,32 @@ MagicMissle =
 	Damage : 20,
 
 	VerticalOffset : -20
+};
+
+IceBolt =
+{
+	Sprite : 'icebolt',
+	Animations :
+	{
+		Flying : [ 0, 0, 2, 6 ],
+		Explosion : [ 3, 0, 10, 24]
+	},
+	Damage : 20,
+
+	VerticalOffset : -20
+};
+
+Arrow =
+{
+	Sprite : 'arrow',
+	Animations :
+	{
+		//Flying : [ 0, 0, 2, 6 ],
+		//Explosion : [ 1, 0, 8, 32]
+	},
+	Damage : 15,
+
+	VerticalOffset : 0
 };
 
 FlamingHound =

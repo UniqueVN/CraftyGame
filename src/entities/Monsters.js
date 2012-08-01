@@ -15,7 +15,7 @@ var Ghost = Creature.extend(
 	WalkAnimationFrames: 3,
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Shoot }
+		"Primary" : { Type : Ability_Shoot, Projectile: IceBolt }
 	}
 });
 
@@ -27,7 +27,7 @@ var SkeletonArcher = Creature.extend(
 	WalkAnimationFrames: 9,
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Shoot, PlayAnim : true }
+		"Primary" : { Type : Ability_Shoot, PlayAnim : true, Projectile: Arrow }
 	},
 	ActionAnimations:
 	{
@@ -40,7 +40,7 @@ var Lich = Creature.extend(
 {
 	Sprites : ['lich'],
 	Speed : 0.25,
-	Health : 8000,
+	Health : 2000,
 	SoulPoints : 500,
 	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationFrames: 9,
@@ -77,7 +77,7 @@ var Pumpkin = Creature.extend(
 	// WalkAnimationRows : [0, 3, 2, 1]
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Shoot }
+		"Primary" : { Type : Ability_Shoot, Projectile: IceBolt }
 	}
 });
 
@@ -90,7 +90,7 @@ var ManEaterFlower = Creature.extend(
 	WalkAnimationRows : [0, 3, 2, 1],
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Shoot }
+		"Primary" : { Type : Ability_Shoot, Projectile: IceBolt }
 	}
 })
 
@@ -98,11 +98,11 @@ var Dummy = Creature.extend(
 {
 	Sprites : ['dummy'],
 	Speed : 0.3,
-	Health : 10000,
+	Health : 3000,
 	SoulPoints : 500,
 	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationFrames: 8,
-	WalkAnimationSpeed: 7,
+	WalkAnimationSpeed: 10,
 	WalkAnimationRows : [0, 0, 0, 0],
 	Abilities:
 	{
@@ -110,6 +110,6 @@ var Dummy = Creature.extend(
 	},
 	ActionAnimations:
 	{
-		"Melee" : [ 0, 8, 1, 0 ]
+		"Melee" : [ 0, 8, 2, 0 ]
 	}
 });
