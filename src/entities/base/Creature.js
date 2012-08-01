@@ -1,5 +1,6 @@
 Creature = MapEntity.extend(
 {
+	Health : 100,
 	Speed : 0.1,
 	WalkAnimationFrames : 9,
 	WalkAnimationRows : [0, 1, 2, 3],
@@ -30,7 +31,8 @@ Creature = MapEntity.extend(
 				MovementSpeed : this.Speed,
 				Faction : this.Faction,
 				SoulPoints : this.SoulPoints,
-				AIProfile: this.AIProfile
+				AIProfile: this.AIProfile,
+				MaxHealth: this.Health
 			});
 
 		for (var slot in this.Abilities)
@@ -63,7 +65,8 @@ Creature = MapEntity.extend(
 		{
 			var data = this.ActionAnimations[name];
 			var interval = data[2] || 5;
-			entity.ActionAnimation(name, data[0], data[1], interval);
+			var steps = data[3] === undefined ? 1 : data[3];
+			entity.ActionAnimation(name, data[0], data[1], interval, steps);
 		}
 	}
 });

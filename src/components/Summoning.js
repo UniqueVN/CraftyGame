@@ -165,7 +165,7 @@ Crafty.c('Summoner',
 			for (var i = 0; i < base.SummoningCircles.length; i++)
 			{
 				var circle = base.SummoningCircles[i];
-				if (circle.IsInside(center.x, center.y))
+				if (circle.IsInside(center.x, center.y) && !this._world.TerrainMap.IsCellBlocked(center.x, center.y))
 				{
 					this._world.Player.Pickups['soul'] -= data.Cost;
 					this.unbind("MouseDown", this._ondown);
@@ -174,8 +174,6 @@ Crafty.c('Summoner',
 				}
 			}
 		}
-
-
 
 		this._setCenter(this._gateTile.x, this._gateTile.y);
 		this._updateSpritePos(true);

@@ -178,7 +178,7 @@ var Goal_DestroyTemple = Class(Goal,
 		}
 		else if (this.Priority >= 2)
 		{
-			if (distToFocus < 10)
+			if (distToFocus < 15)
 				this.Priority = 1;
 		}
 
@@ -302,7 +302,10 @@ var Goal_Boss = Class(Goal,
 		{
 			var toCenter = Math3D.Distance(this._defenseCenter, this._entity.GetCenter());
 			if (toCenter > 40)
+			{
 				this._retreating = true;
+				this._target = null;
+			}
 		}
 		else
 		{
@@ -311,7 +314,7 @@ var Goal_Boss = Class(Goal,
 				this._retreating = false;
 		}
 
-		if (this._target === null)
+		if (this._target === null && !this._retreating)
 		{
 			var enemies = this._entity.GetEnemies();
 			var myCenter = this._entity.GetCenter();

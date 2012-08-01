@@ -31,7 +31,7 @@ Crafty.c('BodyAnimations',
 		return this;
 	},
 
-	ActionAnimation : function(name, row, length, interval)
+	ActionAnimation : function(name, row, length, interval, steps)
 	{
 		if (this._bodyAnimData === null)
 			this._bodyAnimData = {};
@@ -40,9 +40,9 @@ Crafty.c('BodyAnimations',
 		this._bodyAnimData[name] = newData;
 
 		this.animate(name + "_up", 0, row, length - 1)
-			.animate(name + "_left", 0, row + 1, length - 1)
-			.animate(name + "_down", 0, row + 2, length - 1)
-			.animate(name + "_right", 0, row + 3, length - 1)
+			.animate(name + "_left", 0, row + steps, length - 1)
+			.animate(name + "_down", 0, row + 2 * steps, length - 1)
+			.animate(name + "_right", 0, row + 3 * steps, length - 1)
 	},
 
 	PlayActionAnim : function(name, dir)

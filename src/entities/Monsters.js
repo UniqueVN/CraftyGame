@@ -39,7 +39,8 @@ var SkeletonArcher = Creature.extend(
 var Lich = Creature.extend(
 {
 	Sprites : ['lich'],
-	Speed : 0.3,
+	Speed : 0.25,
+	Health : 8000,
 	SoulPoints : 500,
 	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationFrames: 9,
@@ -96,12 +97,19 @@ var ManEaterFlower = Creature.extend(
 var Dummy = Creature.extend(
 {
 	Sprites : ['dummy'],
-	Speed : 0.07,
-	SoulPoints : 35,
+	Speed : 0.3,
+	Health : 10000,
+	SoulPoints : 500,
+	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationFrames: 8,
+	WalkAnimationSpeed: 7,
 	WalkAnimationRows : [0, 0, 0, 0],
 	Abilities:
 	{
-		"Primary" : { Type : Ability_Melee, PlayAnim : false }
+		"Primary" : { Type : Ability_Melee, PlayAnim : true, Range : 0, Span : 2, Damage : 30 }
+	},
+	ActionAnimations:
+	{
+		"Melee" : [ 0, 8, 1, 0 ]
 	}
 });

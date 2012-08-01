@@ -702,7 +702,7 @@ var PathFinder = Class(
 				break;
 			}
 
-			if (++visits >= 1000)
+			if (++visits >= 200)
 				break;
 
 			if (currentNode.closed)

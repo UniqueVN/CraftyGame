@@ -261,6 +261,7 @@ var Ability_Melee = Class(ActionAbility,
 
 		this.Range = 1;
 		this.Span = 1;
+		this.Damage = 10;
 	},
 
 	_getActionDir : function(user, data)
@@ -284,7 +285,7 @@ var Ability_Melee = Class(ActionAbility,
 			var entity = hits[i].entity;
 			if (entity != user && !entity.IsFriendly(user) && entity.has("Damageable"))
 			{
-				entity.TakeDamage(5);
+				entity.TakeDamage(this.Damage);
 			}
 		}
 

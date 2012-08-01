@@ -117,8 +117,8 @@ Sprites = Backbone.Model.extend({
             },
             dummy: {
                 file: 'res/images/dummy.png',
-                tile: 64,
-                tileh: 64,
+                tile: 128,
+                tileh: 128,
                 elements: {
                     dummy: [0, 0]
                 }

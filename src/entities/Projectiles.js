@@ -35,7 +35,7 @@ FlamingHound =
 		Explosion_right : [ 0, 3, 15, 32]
 	},
 
-	Damage : 30,
+	Damage : 70,
 	DamageRadius : 1.5,
 	Fuse : 16,
 
@@ -50,7 +50,7 @@ Lightning =
 		Explosion : [ 0, 0, 15, 48]
 	},
 
-	Damage : 20,
+	Damage : 50,
 	DamageRadius : 1,
 	Fuse : 24,
 

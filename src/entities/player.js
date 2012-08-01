@@ -14,7 +14,7 @@ Player = Creature.extend(
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero, Animate, Collision")
 //    	var entity = Crafty.e("2D, Canvas, malePlayer, KeyMoveControls, Mouse, Hero")
 	    var entity = Crafty.e("2D, Canvas, mage, Body, Pawn, Hero, BodyAnimations, Damageable, NavigationHandle, HeroControl, TextEx, AbilityUser, DebugRendering")
-		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, Faction : Factions.Monk, MovementSpeed: 0.2 })
+		    .attr({x: 160, y: 144, z: 1, w:playerSize, h:playerSize, Faction : Factions.Monk, MovementSpeed: 0.2, Health : 500 })
 		    .text("Jia");
 
 	    for (var slot in SpellBook)
@@ -98,8 +98,8 @@ var SpellBook =
 		{
 			Pattern : SpellPatterns.Area,
 			Projectile : Lightning,
-			Radius : 16,
-			Total : 12
+			Radius : 9,
+			Total : 15
 		}
 	}
 };
