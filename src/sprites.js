@@ -109,6 +109,14 @@ Sprites = Backbone.Model.extend({
 			        mage: [0, 0]
 		        }
 	        },
+	        dragoon: {
+		        file: 'res/images/dragoon.png',
+		        tile: 192,
+		        tileh: 192,
+		        elements: {
+			        dragoon: [0, 0]
+		        }
+	        },
             manEaterFlower: {
                 file: 'res/images/manEaterFlower.png',
                 tile: 60,
@@ -146,7 +154,7 @@ Sprites = Backbone.Model.extend({
 	        {
 		        file: 'res/images/statues.png',
 		        tile: 32,
-		        tileh: 64,
+		        tileh: 52,
 		        elements:
 		        {
 			        statue_highlander: [0, 0],
@@ -154,7 +162,9 @@ Sprites = Backbone.Model.extend({
 			        statue_platinumWarrior: [2, 0],
 			        statue_platinumWarrior_summon: [3, 0],
 			        statue_player : [4, 0],
-			        statue_player_summon : [5, 0]
+			        statue_player_summon : [5, 0],
+			        statue_dragoon : [6, 0],
+			        statue_dragoon_summon : [7, 0]
 		        }
 	        },
 	        torii:
@@ -538,12 +548,21 @@ Sprites = Backbone.Model.extend({
 			        yellowBeam: [3, 4]
 		        }
 	        },
+	        laser: {
+		        file: 'res/images/laser.png',
+		        tile: 32,
+		        tileh: 32,
+		        elements: {
+			        laser: [0, 0]
+		        }
+	        },
 	        effects: {
 		        file: 'res/images/effects01.png',
 		        tile: 16,
 		        tileh: 16,
 		        elements: {
-			        RedBullet: [1, 0]
+			        RedBullet: [1, 0],
+			        yellowBullet : [0, 1]
 		        }
 	        },
 	        fireball: {
@@ -552,6 +571,22 @@ Sprites = Backbone.Model.extend({
 		        tileh: 150,
 		        elements: {
 			        fireball: [0, 0]
+		        }
+	        },
+	        icebolt: {
+		        file: 'res/images/icebolt.png',
+		        tile: 100,
+		        tileh: 100,
+		        elements: {
+			        icebolt: [0, 0]
+		        }
+	        },
+	        arrow: {
+		        file: 'res/images/arrow.png',
+		        tile: 72,
+		        tileh: 72,
+		        elements: {
+			        arrow: [0, 0]
 		        }
 	        },
 	        magicMissle: {
