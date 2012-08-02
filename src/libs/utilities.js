@@ -50,9 +50,9 @@ var PriorityQueue = function(options) {
 		 * @see PrioirtyQueue#top
 		 */
 		pop: function() {
-			if(!sorted) {
+			/*if(!sorted) {
 				sort();
-			}
+			}*/
 
 			var element = contents.pop();
 
@@ -72,9 +72,9 @@ var PriorityQueue = function(options) {
 		 * @see PriorityQueue#pop
 		 */
 		top: function() {
-			if(!sorted) {
+			/*if(!sorted) {
 				sort();
-			}
+			}*/
 
 			var element = contents[contents.length - 1];
 
@@ -121,9 +121,23 @@ var PriorityQueue = function(options) {
 		 * @param object The object to be pushed onto the queue.
 		 * @param priority The priority of the object.
 		 */
-		push: function(object, priority) {
-			contents.push({object: object, priority: priority});
-			sorted = false;
+		push: function(object, priority)
+		{
+			var entry = {object: object, priority: priority};
+			var l = contents.length;
+			for (var i = l - 1; i >= 0; i--)
+			{
+				if (priority < contents[i].priority)
+				{
+					contents.splice(i+1, 0, entry);
+					return;
+				}
+			}
+
+			contents.splice(0, 0, entry);
+
+			//contents.push({object: object, priority: priority});
+			//sorted = true;
 		}
 	};
 
