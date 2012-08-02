@@ -14,7 +14,7 @@ var Minions =
 		{
 			Sprites : ['swordsman'],
 			Speed : 0.08,
-			WalkAnimationFrames: 9,
+			WalkAnimationFrames: 8,
 			Abilities:
 			{
 				"Primary" : { Type : Ability_Melee, PlayAnim : true }
@@ -37,7 +37,7 @@ var Minions =
 			Sprites : ['dragoon'],
 			Speed : 0.15,
 			Health : 600,
-			WalkAnimationFrames: 9,
+			WalkAnimationFrames: 8,
 			WalkAnimationSpeed :18,
 			Abilities:
 			{
@@ -60,7 +60,7 @@ var Minions =
 		{
 			Sprites : ['armorWhite'],
 			Speed : 0.08,
-			WalkAnimationFrames: 9,
+			WalkAnimationFrames: 8,
 			Abilities:
 			{
 				"Primary" : { Type : Ability_Shoot, PlayAnim:true, Projectile:IonSplit }
