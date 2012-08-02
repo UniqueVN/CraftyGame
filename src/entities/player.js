@@ -87,7 +87,7 @@ var SpellBook =
 		{
 			Pattern : SpellPatterns.Line,
 			Projectile : FlamingHound,
-			Total : 6
+			Total : 8
 		}
 	},
 
@@ -101,8 +101,8 @@ var SpellBook =
 		{
 			Pattern : SpellPatterns.Area,
 			Projectile : Lightning,
-			Radius : 9,
-			Total : 15
+			Radius : 12,
+			Total : 25
 		}
 	}
 };
