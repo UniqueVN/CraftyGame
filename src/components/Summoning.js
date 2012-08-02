@@ -13,6 +13,7 @@ Crafty.c('DimensionGate',
 		this.requires("Body");
 		this.bind("Appeared", this._setupGate);
 		this.bind("HeroDied", this._respawnHero);
+		this.bind("Remove", this._closeGate);
 		return this;
 	},
 
@@ -86,6 +87,12 @@ Crafty.c('DimensionGate',
 
 		this._placeRandomStatue(removed);
 		this._placeRandomStatue(draw);
+	},
+
+	_closeGate : function()
+	{
+		for (var i = 0; i < this._statues.length; i++)
+			this._statues[i].destroy();
 	}
 });
 

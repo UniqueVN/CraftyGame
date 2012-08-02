@@ -524,6 +524,7 @@ var Shrine = MapEntity.extend(
 		debug.log("THE BASE IS DESTROYED!!!!!!!!!! FAILED!!!!");
 		var entity = this.get('entity');
 		// entity._world.Announce("THE BASE IS DESTROYED");
+		entity.destroy();
 		entity._world.GameOver();
 	},
 
