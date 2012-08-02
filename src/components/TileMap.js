@@ -82,7 +82,7 @@ Crafty.c('TileMap', {
         var TREE_NODE_SIZE = 8;
         var LEAF_NODE_SIZE = 18;
         var ROOT_NODE_SIZE = 20;
-        var LINE_WIDTH = 2;
+        var LINE_WIDTH = 3;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
         var MAP_PADDING = 3;
@@ -141,7 +141,6 @@ Crafty.c('TileMap', {
 			this.terrains[i] = this.World.TerrainManager[this._terrains[i]];
 		}
 
-
         var irregularShape = new ShapeGenerator();
         irregularShape.fillColor = 2;
         irregularShape.borderColor = 2;
@@ -181,6 +180,8 @@ Crafty.c('TileMap', {
         this._col = maxX - minX;
         this._row = maxY - minY;
         // this.cells = pixelRenderer.cells;
+		var shapeProcessor = new ShapeProcessor(this._col, this._row);
+		this.cells = shapeProcessor.processShape(this.cells);
         var cells = this.cells;
         this.generateBorder(cells);
 
@@ -228,6 +229,7 @@ Crafty.c('TileMap', {
                 		}
                 	}
                 }
+                // Add border tiles
                 else {
                 	cellType = -cellType;
                 	this._tiles[i][j].push(this.terrains[2].GetGroundSprite());
@@ -287,11 +289,11 @@ Crafty.c('TileMap', {
 	},
 
 	createMiniMap: function() {
-		// var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
-		// var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
-		// this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
-		// this._miniMap.x = gameContainer.conf.get("MINI_MAP_X");
-		// this._miniMap.y = gameContainer.conf.get("MINI_MAP_Y");
+		var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
+		var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
+		this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
+		this._miniMap.x = gameContainer.conf.get("MINI_MAP_X");
+		this._miniMap.y = gameContainer.conf.get("MINI_MAP_Y");
 	},
 
 	drawTrees: function(context) {

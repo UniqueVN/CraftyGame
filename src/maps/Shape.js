@@ -1,7 +1,10 @@
 // ========================================================================================== //
 // MISC
-var DIRECTION = [{x: 0, y: 1}, {x: 0, y: -1}, {x: -1, y: 0}, {x: 1, y: 0},
-				 {x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: -1}, {x: -1, y: 1}];
+// TOP - DOWN - RIGHT - LEFT
+// TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+var DIRECTION = [{x: 0, y: -1}, {x: 0, y: 1}, {x: 1, y: 0}, {x: -1, y: 0},
+				 {x: -1, y: -1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}];
+
 function random(min, max) {
 	return Math.floor(Math.random() * (max - min) + min);
 }
@@ -81,9 +84,13 @@ var PixelRenderer = Class({
 			for (var x = 0; x < d; x++) {
 				for (var y = 0; y < d; y++) {
 					this.cells[x0 + x][y0 + y] = this.color;
-					this.cells[x0 + x][y0 - y] = this.color;
-					this.cells[x0 - x][y0 - y] = this.color;
-					this.cells[x0 - x][y0 - y] = this.color;
+					if (y0 >= y) {
+						this.cells[x0 + x][y0 - y] = this.color;
+						if (x0 >= x) {
+							this.cells[x0 - x][y0 - y] = this.color;
+							this.cells[x0 - x][y0 - y] = this.color;
+						}
+					}
 				}
 			}
 		}
@@ -196,6 +203,7 @@ var ShapeGenerator = Class(PixelRenderer, {
         // tht062812: generate random points in the 4 border parts and connect them
         // http://roguebasin.roguelikedevelopment.org/index.php/Irregular_Shaped_Rooms
         var maxPointPerBorder = 4;
+        // var maxPointPerBorder = 3;
         // Get the patch as 10% of the boundary
         var patch = Math.floor(0.2 * Math.min(col, row));
         var points = [];
@@ -264,7 +272,6 @@ var ShapeGenerator = Class(PixelRenderer, {
     },
 
     fillShape: function() {
-        var dir = [{x:0, y:1}, {x:0, y:-1}, {x:1, y:0}, {x:-1, y:0}];
         var cells = this.cells;
         var col = cells.length;
         var row = cells[0].length;
@@ -281,10 +288,10 @@ var ShapeGenerator = Class(PixelRenderer, {
         {
             var cell = stack.pop();
 
-            for (var i = 0; i < dir.length; i++)
+            for (var i = 0; i < 4; i++)
             {
-                var x1 = cell.x + dir[i].x;
-                var y1 = cell.y + dir[i].y;
+                var x1 = cell.x + DIRECTION[i].x;
+                var y1 = cell.y + DIRECTION[i].y;
                 if (x1 >= 0 && x1 < row && y1 >= 0 && y1 < col)
                 {
                     if (cells[x1][y1] === 0)
@@ -301,7 +308,7 @@ var ShapeGenerator = Class(PixelRenderer, {
     	height = (height === undefined ? width : height);
     	this.setSize(width, height);
     	this.generate(width, height);
-    	this.cleanNoiseCells();
+    	// this.cleanNoiseCells();
 
     	renderer.setLineWidth(1);
 
@@ -313,7 +320,28 @@ var ShapeGenerator = Class(PixelRenderer, {
     			}
     		}
     	}
-    },
+    }
+});
+
+// ========================================================================================== //
+// SHAPES PROCESSOR
+var ShapeProcessor = Class(PixelRenderer, {
+	constructor: function(width, height) {
+		ShapeProcessor.$super.call(this, "", width, height);
+		this.fillColor = 2;
+		// this.borderColor = 1;
+	},
+
+	processShape: function(shapeCells) {
+		// this.shapeCells = shapeCells;
+		// this.cells.clear();
+		this.cells = shapeCells;
+
+		this.cleanNoiseCells();
+		// this.generateBorders();
+
+		return this.cells;
+	},
 
     countCellNeighbor: function(x, y) {
     	var neighborCount = 0;
@@ -337,18 +365,24 @@ var ShapeGenerator = Class(PixelRenderer, {
 
 		var t = this.countCellNeighbor(x, y);
 
+		var bNeedFix = false;
 		// Fill those cell that have 3 neighbors or more
 		if (this.cells[x][y] === 0) {
 			if (t >= 3) {
+				// debug.log("Add cell with >= 3 neighbors: x = " + x + " y = " + y + " this.fillColor = " + this.fillColor);
 				this.cells[x][y] = this.fillColor;
-				return true;
+				bNeedFix = true;
 			}
-			return false;
 		}
-			
 		// Remove those cells that have none or just 1 edge neighbor
-		if (t <= 1) {
+		else if (t <= 1) {
+			// debug.log("Remove cell with <= 1 neighbor: x = " + x + " y = " + y);
 			this.cells[x][y] = 0;
+			bNeedFix = true;
+		}
+
+		if (bNeedFix) {
+			// debug.log("Fixing cells: x = " + x + " y = " + y);
 	    	for (var i = 0; i < 4; i++) {
 	    		var x1 = x + DIRECTION[i].x;
 	    		var y1 = y + DIRECTION[i].y;
@@ -358,17 +392,53 @@ var ShapeGenerator = Class(PixelRenderer, {
 
 	    		this.checkCell(x1, y1);
 	    	}
-
-			return true;
-		}
-		return false;
+	    }
+		return bNeedFix;
     },
 
     cleanNoiseCells: function() {
     	for (var x = 0; x < this.width; x++) {
     		for (var y = 0; y < this.height; y++) {
-    				this.checkCell(x, y);
+    			this.checkCell(x, y);
     		}
     	}
-    }
+    },
+
+	generateBorders: function() {
+        // Generate real border
+        // Check direct neighbor
+        for (var i = 0; i < this.width; i++) {
+        	for (var j = 0; j < this.height; j++) {
+        		if (this.cells[i][j] > 0) {
+        			for (var d = 0; d < 4; d++) {
+        				var x = i + DIRECTION[d].x;
+        				var y = j + DIRECTION[d].y;
+
+        				if (x < 0 || x >= this.width || y < 0 || y >= this.height ||
+        					this.cells[x][y] > 0)
+        					continue;
+
+        				this.cells[x][y] -= (1 << d);
+        			}
+        		}
+        	}
+        }
+
+        // Check corner neighbor
+        for (var i = 0; i < this.width; i++) {
+        	for (var j = 0; j < this.height; j++) {
+        		if (this.cells[i][j] > 0) {
+        			for (var d = 4; d < 8; d++) {
+        				var x = i + DIRECTION[d].x;
+        				var y = j + DIRECTION[d].y;
+
+        				if (x < 0 || x >= this.width || y < 0 || y >= this.height ||
+        					this.cells[x][y] !== 0)
+        					continue;
+        				this.cells[x][y] = -(d * 3);
+        			}
+        		}
+        	}
+        }
+	}
 });

@@ -394,7 +394,10 @@ var GridLayout = Class(GraphLayout, {
 			childNode.y = y1;
 			this.grid[x1][y1] = 1;
 
-			this.lines.push(x0, y0, x1, y1);
+			if (x0 <= x1)
+				this.lines.push({x0: x0, y0: y0, x1: x1, y1: y1});
+			else
+				this.lines.push({x0: x1, y0: y1, x1: x0, y1: y0});
 		}
 
 		// Only layout the child node's children after all the direct children are placed
@@ -404,9 +407,26 @@ var GridLayout = Class(GraphLayout, {
 	},
 
 	canConnect: function(x0, y0, x1, y1) {
+		// Horizontal and vertical lines can always be connected
+		if (x0 === x1 || y0 === y1)
+			return true;
+
 		// Check to see if any line cut this line
 		for (var i = 0; i < this.lines.length; i++) {
-			var bCut = false;
+			var lx0 = this.lines[i].x0;
+			var lx1 = this.lines[i].x1;
+			var ly0 = this.lines[i].y0;
+			var ly1 = this.lines[i].y1;
+
+			// Ignore horizontal and vertical lines
+			if (lx0 === lx1 || ly0 === ly1)
+				continue;
+
+			if (x0 === lx0) {
+				if ((ly0 < ly1 && y0 > y1 && y1 < ly1) || 
+					(ly0 > ly1 && y0 < y1 && y1 > ly1))
+					return false;
+			}
 		}
 
 		return true;
