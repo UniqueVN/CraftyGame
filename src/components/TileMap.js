@@ -81,7 +81,7 @@ Crafty.c('TileMap', {
         var NODE_SIZE = 12;
         var TREE_NODE_SIZE = 8;
         var LEAF_NODE_SIZE = 18;
-        var ROOT_NODE_SIZE = 20;
+        var ROOT_NODE_SIZE = 22;
         var LINE_WIDTH = 3;
         var NODE_COUNT = 12;
         var BEACH_SIZE = 8;
@@ -195,7 +195,7 @@ Crafty.c('TileMap', {
         }
 
         var bShowTrees = gameContainer.conf.get("SHOW_TREES");
-
+        this._trees = [];
 		// Paint tiles
 		for (var i = 0; i < this._row; i++){
 			for (var j = 0; j < this._col; j++){
@@ -245,7 +245,8 @@ Crafty.c('TileMap', {
 		            			// this._tiles[i0][j0].push(this.terrains[7].GetRandomSprite());
 		            			// this._trees[i][j] = Crafty.math.randomInt(0, 1);
 
-								this.CreateObject(MapTree, j, i);
+								var newTree = this.CreateObject(MapTree, j, i);
+								this._trees.push(newTree);
 		            		}
 		            		else {
 		            			// this._trees[i][j] = -1;	

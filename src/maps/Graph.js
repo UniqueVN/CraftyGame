@@ -411,6 +411,11 @@ var GridLayout = Class(GraphLayout, {
 		if (x0 === x1 || y0 === y1)
 			return true;
 
+		if (x0 > x1) {
+			tmp = x0; x0 = x1; x1 = x0;
+			tmp = y0; y0 = y1; y1 = y0;
+		}
+
 		// Check to see if any line cut this line
 		for (var i = 0; i < this.lines.length; i++) {
 			var lx0 = this.lines[i].x0;

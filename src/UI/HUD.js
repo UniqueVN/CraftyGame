@@ -213,21 +213,21 @@ var HUD = Class(
 		var miniMap = this._world.MiniMap;
 		miniMap.draw(ctx);
 
+		ctx.font = "20 pt MeriendaOne-Regular";
+
 		// Show PLAYER's health bar
 		this.ShowHealthBar(this._player, this._hpX, this._hpY, this._hpW, this._hpH);
-		ctx.font = "20 pt MeriendaOne-Regular";
-		ctx.fillStyle = '#ffffff';
 		var x = this._barX + this._hpX;
 		var y = this._barY + this._hpY;
+		ctx.fillStyle = '#ffffff';
 		ctx.fillText("PLAYER", x - 4, y + 20);
 		ctx.fillText("HP", x + 10, y + 40);
 
 		// Show SHRINE's health bar
 		this.ShowHealthBar(this._world.TempleRegion.Shrine.get("platform"), this._bhpX, this._bhpY, this._bhpW, this._bhpH);
-		ctx.font = "20 pt MeriendaOne-Regular";
-		ctx.fillStyle = '#ffffff';
 		x = this._barX + this._bhpX;
 		y = this._barY + this._bhpY;
+		ctx.fillStyle = '#ffffff';
 		ctx.fillText("BASE", x + 1, y + 20);
 		ctx.fillText("HP", x + 10, y + 40);
 	},

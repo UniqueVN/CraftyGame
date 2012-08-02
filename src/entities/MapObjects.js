@@ -6,15 +6,27 @@ var Rock = MapEntity.extend(
 var MapTree = MapEntity.extend(
 {
 	Sprites : ['deadCherryTree0', 'deadCherryTree1'],
+	AliveSprites: ['cherryTree0', 'cherryTree1'],
 	TreeID: 0,
 
 	initialize: function()
 	{
 		this.TreeID = Crafty.math.randomInt(0, this.Sprites.length - 1);
 		var entity = Crafty.e("2D, Canvas, Body, Static, " + this.Sprites[this.TreeID])
-		// var entity = Crafty.e("2D, Canvas, Body, Static")
+		// var entity = Crafty.e("2D, Canvas, Body, Static, " 
+		// 		+ this.Sprites[this.TreeID] + ", " + this.AliveSprites[this.TreeID])
 			.attr({z:2, TileWidth: 1, TileHeight: 1});
+
+		// entity.toggleComponent(this.AliveSprites[this.TreeID]);
 		this.set({'entity' : entity });
+	},
+
+	BecomeAlive: function()
+	{
+		debug.log();
+		var entity = this.getEntity();
+		entity.removeComponent(this.Sprites[this.TreeID]);
+		entity.addComponent(this.AliveSprites[this.TreeID]);
 	},
 
 	Appear: function(world, x, y)

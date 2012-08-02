@@ -8,7 +8,7 @@ var Cheat = Class({
 	},
 
 	// GOD MODE
-	god: function() {
+	God: function() {
 		this.playerEntity.toggleComponent("Damageable");
 	},
 
@@ -22,6 +22,10 @@ var Cheat = Class({
 
 	Doom: function() {
 		this.world.GameOver();
+	},
+
+	Win: function() {
+		this.world.WinGame();
 	},
 
 	ShowMeTheMoney : function(pickup, amount)

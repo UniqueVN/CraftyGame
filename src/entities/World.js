@@ -228,20 +228,37 @@ var World = Class(
 	{
 		nest.Deactivate();
 		this.TempleRegion.DeactivateSummoningCircle(nest);
-
-		this._numBossSlain++;
-
-		Crafty.trigger("BossSlain", { boss : boss, nest : nest });
-
-		if (this._numBossSlain >= 2)
-			this.Announce("The Forest Is Cleansed!");
-
+		// Kill all the minion
 		var minions = this._pawns[Factions.Monk];
 		for (var i = minions.length - 1; i >= 0; i--)
 		{
 			if (minions[i].Destination === nest)
 				minions[i].destroy();
 		}
+
+		this._numBossSlain++;
+
+		Crafty.trigger("BossSlain", { boss : boss, nest : nest });
+
+		if (this._numBossSlain >= 2)
+			this.WinGame();
+	},
+
+	WinGame: function()
+	{
+		this.Announce("The Forest Is Cleansed!");
+
+		// Make all tree blooming
+		var trees = this.TileMap._trees;
+		for (var i = trees.length - 1; i >= 0; i--) {
+			trees[i].BecomeAlive();
+		};
+
+		// Kill all the monsters
+		var monsters = this._pawns[Factions.Ghost];
+		for (var i = monsters.length - 1; i >= 0; i--) {
+			monsters[i].destroy();
+		};
 	},
 
 	_activateInitialRegions : function()
