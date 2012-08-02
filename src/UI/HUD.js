@@ -46,12 +46,10 @@ var HUD = Class(
 		this._hpY = gameContainer.conf.get("HEALTH_BAR_Y");
 		this._hpW = gameContainer.conf.get("HEALTH_BAR_WIDTH");
 		this._hpH = gameContainer.conf.get("HEALTH_BAR_HEIGHT");
-		this.hpText = Crafty.e("2D, TextEx")
-			.attr({x: this._barX + this._hpX, y: y+32, z: 1000, w: this._hpW})
-			.text("HP")
-			.textColor('#FFFFFF')
-			.textFont({'size' : '14px', 'family': 'comic'});
-		this._elements.push(this.hpText);
+		this._bhpX = gameContainer.conf.get("BASE_HEALTH_BAR_X");
+		this._bhpY = gameContainer.conf.get("BASE_HEALTH_BAR_Y");
+		this._bhpW = gameContainer.conf.get("BASE_HEALTH_BAR_WIDTH");
+		this._bhpH = gameContainer.conf.get("BASE_HEALTH_BAR_HEIGHT");
 
 		this._pickupIconSize = gameContainer.conf.get("PICKUP_ICON_SIZE");
 		this._pickupTexts = {};
@@ -174,25 +172,6 @@ var HUD = Class(
 		var ctx = this._context;
 		ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 
-		// Show health bar
-		var curHP = this._player._health;
-		var maxHP = this._player.MaxHealth;
-		var hpPercent = Math.floor(curHP * 100 / maxHP);
-
-		var x = this._barX + this._hpX;
-		var y = this._barY + this._hpY;
-		var w = this._hpW;
-		var h = this._hpH;
-		ctx.fillStyle = "#000000";
-		ctx.beginPath();
-		ctx.rect(x, y, w, h);
-		ctx.fill();
-		var h1 = Math.floor(hpPercent * h / 100);
-		ctx.fillStyle = "#ff0000";
-		ctx.beginPath();
-		ctx.rect(x, y + h - h1, w, h1);
-		ctx.fill();
-
 		// Show other elements
 		for (var i = 0; i < this._elements.length; i++)
 		{
@@ -233,6 +212,44 @@ var HUD = Class(
 		// Show miniMap
 		var miniMap = this._world.MiniMap;
 		miniMap.draw(ctx);
+
+		// Show PLAYER's health bar
+		this.ShowHealthBar(this._player, this._hpX, this._hpY, this._hpW, this._hpH);
+		ctx.font = "20 pt MeriendaOne-Regular";
+		ctx.fillStyle = '#ffffff';
+		var x = this._barX + this._hpX;
+		var y = this._barY + this._hpY;
+		ctx.fillText("PLAYER", x + 1, y + 20);
+		ctx.fillText("HP", x + 10, y + 40);
+
+		// Show SHRINE's health bar
+		this.ShowHealthBar(this._world.TempleRegion.Shrine.get("platform"), this._bhpX, this._bhpY, this._bhpW, this._bhpH);
+		ctx.font = "20 pt MeriendaOne-Regular";
+		ctx.fillStyle = '#ffffff';
+		x = this._barX + this._bhpX;
+		y = this._barY + this._bhpY;
+		ctx.fillText("BASE", x + 1, y + 20);
+		ctx.fillText("HP", x + 10, y + 40);
+	},
+
+	ShowHealthBar: function(entity, x0, y0, w, h)
+	{
+		var ctx = this._context;
+		var curHP = entity._health;
+		var maxHP = entity.MaxHealth;
+		var hpPercent = Math.floor(curHP * 100 / maxHP);
+
+		var x = this._barX + x0;
+		var y = this._barY + y0;
+		ctx.fillStyle = "#000000";
+		ctx.beginPath();
+		ctx.rect(x, y, w, h);
+		ctx.fill();
+		var h1 = Math.floor(hpPercent * h / 100);
+		ctx.fillStyle = "#ff0000";
+		ctx.beginPath();
+		ctx.rect(x, y + h - h1, w, h1);
+		ctx.fill();
 	},
 
 	GameOver: function()
