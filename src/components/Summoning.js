@@ -134,6 +134,17 @@ Crafty.c('Summoner',
 
 		this.bind("EnterFrame", this._updateSummoning);
 		this.trigger("BeginSummon");
+		this.bind("Remove", function()
+		{
+			if (this._summoningImage != null)
+				this._summoningImage.destroy();
+		});
+
+		this.bind("BossSlain", function(e)
+		{
+			if (e.nest === this._summoningCircle.Infested)
+				this.destroy();
+		})
 	},
 
 	_updateSummoning : function()
@@ -153,7 +164,6 @@ Crafty.c('Summoner',
 			}
 			else
 			{
-				this._summoningImage.destroy();
 				this.destroy();
 				return;
 			}

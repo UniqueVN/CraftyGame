@@ -502,6 +502,26 @@ var SummoningCircle = Class(
 		{
 			this._beams[i].visible = true;
 		}
+
+		var circle = this;
+		Crafty.bind("BossSlain", function(e)
+		{
+			// TODO: really should unbind though. but unbind may not work just yet
+			if (circle.IsActive)
+			{
+				if (e.nest === circle.Infested)
+					circle.Deactivate();
+			}
+		})
+	},
+
+	Deactivate : function()
+	{
+		this.IsActive = false;
+		for (var i = 0; i < this._beams.length; i++)
+		{
+			this._beams[i].visible = false;
+		}
 	},
 
 	Deactivate: function()

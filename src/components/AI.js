@@ -8,6 +8,7 @@ Crafty.c('AI',
 
 		this._goals = [];
 		this._activeGoal = null;
+		this.Destination = null;
 		this.bind("Appeared", function()
 		{
 			if (this.AIProfile === null)
@@ -25,6 +26,7 @@ Crafty.c('AI',
 
 	SetDestinationRegion : function(start, end)
 	{
+		this.Destination = end;
 		for (var i = 0; i < this._goals.length; i++)
 		{
 			var goal = this._goals[i];

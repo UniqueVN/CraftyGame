@@ -16,7 +16,7 @@ Crafty.c('Hero',
 		this.Spells = {};
 		this.ActiveSpells = [];
 
-		this.IncreasePickup('soul', 500);
+		this.IncreasePickup('soul', 1000);
 
 		return this;
 	},

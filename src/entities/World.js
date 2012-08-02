@@ -231,8 +231,17 @@ var World = Class(
 
 		this._numBossSlain++;
 
+		Crafty.trigger("BossSlain", { boss : boss, nest : nest });
+
 		if (this._numBossSlain >= 2)
 			this.Announce("The Forest Is Cleansed!");
+
+		var minions = this._pawns[Factions.Monk];
+		for (var i = minions.length - 1; i >= 0; i--)
+		{
+			if (minions[i].Destination === nest)
+				minions[i].destroy();
+		}
 	},
 
 	_activateInitialRegions : function()
