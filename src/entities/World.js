@@ -314,10 +314,10 @@ var TerrainMap = Class(
 		var maxY = Math.max(start.y, end.y);
 
 		var r = Math.ceil(radius);
-		var x0 = Math.floor(minX + 0.5) - r;
-		var y0 = Math.floor(minY + 0.5) - r;
-		var x1 = Math.floor(maxX + 0.5) + r;
-		var y1 = Math.floor(maxY + 0.5) + r;
+		var x0 = Math.max( Math.floor(minX + 0.5) - r, 0);
+		var y0 = Math.max( Math.floor(minY + 0.5) - r, 0);
+		var x1 = Math.min( Math.floor(maxX + 0.5) + r, this._width - 1);
+		var y1 = Math.min( Math.floor(maxY + 0.5) + r, this._height - 1);
 
 		var bestHit = null;
 
@@ -604,8 +604,8 @@ var CollisionMap = Class(
 
 	_getCell : function(x, y)
 	{
-		var cellX = Math.floor(Math.max(0, x + 0.5) / this._cellSize);
-		var cellY = Math.floor(Math.max(0, y + 0.5) / this._cellSize);
+		var cellX = Math.min( Math.floor(Math.max(0, x + 0.5) / this._cellSize), this._cols - 1);
+		var cellY = Math.min( Math.floor(Math.max(0, y + 0.5) / this._cellSize), this._rows - 1);
 		return { x : cellX, y : cellY };
 	},
 
