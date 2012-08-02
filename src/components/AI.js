@@ -234,6 +234,8 @@ var Goal_DestroyTemple = Class(Goal,
 			this._marchingPath.splice(0, cut);
 			this._focus = cutPoint;
 		}
+
+		this._navigateToNextCheckPoint();
 	},
 
 	Behave : function(frame)
@@ -245,7 +247,7 @@ var Goal_DestroyTemple = Class(Goal,
 			else
 				this._target = null;
 		}
-		else
+		else if (!this._entity.IsNavigating())
 		{
 			this._navigateToNextCheckPoint();
 		}
