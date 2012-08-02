@@ -238,16 +238,32 @@ var World = Class(
 		this.TempleRegion = templeRegion;
 		this.nestedRegions = nestedRegions;
 
-		var t = Crafty.math.randomInt(0, nestedRegions.length - 1);
-		var initialRegion = nestedRegions[t];
-		templeRegion.ActivateAgainstInfested(initialRegion);
+		var initialRegions = [];
+		var numInitRegions = 2;
+
+		var indices = [];
+		for (var i = 0; i < nestedRegions.length; i++)
+			indices.push(i);
+
+		for (var i = 0; i < numInitRegions; i++)
+		{
+			var d = Crafty.math.randomInt(0, indices.length - 1);
+			var t = indices[d];
+			indices.splice(d, 1);
+
+			var initialRegion = nestedRegions[t];
+			initialRegions.push(initialRegion);
+			templeRegion.ActivateAgainstInfested(initialRegion);
+		}
 
 		for (var i = 0; i < nestedRegions.length; i++)
 		{
 			nestedRegions[i].SetDestination(templeRegion);
 		}
 		// initialRegion.SetDestination(templeRegion);
-		initialRegion.Activate();
+
+		for (var i = 0; i < initialRegions.length; i++)
+			initialRegions[i].Activate();
 
 		debug.log("Nest Regions:", this.nestedRegions);
 		debug.log("START INFEST FROM REGION: " + t + " - initialRegion.Id = " + initialRegion.Id, initialRegion);

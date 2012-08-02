@@ -512,7 +512,7 @@ var Shrine = MapEntity.extend(
 			.attr({z:2, TileWidth:this.Width, TileHeight:this.Height, SpriteVerticalOffset:-16});
 
 		var platform = Crafty.e("2D, Canvas, Body, Static, Building, platform2, Damageable")
-			.attr({Faction : Factions.Monk, z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
+			.attr({Faction : Factions.Monk, MaxHealth : 50000, z:2, TileWidth:this.PlatformWidth, TileHeight:this.PlatformHeight, SpriteVerticalOffset:-32});
 		platform.bind("Remove", this.onShrineDestroyed.bind(this));
 
 		this.set({'entity' : entity });
