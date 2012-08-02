@@ -40,3 +40,12 @@ Spells:
 ** hellhounds :  3 fire + 1 light, 6 hounds will be released dealing AOE damage in a line
 ** lightning strike : 3 light + 1 dark, random lightning strike within an area
 
+Art Assets:
+
+character animation: wulax [LPC] Medieval fantasy character sprites http://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+other characters and effects: Skorpio [LPC] Skorpio's SciFi Sprite Pack http://opengameart.org/content/lpc-skorpios-scifi-sprite-pack
+weapons and others: daneeklu LPC Weapons: two bows, a spear and a trident http://opengameart.org/content/lpc-weapons-two-bows-a-spear-and-a-trident
+environment : LPC art entry by Casper Nilsson
+spells : daneeklu Extended LPC Magic pack http://opengameart.org/content/extended-lpc-magic-pack
+spell icons: J. W. Bjerk Painterly Spell Icons http://opengameart.org/content/painterly-spell-icons-part-3
+projectiles : from Battle of Wesnoth (using sprites of fireball, icemissile, magicmissle and fire arrow) http://wesnoth.org/
