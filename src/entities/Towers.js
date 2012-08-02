@@ -52,7 +52,7 @@ var Tower = MapEntity.extend(
 			{
 				Pattern : SpellPatterns.Arc,
 				Projectile : MagicMissle,
-				Arc : 60,
+				Arc : 30,
 				Total : 3,
 				RandomAngle : 10
 			}
