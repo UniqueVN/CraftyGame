@@ -172,9 +172,29 @@ Crafty.c('Hero',
 		var hit = this._world.TerrainMap.LineCheck(from, to, this.GetRadius());
 		if (hit != null)
 		{
-			var newCenter = hit.location;
-			this._tileX = newCenter.x - (this.TileWidth - 1) / 2.0;
-			this._tileY = newCenter.y - (this.TileHeight - 1) / 2.0;
+			var dir = Math3D.Delta(from, to);
+			var realDir = Math3D.Delta(from, hit.location);
+			var off = Math3D.Delta(realDir, dir);
+			var loc = hit.location;
+			var shiftX = Math3D.Add(loc, { x : off.x, y : 0 });
+			var shiftY = Math3D.Add(loc, { x : 0, y : off.y });
+			if (Math.abs(off.x) > Math.abs(off.y))
+			{
+				if (this._world.TerrainMap.LineCheck(loc, shiftX, this.GetRadius()) === null)
+					loc = shiftX;
+				else if (off.y != 0 && this._world.TerrainMap.LineCheck(loc, shiftY, this.GetRadius()) === null)
+					loc = shiftY;
+			}
+			else
+			{
+				if (this._world.TerrainMap.LineCheck(loc, shiftY, this.GetRadius()) === null)
+					loc = shiftY;
+				else if (off.x != 0 && this._world.TerrainMap.LineCheck(loc, shiftX, this.GetRadius()) === null)
+					loc = shiftX;
+			}
+
+			this._tileX = loc.x - (this.TileWidth - 1) / 2.0;
+			this._tileY = loc.y - (this.TileHeight - 1) / 2.0;
 		}
 	}
 });
