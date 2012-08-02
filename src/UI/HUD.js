@@ -167,69 +167,86 @@ var HUD = Class(
 		}
 	},
 
+	_drawElement: function(elem)
+	{
+		var ctx = this._context;
+		var pos =
+		{
+			_x : elem.x,
+			_y : elem.y,
+			_w : elem.w,
+			_h : elem.h
+		};
+		var coord = elem.__coord || [0, 0, 0, 0];
+		var co =
+		{
+			x: coord[0],
+			y: coord[1],
+			w: coord[2],
+			h: coord[3]
+		};
+		elem.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: ctx });
+	},
+
 	_draw : function()
 	{
 		var ctx = this._context;
 		ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 
-		// Show other elements
-		for (var i = 0; i < this._elements.length; i++)
-		{
-			var elem = this._elements[i];
-			var pos =
-			{
-				_x : elem.x,
-				_y : elem.y,
-				_w : elem.w,
-				_h : elem.h
-			};
-			var coord = elem.__coord || [0, 0, 0, 0];
-			var co =
-			{
-				x: coord[0],
-				y: coord[1],
-				w: coord[2],
-				h: coord[3]
-			};
-			elem.trigger("Draw", { type: "canvas", pos: pos, co: co, ctx: ctx });
-		}
-
 		if (this._announcement !== "")
 		{
+			var x = this._barX;
+			//var y = Crafty.viewport.height / 2;
+			var y = this._barY;
+
+			//ctx.fillStyle = "rgba(0,0,0,0.75)";
+			ctx.fillStyle = "#000000";
+			ctx.fillRect(x, y, this._barW, this._barH);
+
+			x = Crafty.viewport.width / 2;
+			y = this._barY + 40;
+
 			ctx.lineWidth = 5;
 			// TODO: don't hardcode
 			var fontSize = 50;
 			ctx.font = fontSize + "pt MeriendaOne-Regular";
-			var x = Crafty.viewport.width / 2;
-			var y = Crafty.viewport.height / 2;
 			// ctx.strokeStyle = 'red';
 			// ctx.strokeText(this._announcement, x, y);
 			ctx.textAlign = "center";
 			ctx.fillStyle = '#D70500';
 			ctx.fillText(this._announcement, x, y);
 		}
+		else
+		{
+			// Show other elements
+			for (var i = 0; i < this._elements.length; i++)
+			{
+				this._drawElement(this._elements[i]);
+			}
+
+			ctx.lineWidth = 1;
+			ctx.font = "20 pt MeriendaOne-Regular";
+
+			// Show PLAYER's health bar
+			this.ShowHealthBar(this._player, this._hpX, this._hpY, this._hpW, this._hpH);
+			var x = this._barX + this._hpX;
+			var y = this._barY + this._hpY;
+			ctx.fillStyle = '#ffffff';
+			ctx.fillText("PLAYER", x - 4, y + 20);
+			ctx.fillText("HP", x + 10, y + 40);
+
+			// Show SHRINE's health bar
+			this.ShowHealthBar(this._world.TempleRegion.Shrine.get("platform"), this._bhpX, this._bhpY, this._bhpW, this._bhpH);
+			x = this._barX + this._bhpX;
+			y = this._barY + this._bhpY;
+			ctx.fillStyle = '#ffffff';
+			ctx.fillText("BASE", x + 1, y + 20);
+			ctx.fillText("HP", x + 10, y + 40);
+		}
 
 		// Show miniMap
 		var miniMap = this._world.MiniMap;
 		miniMap.draw(ctx);
-
-		ctx.font = "20 pt MeriendaOne-Regular";
-
-		// Show PLAYER's health bar
-		this.ShowHealthBar(this._player, this._hpX, this._hpY, this._hpW, this._hpH);
-		var x = this._barX + this._hpX;
-		var y = this._barY + this._hpY;
-		ctx.fillStyle = '#ffffff';
-		ctx.fillText("PLAYER", x - 4, y + 20);
-		ctx.fillText("HP", x + 10, y + 40);
-
-		// Show SHRINE's health bar
-		this.ShowHealthBar(this._world.TempleRegion.Shrine.get("platform"), this._bhpX, this._bhpY, this._bhpW, this._bhpH);
-		x = this._barX + this._bhpX;
-		y = this._barY + this._bhpY;
-		ctx.fillStyle = '#ffffff';
-		ctx.fillText("BASE", x + 1, y + 20);
-		ctx.fillText("HP", x + 10, y + 40);
 	},
 
 	ShowHealthBar: function(entity, x0, y0, w, h)

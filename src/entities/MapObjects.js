@@ -23,7 +23,6 @@ var MapTree = MapEntity.extend(
 
 	BecomeAlive: function()
 	{
-		debug.log();
 		var entity = this.getEntity();
 		entity.removeComponent(this.Sprites[this.TreeID]);
 		entity.addComponent(this.AliveSprites[this.TreeID]);
