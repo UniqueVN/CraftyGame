@@ -79,7 +79,7 @@ var SpellBook =
 
 	FlamingHound :
 	{
-		Costs : { 'light' : 0, 'fire' : 1 },
+		Costs : { 'light' : 1, 'fire' : 3 },
 		Icon : 'flamingHoundIcon',
 		Type : Ability_Spell,
 		PlayAnim : true,
@@ -93,7 +93,7 @@ var SpellBook =
 
 	LightningStrike :
 	{
-		Costs : { 'light' : 1, 'dark' : 0 },
+		Costs : { 'light' : 3, 'dark' : 1 },
 		Icon : 'lightningStrikeIcon',
 		Type : Ability_Spell,
 		PlayAnim : true,
