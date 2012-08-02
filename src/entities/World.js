@@ -46,6 +46,8 @@ var World = Class(
 
 		this._projectileFactory = new ProjectileFactory();
 
+		this._numBossSlain = 0;
+
 		//////////////////////////////////////////////////////////////////////////////////////////
 		// Initialization
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -220,6 +222,14 @@ var World = Class(
 	{
 		id = Crafty.math.randomInt(0, this._spawnPoint.length - 1);
 		return this._spawnPoint[id];
+	},
+
+	OnBossSlain : function(boss, nest)
+	{
+		this._numBossSlain++;
+
+		if (this._numBossSlain >= 2)
+			this.Announce("The Forest Is Cleansed!");
 	},
 
 	_activateInitialRegions : function()

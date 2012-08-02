@@ -84,12 +84,13 @@ Crafty.c('SpawnPoint',
 		if (this._spawnedCreatures.length === 0)
 			return;
 
+		var entity = null;
 		for (var i = 0; i < this._waveSpawnCount; i++)
 		{
 			var monsters = this._spawnedCreatures;
 			var monster = monsters[Crafty.math.randomInt(0, monsters.length - 1)];
 			var spawned = new monster().Appear(this._world, this._tileX, this._tileY);
-			var entity = spawned.getEntity();
+			entity = spawned.getEntity();
 			var x = this._tileX + Crafty.math.randomInt(-2, 2);
 			var y = this._tileY + 1;
 			entity.NavigateTo(x, y);
@@ -97,6 +98,7 @@ Crafty.c('SpawnPoint',
 		}
 
 		this._spawnCoolDown = this._waveDuration;
+		return entity;
 	}
 });
 
@@ -611,7 +613,13 @@ var Nest = Class(Region, {
 
 	ReleaseTheBoss: function() {
 		debug.log(this + " RELEASE THE BOSS: bossSpawnPoint = " + this.bossSpawnPoint + " id = " + this.Id);
-		this.bossSpawnPoint.getEntity()._spawn();
+		var boss = this.bossSpawnPoint.getEntity()._spawn();
+
+		var region = this;
+		boss.bind("Remove", function()
+		{
+			this.GetWorld().OnBossSlain(this, region);
+		});
 	}
 });
 
