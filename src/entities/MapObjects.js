@@ -47,7 +47,7 @@ var TreeManager = Class({
 		var srcY = treeSprite.__coord[1];
 		var w = treeSprite.__coord[2];
 		var h = treeSprite.__coord[3];
-		var destX = x - Math.floor(w / 2);
+		var destX = x - Math.floor(w / 2) + 1;
 		var destY = y - h;
 		// Draw the tree
 		context.drawImage(treeSprite.img,

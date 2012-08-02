@@ -208,7 +208,27 @@ Crafty.c('TileMap', {
                 	}
 
 					this._tiles[i][j].push(this.terrains[cellType].GetGroundSprite());
-                	if (cellType === 3 && i < this._row - 4 && j < this._col - 4 && i > 4 && j > 4) {
+
+                	// If near to a ground cell => don't add tree
+                	var bCanAddTree = true;
+                	var i0 = Math.max(i - 1, 0);
+                	var i1 = Math.min(i + 1, this._row - 1);
+                	var j0 = Math.max(j - 1, 0);
+                	var j1 = Math.min(j + 1, this._col - 1);
+                	for (var x = j0; x <= j1; x++) {
+                		for (var y = i0; y <= i1; y++) {
+                			if (cells[x][y] < 0 || cells[x][y] === 2) {
+                				bCanAddTree = false;
+                				break;
+                			}
+                		}
+                		if (!bCanAddTree)
+                			break;
+                	}
+                	if (!bCanAddTree)
+                		continue;
+
+                	if (cellType === 3 && i < this._row - 4 && j < this._col - 4 && i > 4 && j > 2) {
                 		// Add a flower at a random forest tile
 		            	var t = Crafty.math.randomInt(0, 101);
                 		if (t > 95)

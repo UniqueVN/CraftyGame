@@ -42,6 +42,17 @@ var HUD = Class(
 			render._draw();
 		});
 
+		this._hpX = gameContainer.conf.get("HEALTH_BAR_X");
+		this._hpY = gameContainer.conf.get("HEALTH_BAR_Y");
+		this._hpW = gameContainer.conf.get("HEALTH_BAR_WIDTH");
+		this._hpH = gameContainer.conf.get("HEALTH_BAR_HEIGHT");
+		this.hpText = Crafty.e("2D, TextEx")
+			.attr({x: this._barX + this._hpX, y: y+32, z: 1000, w: this._hpW})
+			.text("HP")
+			.textColor('#FFFFFF')
+			.textFont({'size' : '14px', 'family': 'comic'});
+		this._elements.push(this.hpText);
+
 		this._pickupIconSize = gameContainer.conf.get("PICKUP_ICON_SIZE");
 		this._pickupTexts = {};
 		var pickups = PickupTypes.concat('soul');
@@ -51,7 +62,7 @@ var HUD = Class(
 			var x = this._barX + 32 + i * this._pickupIconSize;
 			var y = this._barY;
 			var pickupIcon = Crafty.e("2D, coin_icon_" + pickup)
-				.attr({ x : x, y : y + 12});
+				.attr({ x : x, y : y + 20});
 			var pickupText = Crafty.e("2D, TextEx")
 				.attr({x: x + 32, y: y+32, z: 1000, w: this._pickupIconSize})
 				.text("0")
@@ -121,7 +132,7 @@ var HUD = Class(
 				
 				data.key = Crafty.e("2D, TextEx")
 					.attr({z: 1000, w: this._pickupIconSize})
-					.text(i + "")
+					.text((i + 1) + "")
 					.textColor('#0000FF')
 					.textFont({'size' : '14px', 'family': 'comic'});
 
@@ -130,6 +141,7 @@ var HUD = Class(
 			if (!data.visible)
 			{
 				this._elements.push(data.icon);
+				this._elements.push(data.key);
 				data.visible = true;
 			}
 
@@ -162,6 +174,26 @@ var HUD = Class(
 		var ctx = this._context;
 		ctx.clearRect(0, 0, Crafty.viewport.width, Crafty.viewport.height);
 
+		// Show health bar
+		var curHP = this._player._health;
+		var maxHP = this._player.MaxHealth;
+		var hpPercent = Math.floor(curHP * 100 / maxHP);
+
+		var x = this._barX + this._hpX;
+		var y = this._barY + this._hpY;
+		var w = this._hpW;
+		var h = this._hpH;
+		ctx.fillStyle = "#000000";
+		ctx.beginPath();
+		ctx.rect(x, y, w, h);
+		ctx.fill();
+		var h1 = Math.floor(hpPercent * h / 100);
+		ctx.fillStyle = "#ff0000";
+		ctx.beginPath();
+		ctx.rect(x, y + h - h1, w, h1);
+		ctx.fill();
+
+		// Show other elements
 		for (var i = 0; i < this._elements.length; i++)
 		{
 			var elem = this._elements[i];
