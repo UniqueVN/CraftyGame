@@ -18,6 +18,19 @@ var TowerBase = MapEntity.extend(
 		debug.log("SPAWN THE TOWER NOW");
 
 		var entity = this.getEntity();
+
+		var cost = 500;
+		var player = entity.GetWorld().Player;
+		var souls = player.Pickups['soul'] || -1;
+		if (souls >= cost)
+		{
+			player.Pickups['soul'] -= cost;
+		}
+		else
+		{
+			return;
+		}
+
 		new Tower().Appear(entity.GetWorld(), entity._tileX, entity._tileY);
 		entity.destroy();
 		// entity._removeBody();
