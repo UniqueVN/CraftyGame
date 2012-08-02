@@ -253,16 +253,16 @@ var Goal_DestroyTemple = Class(Goal,
 
 	_navigateToNextCheckPoint : function()
 	{
-		if (this._marchingPath.length > 1)
+		if (this._marchingPath.length > 2)
 		{
 			var next = this._marchingPath[1];
 			if (!this._entity.IsNavigatingTo(next.x, next.y))
 				this._entity.NavigateTo(next.x, next.y + 1);
 		}
-		else if (this._marchingPath.length === 1)
+		else if (this._marchingPath.length > 0)
 		{
 			var center = this._entity.GetCenter();
-			var end = this._marchingPath[0];
+			var end = this._marchingPath[this._marchingPath.length - 1];
 			if (Math3D.Distance(center, end) > 14.5)
 				this._entity.NavigateTo(end.x, end.y, 14);
 		}

@@ -8,6 +8,7 @@ var Minions =
 	{
 		Cost : 100,
 		SummonTime : 1200,
+		Chance : 10,
 		StatueSprite : 'statue_highlander',
 		Definition : Minion.extend(
 		{
@@ -29,6 +30,7 @@ var Minions =
 	{
 		Cost : 600,
 		SummonTime : 3000,
+		Chance : 1,
 		StatueSprite : 'statue_dragoon',
 		Definition : Minion.extend(
 		{
@@ -52,6 +54,7 @@ var Minions =
 	{
 		Cost : 250,
 		SummonTime : 2000,
+		Chance : 8,
 		StatueSprite : 'statue_platinumWarrior',
 		Definition : Minion.extend(
 		{

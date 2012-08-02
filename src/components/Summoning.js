@@ -19,6 +19,7 @@ Crafty.c('DimensionGate',
 	_setupGate : function()
 	{
 		this._availableMinions = [];
+		this._totalChance = 0;
 
 		for (var name in Minions)
 		{
@@ -26,6 +27,7 @@ Crafty.c('DimensionGate',
 				continue;
 
 			this._availableMinions.push(name);
+			this._totalChance += Minions[name].Chance;
 		}
 
 		for (var i = 0; i < this.TotalStatues; i++)
@@ -34,8 +36,18 @@ Crafty.c('DimensionGate',
 
 	_placeRandomStatue : function(index)
 	{
-		var randMinion = Crafty.math.randomElementOfArray(this._availableMinions);
-		this._placeStatue(randMinion, index);
+		var roll = Crafty.math.randomInt(0, this._totalChance - 1);
+		var chance = 0;
+		for (var i = 0; i < this._availableMinions.length; i++)
+		{
+			var summon = this._availableMinions[i];
+			chance += Minions[summon].Chance;
+			if (roll < chance)
+			{
+				this._placeStatue(summon, index);
+				return;
+			}
+		}
 	},
 
 	_placeStatue : function(summon, index)
