@@ -219,7 +219,7 @@ var HUD = Class(
 		ctx.fillStyle = '#ffffff';
 		var x = this._barX + this._hpX;
 		var y = this._barY + this._hpY;
-		ctx.fillText("PLAYER", x + 1, y + 20);
+		ctx.fillText("PLAYER", x - 4, y + 20);
 		ctx.fillText("HP", x + 10, y + 40);
 
 		// Show SHRINE's health bar

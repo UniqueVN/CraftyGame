@@ -226,6 +226,9 @@ var World = Class(
 
 	OnBossSlain : function(boss, nest)
 	{
+		nest.Deactivate();
+		this.TempleRegion.DeactivateSummoningCircle(nest);
+
 		this._numBossSlain++;
 
 		if (this._numBossSlain >= 2)

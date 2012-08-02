@@ -34,7 +34,8 @@ Config = Backbone.Model.extend({
 		PLAYER_SIZE: 64,
 		PLAYER_SPEED: 6.5,
 		SHOW_TREES: true,
-	    ENABLE_DEBUG: false
+	    ENABLE_DEBUG: false,
+	    GHOST_LIMIT: 40
     },
     initialize: function() {
     },

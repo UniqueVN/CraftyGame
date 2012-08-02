@@ -393,6 +393,19 @@ var MinionBase = Class(Region,
 		}
 	},
 
+	DeactivateSummoningCircle: function(infested)
+	{
+		for (var i = 0; i < this.SummoningCircles.length; i++)
+		{
+			var circle = this.SummoningCircles[i];
+			if (circle.IsActive && circle.Infested === infested)
+			{
+				circle.Deactivate();
+				break;
+			}
+		}		
+	},
+
 	DestroyShrine: function()
 	{
 		this.Shrine.Destroy();
@@ -409,7 +422,7 @@ var MinionBase = Class(Region,
 		var offset = 9;
 
 		// Add summoning circles for each direction
-		var SUMMON_CIRCLE_DIRECTION = [{x: 0, y: 1}, {x: 0, y: -1}, {x: 1, y: 0}, {x: -1, y: 0}];
+		var SUMMON_CIRCLE_DIRECTION = [{x: 0, y: 1}, {x: 1, y: 0}, {x:-1, y:0}, {x: 0, y: -1}];
 		for (var d = 0; d < SUMMON_CIRCLE_DIRECTION.length; d++)
 		{
 			var summoningCenter = {x: templeCenter.x, y: templeCenter.y};
@@ -488,6 +501,16 @@ var SummoningCircle = Class(
 		for (var i = 0; i < this._beams.length; i++)
 		{
 			this._beams[i].visible = true;
+		}
+	},
+
+	Deactivate: function()
+	{
+		debug.log(this, "DEACTIVATE SUMMONING CIRCLE");
+		this.IsActive = false;
+		for (var i = 0; i < this._beams.length; i++)
+		{
+			this._beams[i].visible = false;
 		}
 	},
 
