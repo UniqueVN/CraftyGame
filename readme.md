@@ -1,4 +1,4 @@
-THE GAME:
+THE GAME: MONK STORY
 
 The game currently lacks a little bit in-game storytelling, but the basic premise is that a mage walked into a dead forest and start to investigate, soon he realizes that the great evil has been breeding their minions in this area and their power is growing every day. Out of curiosity and potential of utilizing this unknown power, the mage decided to single handedly defeat monsters, cleansing the forest and eventually uncover whatever is behind all this. Although this is only half true, the mage called in a dimension gate to summon his own minions from outer planes. Now two forces soon clash and the ultimate battle begins. On the side note, the mage also discovered strange artifacts throughout the forest, when the mage lay hand on those, it turns into something tree like or sometimes a statue with full of magic energy, those will act as sentry and immediately begin to attack enemies;
 
@@ -41,7 +41,6 @@ Spells:
 ** hellhounds :  3 fire + 1 light, 6 hounds will be released dealing AOE damage in a line
 ** lightning strike : 3 light + 1 dark, random lightning strike within an area
 
-<<<<<<< HEAD
 TECHNICAL:
 
 Library:
@@ -85,14 +84,3 @@ AUTHORS:
 ** Implement the AI: path finding, target priority, boss AI
 ** Implement the spells
 ** Others: spell bar, soul system, summoning circle, statue ...
-=======
-Art Assets:
-
-character animation: wulax [LPC] Medieval fantasy character sprites http://opengameart.org/content/lpc-medieval-fantasy-character-sprites
-other characters and effects: Skorpio [LPC] Skorpio's SciFi Sprite Pack http://opengameart.org/content/lpc-skorpios-scifi-sprite-pack
-weapons and others: daneeklu LPC Weapons: two bows, a spear and a trident http://opengameart.org/content/lpc-weapons-two-bows-a-spear-and-a-trident
-environment : LPC art entry by Casper Nilsson
-spells : daneeklu Extended LPC Magic pack http://opengameart.org/content/extended-lpc-magic-pack
-spell icons: J. W. Bjerk Painterly Spell Icons http://opengameart.org/content/painterly-spell-icons-part-3
-projectiles : from Battle of Wesnoth (using sprites of fireball, icemissile, magicmissle and fire arrow) http://wesnoth.org/
->>>>>>> 674728c23e66653b020e5085a7c7037aa1ecb8d9
