@@ -137,43 +137,47 @@ var Goal_DestroyTemple = Class(Goal,
 
 		var path = NavigationManager.GetInterRegionPathFinder().FindPath(this._entity, start, end);
 		this._marchingPath = [];
-		// skip first one (start region)
+		// skip the first region as well, so we have the starting point
 		for (var i = 0; i < path.length; i++)
 		{
 			var region = path[i];
 			this._marchingPath.push(region.Center);
 		}
 
+		if (this._marchingPath.length > 0)
+			this._focus = this._marchingPath[0];
+
 		this.Priority = 1;
 	},
 
 	Think : function()
 	{
-		if (this._marchingPath.length > 1)
-		{
-			var nextCheckpoint = this._marchingPath[1];
-			var center = this._entity.GetCenter();
-			if (Math.abs(nextCheckpoint.x - center.x) + Math.abs(nextCheckpoint.y - center.y) <= 10)
-			{
-				this._marchingPath.shift();
-				if (this._marchingPath.length === 1)
-					this._focus = this._marchingPath[0];
-			}
-		}
-
 		var myCenter = this._entity.GetCenter();
 
-		if (this.IsActive && this.Priority === 1)
+		if (this._marchingPath.length > 1)
 		{
-			if (this._marchingPath.length > 1)
-				this._focus = Math3D.ClosestPointOnSegment(this._marchingPath[0], this._marchingPath[1], myCenter);
+			var start = this._marchingPath[0];
+			var end = this._marchingPath[1];
+			var closest = Math3D.ClosestPointOnSegment(start, end, myCenter);
+			var startToClosest = Math3D.DistanceSq(start, closest);
+			var startToFocus = Math3D.DistanceSq(start, this._focus);
+			if (startToClosest > startToFocus)
+			{
+				this._focus = closest;
+				var endToClosest = Math3D.Distance(end, closest);
+				if (endToClosest <= 10)
+				{
+					this._marchingPath.shift();
+					this._focus = this._marchingPath[0];
+				}
+			}
 		}
 
 		var distToFocus = Math3D.Distance(this._focus, myCenter);
 
 		if (this.Priority === 1)
 		{
-			if (distToFocus > 35)
+			if (distToFocus > 30)
 				this.Priority = 2;
 		}
 		else if (this.Priority >= 2)
@@ -202,19 +206,33 @@ var Goal_DestroyTemple = Class(Goal,
 	{
 		Goal_DestroyTemple.$superp.Activate.call(this);
 
-		if (this._marchingPath.length > 2)
+		var center = this._entity.GetCenter();
+		var cut = 0;
+		var cutPoint = null;
+
+		for (var i = 2; i < this._marchingPath.length; i++)
 		{
-			var center = this._entity.GetCenter();
-			var start = this._marchingPath[0];
-			var end = this._marchingPath[1];
-			var next = this._marchingPath[2];
-			var closestToCurrent = Math3D.ClosestPointOnSegment(start, end, center);
-			if (Math3D.Distance(closestToCurrent, end) <= 30)
+			var start = this._marchingPath[i-1];
+			var end = this._marchingPath[i];
+			var closest = Math3D.ClosestPointOnSegment(start, end, center);
+
+			// skip if out of bounds
+			if ((closest.x === start.x && closest.y === start.y) ||
+				(closest.x === end.x && closest.y === end.y))
+				continue;
+
+			var dist = Math3D.Distance(center, closest);
+			if (dist <= 10)
 			{
-				var closestToNext = Math3D.ClosestPointOnSegment(end, next, center);
-				if (closestToNext < closestToCurrent)
-					this._marchingPath.shift();
+				cut = i - 1;
+				cutPoint = closest;
 			}
+		}
+
+		if (cut > 0)
+		{
+			this._marchingPath.splice(0, cut);
+			this._focus = cutPoint;
 		}
 	},
 
@@ -227,11 +245,26 @@ var Goal_DestroyTemple = Class(Goal,
 			else
 				this._target = null;
 		}
-		else if (!this._entity.IsNavigating() && this._marchingPath.length > 0)
+		else
 		{
-			var nextCheckpoint = this._marchingPath.length === 1 ? this._marchingPath[0] : this._marchingPath[1];
-			var radius = this._marchingPath.length <= 2 ? 14 : 0;
-			this._entity.NavigateTo(nextCheckpoint.x, nextCheckpoint.y + 1, radius);
+			this._navigateToNextCheckPoint();
+		}
+	},
+
+	_navigateToNextCheckPoint : function()
+	{
+		if (this._marchingPath.length > 1)
+		{
+			var next = this._marchingPath[1];
+			if (!this._entity.IsNavigatingTo(next.x, next.y))
+				this._entity.NavigateTo(next.x, next.y + 1);
+		}
+		else if (this._marchingPath.length === 1)
+		{
+			var center = this._entity.GetCenter();
+			var end = this._marchingPath[0];
+			if (Math3D.Distance(center, end) > 14.5)
+				this._entity.NavigateTo(end.x, end.y, 14);
 		}
 	}
 });
