@@ -77,10 +77,10 @@ LICENSE:
  
 AUTHORS:
 * THANG HONG TO - UniqueVN@gmail.com:
-** Implement the tile map: auto-generate the map, minimap
-** Implement the regions: base shrine, monster nest
-** Others: healthbar, towers, trees ...
+# Implement the tile map: auto-generate the map, minimap
+# Implement the regions: base shrine, monster nest
+# Others: healthbar, towers, trees ...
 * JIA CHENG - chengjialeph@gmail.com:
-** Implement the AI: path finding, target priority, boss AI
-** Implement the spells
-** Others: spell bar, soul system, summoning circle, statue ...
+# Implement the AI: path finding, target priority, boss AI
+# Implement the spells
+# Others: spell bar, soul system, summoning circle, statue ...
