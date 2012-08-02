@@ -285,8 +285,6 @@ var Renderer = Class({
 	},
 
 	drawRectangle: function(x, y, width, height, color, lineWidth) {
-		var context = this.context;
-
 		this.setColor(color);
 		this.setLineWidth(lineWidth);
 
@@ -304,7 +302,10 @@ var Renderer = Class({
 // ========================================================================================== //
 // MINI MAP
 var MiniMap = Class(Renderer, {
-	constructor: function(tiles, tileSize, pixelSize, frameWidth, frameHeight) {
+	constructor: function(world, tiles, tileSize, pixelSize, frameWidth, frameHeight) {
+		this.world = world;
+		this.world.MiniMap = this;
+
 		var width = tiles.length;
 		var height = tiles[0].length;
 		this.width = width;
@@ -323,35 +324,98 @@ var MiniMap = Class(Renderer, {
 	},
 
 	generate: function() {
-		var COLORS = ["#0246FE", "#FFDF42", "#FE8714", "#00CE54", "#00ffff", "#ffffff"];
+		// var COLORS = ["#0246FE", "#FFDF42", "#FE8714", "#00CE54", "#00ffff", "#ffffff"];
+		// var COLORS = ["4BFF3A", "FFDF42", "FFDAB5", "00CE54", "00ffff", "ffffff"];
+		var COLORS = ["4BFF3A", "4BFF3A", "FF00FF", "#0000ff", "00ffff", "ffffff"];
 		var width = this.width;
 		var height = this.height;
 		var tiles = this.tiles;
 		var pixelSize = this.pixelSize;
+		var alpha = 128;
 
-		this.clear(COLORS[0]);
-
-		for (var i = 0; i < width; i++) {
-			var x0 = pixelSize * i;
-			for (var j = 0; j < height; j++) {
-				var y0 = pixelSize * j;
-
-				var color = COLORS[tiles[i][j]];
-				this.drawRectangle(x0, y0, pixelSize, pixelSize, color, 0);
-			}
+		var imageData = this.context.getImageData(0, 0, width, height);
+		var buf = new ArrayBuffer(imageData.data.length);
+		var buf8 = new Uint8ClampedArray(buf);
+		var data = new Uint32Array(buf);
+		// Determine whether Uint32 is little- or big-endian.
+		data[1] = 0x0a0b0c0d;
+		var isLittleEndian = true;
+		if (buf[4] === 0x0a && buf[5] === 0x0b && buf[6] === 0x0c &&
+		    buf[7] === 0x0d) {
+		    isLittleEndian = false;
 		}
+
+		if (isLittleEndian) {
+		    for (var y = 0; y < height; ++y) {
+		        for (var x = 0; x < width; ++x) {
+		            var value = parseInt(COLORS[tiles[x][y]], 16);
+
+		            data[y * width + x] =
+		                (alpha << 24) |    // alpha
+		                (value << 16) |    // blue
+		                (value <<  8) |    // green
+		                 value;            // red
+		        }
+		    }
+		} else {
+		    for (y = 0; y < height; ++y) {
+		        for (x = 0; x < width; ++x) {
+		            var value = parseInt(COLORS[tiles[x][y]], 16);
+
+		            data[y * width + x] =
+		                (value << 24) |    // red
+		                (value << 16) |    // green
+		                (value <<  8) |    // blue
+		                 alpha;              // alpha
+		        }
+		    }
+		}
+
+		imageData.data.set(buf8);
+		this.context.putImageData(imageData, 0, 0);
+
+		// this.clear(COLORS[0]);
+		// for (var i = 0; i < width; i++) {
+		// 	var x0 = pixelSize * i;
+		// 	for (var j = 0; j < height; j++) {
+		// 		var y0 = pixelSize * j;
+
+		// 		var color = COLORS[tiles[i][j]];
+		// 		this.drawRectangle(x0, y0, pixelSize, pixelSize, color, 0);
+		// 	}
+		// }
 	},
 
 	draw: function(context) {
 		var offsetX = -Crafty.viewport.x;
 		var offsetY = -Crafty.viewport.y;
-		var x = Math.max(Math.floor(offsetX / this.tileSize), 0) * this.pixelSize;
-		var y = Math.max(Math.floor(offsetY / this.tileSize), 0) * this.pixelSize;
 
 		var w = this.frameWidth;
 		var h = this.frameHeight;
+
+		var x = Math.min(Math.floor(offsetX / this.tileSize), this.width - w);
+		var y = Math.min(Math.floor(offsetY / this.tileSize), this.height - h);
+		x = Math.max(x, 0);
+		y = Math.max(y, 0);
+
 		context.drawImage(this.canvas, 
 			x, y, w, h,
-			this.x + offsetX, this.y + offsetY, w, h);
+			this.x, this.y, w, h);
+
+		// Show current player's location in the map
+		var player = this.world.Player;
+		var x0 = Math.floor(player.x / this.tileSize) - x + this.x;
+		var y0 = Math.floor(player.y / this.tileSize) - y + this.y;
+		// this.drawRectangle(x0, y0, this.pixelSize, this.pixelSize, "#ff0000", 0, context);
+
+		context.fillStyle = "#ff0000";
+		context.beginPath();
+		context.rect(x0, y0, 3, 3);
+		context.fill();
+		// context.stroke();
+
+		// context.drawImage(this.canvas, 
+		// 	x, y, w, h,
+		// 	this.x + offsetX, this.y + offsetY, w, h);
 	}
 });

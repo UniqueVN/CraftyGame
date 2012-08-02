@@ -20,8 +20,8 @@ var World = Class(
 		this.PhysicalWidth = this.MapWidth * this.TileSize;
 		this.PhysicalHeight = this.MapHeight * this.TileSize;
 
-		this.CollisionMap = new CollisionMap(this.MapWidth, this.MapHeight);
-		this.TerrainMap = new TerrainMap(this.MapWidth, this.MapHeight);
+		// this.CollisionMap = new CollisionMap(this.MapWidth, this.MapHeight);
+		// this.TerrainMap = new TerrainMap(this.MapWidth, this.MapHeight);
 		this.TerrainManager = new TerrainManager();
 		this.Regions = [];
 		this.RegionFactory = new RegionFactory();

@@ -179,6 +179,10 @@ Crafty.c('TileMap', {
 
         this._col = maxX - minX;
         this._row = maxY - minY;
+
+		this.World.CollisionMap = new CollisionMap(this._col, this._row);
+		this.World.TerrainMap = new TerrainMap(this._col, this._row);
+
         // this.cells = pixelRenderer.cells;
 		var shapeProcessor = new ShapeProcessor(this._col, this._row);
 		this.cells = shapeProcessor.processShape(this.cells);
@@ -291,7 +295,7 @@ Crafty.c('TileMap', {
 	createMiniMap: function() {
 		var miniMapWidth = gameContainer.conf.get("MINI_MAP_WIDTH");
 		var miniMapHeight = gameContainer.conf.get("MINI_MAP_HEIGHT");
-		this._miniMap = new MiniMap(this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
+		this._miniMap = new MiniMap(this.World, this.cells, this._tileSize, 2, miniMapWidth, miniMapHeight);
 		this._miniMap.x = gameContainer.conf.get("MINI_MAP_X");
 		this._miniMap.y = gameContainer.conf.get("MINI_MAP_Y");
 	},

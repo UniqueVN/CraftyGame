@@ -21,8 +21,17 @@ var HUD = Class(
 
 		this._elements = [];
 
+		this._barX = gameContainer.conf.get("INFO_BAR_X");
+		this._barY = gameContainer.conf.get("INFO_BAR_Y");
+		this._barH = gameContainer.conf.get("INFO_BAR_HEIGHT");
+		this._barAnchor = gameContainer.conf.get("INFO_BAR_ANCHOR");
+		if (this._barAnchor === "bottom")
+		{
+			this._barY = Crafty.viewport.height - this._barH - this._barY;
+		}
+
 		var bar = Crafty.e("2D, Color")
-			.attr({x : 0, y : 0, z : 500, w : Crafty.viewport.width, h : 56})
+			.attr({x: this._barX, y: this._barY, z : 500, w : Crafty.viewport.width, h : this._barH})
 			.color("rgba(0,0,0,0.75)");
 		this._elements.push(bar);
 
@@ -33,17 +42,18 @@ var HUD = Class(
 			render._draw();
 		});
 
+		this._pickupIconSize = gameContainer.conf.get("PICKUP_ICON_SIZE");
 		this._pickupTexts = {};
 		var pickups = PickupTypes.concat('soul');
 		for (var i = 0; i < pickups.length; i++)
 		{
 			var pickup = pickups[i];
-			var x = 32 + i * 80;
-			var y = 12;
+			var x = this._barX + 32 + i * this._pickupIconSize;
+			var y = this._barY;
 			var pickupIcon = Crafty.e("2D, coin_icon_" + pickup)
-				.attr({ x : x, y : y });
+				.attr({ x : x, y : y + 12});
 			var pickupText = Crafty.e("2D, TextEx")
-				.attr({x: x + 32, y: y+20, z: 1000, w: 80})
+				.attr({x: x + 32, y: y+32, z: 1000, w: this._pickupIconSize})
 				.text("0")
 				.textColor('#FFFFFF')
 				.textFont({'size' : '14px', 'family': 'comic'});
@@ -54,9 +64,9 @@ var HUD = Class(
 
 		this._spellBarDirty = false;
 		this._spellIcons = {};
-		this._spellBarX = 512;
-		this._spellBarY = 4;
-		this._spellIconSize = 64;
+		this._spellBarX = gameContainer.conf.get("SPELL_BAR_X");
+		this._spellBarY = gameContainer.conf.get("SPELL_BAR_Y");
+		this._spellIconSize = gameContainer.conf.get("SPELL_ICON_SIZE");
 
 		Crafty.bind("HeroReborn", function() { render._setPlayer(); });
 	},
@@ -108,6 +118,13 @@ var HUD = Class(
 				data = {};
 				data.icon = Crafty.e("2D, " + this._player.GetSpellIcon(spell));
 				data.visible = false;
+				
+				data.key = Crafty.e("2D, TextEx")
+					.attr({z: 1000, w: this._pickupIconSize})
+					.text(i + "")
+					.textColor('#0000FF')
+					.textFont({'size' : '14px', 'family': 'comic'});
+
 				this._spellIcons[spell] = data;
 			}
 			if (!data.visible)
@@ -116,8 +133,10 @@ var HUD = Class(
 				data.visible = true;
 			}
 
-			data.icon.x = this._spellBarX + i * this._spellIconSize;
-			data.icon.y = this._spellBarY;
+			data.icon.x = this._barX + this._spellBarX + i * this._spellIconSize;
+			data.icon.y = this._barY + this._spellBarY;
+			data.key.x = data.icon.x;
+			data.key.y = data.icon.y + 12;
 		}
 
 		for (var spell in this._spellIcons)
@@ -178,6 +197,10 @@ var HUD = Class(
 			ctx.fillStyle = '#D70500';
 			ctx.fillText(this._announcement, x, y);
 		}
+
+		// Show miniMap
+		var miniMap = this._world.MiniMap;
+		miniMap.draw(ctx);
 	},
 
 	GameOver: function()
