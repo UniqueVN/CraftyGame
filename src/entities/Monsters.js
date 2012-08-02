@@ -42,8 +42,7 @@ var Lich = Creature.extend(
 {
 	Sprites : ['lich'],
 	Speed : 0.25,
-	// Health : 2000,
-	Health : 10,
+	Health : 2000,
 	SoulPoints : 500,
 	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationFrames: 8,
@@ -103,8 +102,7 @@ var Dummy = Creature.extend(
 {
 	Sprites : ['dummy'],
 	Speed : 0.3,
-	// Health : 3000,
-	Health : 10,
+	Health : 3000,
 	SoulPoints : 500,
 	AIProfile : { Goals : [ Goal_Boss ]	},
 	WalkAnimationStart: 0,
