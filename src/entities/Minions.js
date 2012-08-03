@@ -39,6 +39,7 @@ var Minions =
 			Health : 600,
 			WalkAnimationFrames: 8,
 			WalkAnimationSpeed :18,
+			SpriteVerticalOffset : -64,
 			Abilities:
 			{
 				"Primary" : { Type : Ability_Melee, PlayAnim : true, Range : 2, Span : 2, Damage : 30 }

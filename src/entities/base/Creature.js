@@ -6,6 +6,7 @@ Creature = MapEntity.extend(
 	WalkAnimationFrames : 8,
 	WalkAnimationRows : [0, 1, 2, 3],
 	WalkAnimationSpeed : 20,
+	SpriteVerticalOffset : 0,
 	ActionAnimations : {},
 	PlayShootAnim : false,
 	Faction : Factions.Ghost,
@@ -33,7 +34,8 @@ Creature = MapEntity.extend(
 				Faction : this.Faction,
 				SoulPoints : this.SoulPoints,
 				AIProfile: this.AIProfile,
-				MaxHealth: this.Health
+				MaxHealth: this.Health,
+				SpriteVerticalOffset : this.SpriteVerticalOffset
 			});
 
 		for (var slot in this.Abilities)
